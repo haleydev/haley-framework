@@ -21,7 +21,11 @@
     "autoload": {
         "psr-4": {
             "Core\\": "src"
-        }
+        },
+
+        "files": [
+            "src/Collections/helpers.php"           
+        ]
     },
     "config": {
         "optimize-autoloader": true,

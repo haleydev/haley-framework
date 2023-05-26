@@ -20,7 +20,7 @@ class Kernel
         define('DIRECTORY_PUBLIC', ROOT . DIRECTORY_SEPARATOR . 'public');
         define('DIRECTORY_RESOURCES', ROOT . DIRECTORY_SEPARATOR . 'resources');
 
-        require_once ROOT . '/core/Collections/Helpers.php';   
+        // require_once ROOT . '/core/Collections/Helpers.php';   
 
         date_default_timezone_set(Config::app('timezone'));       
 
