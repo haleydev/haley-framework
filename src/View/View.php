@@ -17,9 +17,7 @@ class View
 
         $file = $path . DIRECTORY_SEPARATOR . str_replace('.', DIRECTORY_SEPARATOR, $view) . '.view.php';
 
-        if($view = $engine->getView($file)) {
-            require_once $view;
-        }
+        if($view = $engine->getView($file)) require_once $view;        
 
         return;
     }

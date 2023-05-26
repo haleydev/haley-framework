@@ -52,7 +52,7 @@ class ExceptionsDebug
             'headers' => request()->headers(),
         ];
 
-        return view('debug', $params, directoryRoot('core/Debug/resources'));
+        return view('debug', $params, dirname(__DIR__) . '/Debug/resources');
     }
 
     public function dd()
