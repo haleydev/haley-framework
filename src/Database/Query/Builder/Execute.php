@@ -2,7 +2,7 @@
 
 namespace Haley\Database\Query\Builder;
 
-use Core\Database\Connection;
+use Haley\Database\Connection;
 
 class Execute
 {

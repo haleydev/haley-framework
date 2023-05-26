@@ -2,8 +2,8 @@
 
 namespace Haley\Debug;
 
-use Core\Collections\Config;
-use Core\Collections\Memory;
+use Haley\Collections\Config;
+use Haley\Collections\Memory;
 
 class ExceptionsDebug
 {

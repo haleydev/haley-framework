@@ -1,10 +1,10 @@
 <?php
 namespace Haley\Console\Commands;
 
-use Core\Collections\Log;
-use Core\Collections\Molds;
-use Core\Console\Lines;
-use Core\Database\Migrations\Migration;
+use Haley\Collections\Log;
+use Haley\Collections\Molds;
+use Haley\Console\Lines;
+use Haley\Database\Migrations\Migration;
 use PDOException;
 
 class Command_Create extends Lines

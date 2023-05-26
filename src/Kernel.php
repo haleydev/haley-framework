@@ -1,12 +1,12 @@
 <?php
 namespace Haley;
 
-use Core\Collections\Config;
-use Core\Collections\Memory;
-use Core\Console\Console;
-use Core\Debug\Exceptions;
-use Core\Router\Route;
-use Core\Router\RouteMemory;
+use Haley\Collections\Config;
+use Haley\Collections\Memory;
+use Haley\Console\Console;
+use Haley\Debug\Exceptions;
+use Haley\Router\Route;
+use Haley\Router\RouteMemory;
 
 class Kernel
 {

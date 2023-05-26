@@ -1,6 +1,6 @@
 <?php
 namespace Haley\Collections;
-use Core\Database\Query\DB;
+use Haley\Database\Query\DB;
 
 abstract class Model
 { 

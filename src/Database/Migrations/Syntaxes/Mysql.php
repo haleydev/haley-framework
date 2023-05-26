@@ -1,11 +1,11 @@
 <?php
 namespace Haley\Database\Migrations\Syntaxes;
 
-use Core\Collections\Config;
-use Core\Collections\Log;
-use Core\Database\Connection;
-use Core\Database\Migrations\Builder\MigrationMemory;
-use Core\Database\Query\DB;
+use Haley\Collections\Config;
+use Haley\Collections\Log;
+use Haley\Database\Connection;
+use Haley\Database\Migrations\Builder\MigrationMemory;
+use Haley\Database\Query\DB;
 use PDO;
 use PDOException;
 

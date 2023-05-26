@@ -1,6 +1,6 @@
 <?php
 namespace Haley\Console\Commands;
-use Core\Console\Lines;
+use Haley\Console\Lines;
 
 class Command_Dashboard extends Lines
 {   

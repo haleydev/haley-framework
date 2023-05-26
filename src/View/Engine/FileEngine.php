@@ -2,9 +2,9 @@
 
 namespace Haley\View\Engine;
 
-use Core\View\Compiler\CompilerIncludes;
-use Core\View\Compiler\CompilerPHP;
-use Core\View\Compiler\CompilerSections;
+use Haley\View\Compiler\CompilerIncludes;
+use Haley\View\Compiler\CompilerPHP;
+use Haley\View\Compiler\CompilerSections;
 use Exception;
 
 class FileEngine

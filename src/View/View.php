@@ -2,8 +2,8 @@
 
 namespace Haley\View;
 
-use Core\View\Engine\FileEngine;
-use Core\View\Engine\ViewParams;
+use Haley\View\Engine\FileEngine;
+use Haley\View\Engine\ViewParams;
 
 class View
 {

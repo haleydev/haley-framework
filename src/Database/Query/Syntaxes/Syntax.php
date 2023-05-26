@@ -1,6 +1,6 @@
 <?php
 namespace Haley\Database\Query\Syntaxes;
-use Core\Collections\Log;
+use Haley\Collections\Log;
 use InvalidArgumentException;
 
 class Syntax

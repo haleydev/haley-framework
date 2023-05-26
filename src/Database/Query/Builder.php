@@ -1,8 +1,8 @@
 <?php
 namespace Haley\Database\Query;
 
-use Core\Database\Query\Builder\Execute;
-use Core\Database\Query\Syntaxes\Syntax;
+use Haley\Database\Query\Builder\Execute;
+use Haley\Database\Query\Syntaxes\Syntax;
 use InvalidArgumentException;
 
 class Builder extends Syntax

@@ -1,13 +1,13 @@
 <?php
 namespace Haley\Database\Migrations;
 
-use Core\Database\Migrations\Builder\MigrationMemory;
-use Core\Database\Migrations\Builder\Table;
-use Core\Database\Migrations\Builder\Seeder;
-use Core\Database\Migrations\Syntaxes\Mysql;
-use Core\Database\Query\DB;
-use Core\Database\Connection;
-use Core\Collections\Log;
+use Haley\Database\Migrations\Builder\MigrationMemory;
+use Haley\Database\Migrations\Builder\Table;
+use Haley\Database\Migrations\Builder\Seeder;
+use Haley\Database\Migrations\Syntaxes\Mysql;
+use Haley\Database\Query\DB;
+use Haley\Database\Connection;
+use Haley\Collections\Log;
 use FilesystemIterator;
 use InvalidArgumentException;
 use PDOException;

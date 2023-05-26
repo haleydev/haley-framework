@@ -1,12 +1,12 @@
 <?php
 namespace Haley\Database\Query;
 
-use Core\Database\Connection;
-use Core\Database\Query\Builder\Delete;
-use Core\Database\Query\Builder\Insert;
-use Core\Database\Query\Builder\Select;
-use Core\Database\Query\Builder;
-use Core\Database\Query\Builder\Update;
+use Haley\Database\Connection;
+use Haley\Database\Query\Builder\Delete;
+use Haley\Database\Query\Builder\Insert;
+use Haley\Database\Query\Builder\Select;
+use Haley\Database\Query\Builder;
+use Haley\Database\Query\Builder\Update;
 
 /**
  * @method static int teste(string $query, array $bindings = [])

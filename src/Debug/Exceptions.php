@@ -1,7 +1,7 @@
 <?php
 namespace Haley\Debug;
 
-use Core\Collections\Log;
+use Haley\Collections\Log;
 use Error;
 use ErrorException;
 use Exception;

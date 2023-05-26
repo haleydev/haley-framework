@@ -1,6 +1,6 @@
 <?php
 namespace Haley\Database\Query\Builder;
-use Core\Database\Query\Syntaxes\Syntax;
+use Haley\Database\Query\Syntaxes\Syntax;
 
 class Update extends Syntax
 {

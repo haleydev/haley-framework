@@ -2,7 +2,7 @@
 
 namespace Haley\Database\Query\Builder;
 
-use Core\Database\Query\Syntaxes\Syntax;
+use Haley\Database\Query\Syntaxes\Syntax;
 use InvalidArgumentException;
 
 class Select extends Syntax

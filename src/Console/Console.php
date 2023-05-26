@@ -1,13 +1,13 @@
 <?php
 namespace Haley\Console;
-use Core\Console\Commands\{Command_Dashboard};
+use Haley\Console\Commands\{Command_Dashboard};
 
-use Core\Console\Commands\Command_Cache;
-use Core\Console\Commands\Command_Command;
-use Core\Console\Commands\Command_Create;
-use Core\Console\Commands\Command_Cronjob;
-use Core\Console\Commands\Command_DB;
-use Core\Console\Commands\Command_Server;
+use Haley\Console\Commands\Command_Cache;
+use Haley\Console\Commands\Command_Command;
+use Haley\Console\Commands\Command_Create;
+use Haley\Console\Commands\Command_Cronjob;
+use Haley\Console\Commands\Command_DB;
+use Haley\Console\Commands\Command_Server;
 
 class Console
 {

@@ -12,7 +12,7 @@ class Molds
         return
             '<?php
 namespace App\Middlewares' . $namespace . ';
-use Core\Router\Middleware;
+use Haley\Router\Middleware;
 
 class ' . $class . ' extends Middleware
 {
@@ -79,8 +79,8 @@ class ' . $class . '
         return
             '<?php
 namespace Database' . $namespace . ';
-use Core\Database\Migrations\Builder\Seeder;
-use Core\Database\Migrations\Builder\Table;
+use Haley\Database\Migrations\Builder\Seeder;
+use Haley\Database\Migrations\Builder\Table;
 
 /**
  * Created at ' . date('d/m/Y - H:i:s') . '
@@ -127,7 +127,7 @@ class ' . $class . '
         return
             '<?php        
 namespace App\Models' . $namespace . ';
-use Core\Collections\Model;       
+use Haley\Collections\Model;       
 
 class ' . $class . ' extends Model
 {   
@@ -142,7 +142,7 @@ class ' . $class . ' extends Model
         return
             '<?php
 namespace App\Jobs' . $namespace . ';
-use Core\Cron;
+use Haley\Cron;
 
 /**
  * CUIDADO: Se o escript for muito demorado e recomendado que se crie outro documento cronjob para que seja executado de forma assíncrona.

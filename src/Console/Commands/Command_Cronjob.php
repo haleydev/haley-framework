@@ -1,9 +1,9 @@
 <?php
 namespace Haley\Console\Commands;
 
-use Core\Collections\Log;
-use Core\Console\Lines;
-use Core\Cron;
+use Haley\Collections\Log;
+use Haley\Console\Lines;
+use Haley\Cron;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;

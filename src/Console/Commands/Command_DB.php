@@ -1,8 +1,8 @@
 <?php
 namespace Haley\Console\Commands;
-use Core\Console\Lines;
-use Core\Database\Migrations\Builder\MigrationMemory;
-use Core\Database\Migrations\Migration;
+use Haley\Console\Lines;
+use Haley\Database\Migrations\Builder\MigrationMemory;
+use Haley\Database\Migrations\Migration;
 
 class Command_DB extends Lines
 {   

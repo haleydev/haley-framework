@@ -1,8 +1,8 @@
 <?php
 namespace Haley\Database;
 
-use Core\Collections\Config;
-use Core\Collections\Log;
+use Haley\Collections\Config;
+use Haley\Collections\Log;
 use PDO;
 use PDOException;
 

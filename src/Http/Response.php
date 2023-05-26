@@ -2,8 +2,8 @@
 
 namespace Haley\Http;
 
-use Core\Collections\HttpCodes;
-use Core\Collections\MimeTypes;
+use Haley\Collections\HttpCodes;
+use Haley\Collections\MimeTypes;
 
 class Response
 {

@@ -1,13 +1,13 @@
 <?php
 
-use Core\Collections\Password;
-use Core\Env\Env;
-use Core\Http\Csrf;
-use Core\Http\Redirect;
-use Core\Http\Request;
-use Core\Http\Response;
-use Core\Validator\ValidatorHelper;
-use Core\View\View;
+use Haley\Collections\Password;
+use Haley\Env\Env;
+use Haley\Http\Csrf;
+use Haley\Http\Redirect;
+use Haley\Http\Request;
+use Haley\Http\Response;
+use Haley\Validator\ValidatorHelper;
+use Haley\View\View;
 
 /**
  * @param string $view
