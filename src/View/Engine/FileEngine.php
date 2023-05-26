@@ -9,14 +9,17 @@ use Exception;
 
 class FileEngine
 {
-    private false|string $template_file = false;
-    private false|string $template_cache = false;
+    private false|string $view_file = false;
+    private false|string $view_cache = false;
 
+    /**
+     * @return false|string
+     */
     public function getView(string $file)
     {
         if (!file_exists($file)) throw new Exception('File not found: ' . $file);        
 
-        $this->template_file = $file;
+        $this->view_file = $file;
 
         $this->checkCache();
         
@@ -28,19 +31,19 @@ class FileEngine
             }
         }
 
-        return require_once $this->template_cache;
+        return $this->view_cache;
     }   
 
     protected function compilerExecute()
     {
-        $template_file = $this->template_file;
-        $template_name = basename($template_file);
-        $folder_cache = directoryRoot('storage/cache/views' . rtrim(str_replace([directoryRoot('resources/views'), $template_name], '', $template_file), DIRECTORY_SEPARATOR));
+        $view_file = $this->view_file;
+        $template_name = basename($view_file);
+        $folder_cache = directoryRoot('storage/cache/views' . rtrim(str_replace([directoryRoot('resources/views'), $template_name], '', $view_file), DIRECTORY_SEPARATOR));
 
         createDir($folder_cache);
 
         // view file
-        $view = file_get_contents($this->template_file);
+        $view = file_get_contents($this->view_file);
 
         // includes
         $compile_includes = new CompilerIncludes;
@@ -59,7 +62,7 @@ class FileEngine
 
         // save cache
         $cache_location = $folder_cache . DIRECTORY_SEPARATOR . $template_name;
-        $this->template_cache = $cache_location;
+        $this->view_cache = $cache_location;
         file_put_contents($cache_location, $view);
 
         createDir(directoryRoot('storage/cache/jsons'));
@@ -69,14 +72,14 @@ class FileEngine
 
         if (file_exists($cache_json_file)) {
             $cache_data = json_decode(file_get_contents($cache_json_file), true);
-            $cache_data[$template_file]['requires'] = $required_files;
-            $cache_data[$template_file]['cache'] = $cache_location;
-            $cache_data[$template_file]['time'] = filemtime($template_file);
+            $cache_data[$view_file]['requires'] = $required_files;
+            $cache_data[$view_file]['cache'] = $cache_location;
+            $cache_data[$view_file]['time'] = filemtime($view_file);
             file_put_contents($cache_json_file, json_encode($cache_data, true));
         } else {
-            $new_cache[$template_file]['requires'] = $required_files;
-            $new_cache[$template_file]['cache'] = $cache_location;
-            $new_cache[$template_file]['time'] = filemtime($template_file);
+            $new_cache[$view_file]['requires'] = $required_files;
+            $new_cache[$view_file]['cache'] = $cache_location;
+            $new_cache[$view_file]['time'] = filemtime($view_file);
             file_put_contents($cache_json_file, json_encode($new_cache, true));
         }
 
@@ -92,16 +95,16 @@ class FileEngine
         } else {
             $cache = json_decode(file_get_contents($history_cache), true);
 
-            if (!isset($cache[$this->template_file])) {
+            if (!isset($cache[$this->view_file])) {
                 $this->compilerExecute();
             } else {
                 // checar alteracoes
-                $template_time = $cache[$this->template_file]['time'];
-                $template_requires = $cache[$this->template_file]['requires'];
+                $template_time = $cache[$this->view_file]['time'];
+                $template_requires = $cache[$this->view_file]['requires'];
                 $compiler = false;
 
-                if ($template_time != filemtime($this->template_file)) $compiler = true;  
-                if (!file_exists($cache[$this->template_file]['cache'])) $compiler = true;
+                if ($template_time != filemtime($this->view_file)) $compiler = true;  
+                if (!file_exists($cache[$this->view_file]['cache'])) $compiler = true;
 
                 if ($template_requires != false and $compiler == false) {
                     foreach ($template_requires as $require => $time) {
@@ -116,7 +119,7 @@ class FileEngine
                     // dd('alterado');
                 } else {
                     // dd('nao alterado');
-                    $this->template_cache = $cache[$this->template_file]['cache'];
+                    $this->view_cache = $cache[$this->view_file]['cache'];
                 }
             }
         }
