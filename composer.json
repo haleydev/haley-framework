@@ -10,22 +10,24 @@
     "authors": [
         {
             "name": "Warley Rodrigues de Moura",
-            "email": "haleytrader@hotmail.com"
+            "email": "haleytrader@hotmail.com",
+            "role": "Developer"      
         }
     ],
     "require": {
-        "php": "^8.1.0",       
+        "php": "^8.1.0",
         "phpmailer/phpmailer": "^6.8"
     },
     "autoload": {
-        "files": [
-            "src/Illuminate/Collections/helpers.php",
-            "src/Illuminate/Events/functions.php",
-            "src/Illuminate/Foundation/helpers.php",
-            "src/Illuminate/Support/helpers.php"
-        ],
         "psr-4": {
             "Core\\": "src"
         }
-    }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
