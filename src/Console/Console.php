@@ -1,5 +1,5 @@
 <?php
-namespace Core\Console;
+namespace Haley\Console;
 use Core\Console\Commands\{Command_Dashboard};
 
 use Core\Console\Commands\Command_Cache;

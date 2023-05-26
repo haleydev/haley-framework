@@ -1,5 +1,5 @@
 <?php
-namespace Core\Debug;
+namespace Haley\Debug;
 
 use Core\Collections\Log;
 use Error;

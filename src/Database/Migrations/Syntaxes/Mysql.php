@@ -1,5 +1,5 @@
 <?php
-namespace Core\Database\Migrations\Syntaxes;
+namespace Haley\Database\Migrations\Syntaxes;
 
 use Core\Collections\Config;
 use Core\Collections\Log;

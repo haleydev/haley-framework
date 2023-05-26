@@ -1,5 +1,5 @@
 <?php
-namespace Core\Database\Migrations\Builder;
+namespace Haley\Database\Migrations\Builder;
 
 class Seeder
 {

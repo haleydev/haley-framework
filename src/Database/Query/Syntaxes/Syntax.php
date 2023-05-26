@@ -1,5 +1,5 @@
 <?php
-namespace Core\Database\Query\Syntaxes;
+namespace Haley\Database\Query\Syntaxes;
 use Core\Collections\Log;
 use InvalidArgumentException;
 

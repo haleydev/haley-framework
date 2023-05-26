@@ -1,5 +1,5 @@
 <?php
-namespace Core\Console;
+namespace Haley\Console;
 
 class Lines
 {

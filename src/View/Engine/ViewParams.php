@@ -1,5 +1,5 @@
 <?php
-namespace Core\View\Engine;
+namespace Haley\View\Engine;
 
 class ViewParams
 { 

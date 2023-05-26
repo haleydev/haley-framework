@@ -1,5 +1,5 @@
 <?php
-namespace Core\Collections;
+namespace Haley\Collections;
 use Core\Database\Query\DB;
 
 abstract class Model

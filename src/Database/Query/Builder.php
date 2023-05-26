@@ -1,5 +1,5 @@
 <?php
-namespace Core\Database\Query;
+namespace Haley\Database\Query;
 
 use Core\Database\Query\Builder\Execute;
 use Core\Database\Query\Syntaxes\Syntax;

@@ -1,5 +1,5 @@
 <?php
-namespace Core\Console\Commands;
+namespace Haley\Console\Commands;
 use Core\Console\Lines;
 use Core\Database\Migrations\Builder\MigrationMemory;
 use Core\Database\Migrations\Migration;

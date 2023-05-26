@@ -1,6 +1,6 @@
 <?php
 
-namespace Core\View\Engine;
+namespace Haley\View\Engine;
 
 use Core\View\Compiler\CompilerIncludes;
 use Core\View\Compiler\CompilerPHP;

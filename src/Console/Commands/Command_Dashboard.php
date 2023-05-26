@@ -1,5 +1,5 @@
 <?php
-namespace Core\Console\Commands;
+namespace Haley\Console\Commands;
 use Core\Console\Lines;
 
 class Command_Dashboard extends Lines

@@ -1,5 +1,5 @@
 <?php
-namespace Core\Database\Query;
+namespace Haley\Database\Query;
 
 use Core\Database\Connection;
 use Core\Database\Query\Builder\Delete;

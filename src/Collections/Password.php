@@ -1,5 +1,5 @@
 <?php
-namespace Core\Collections;
+namespace Haley\Collections;
 
 class Password
 {

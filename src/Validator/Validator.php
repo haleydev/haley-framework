@@ -1,5 +1,5 @@
 <?php
-namespace Core\Validator;
+namespace Haley\Validator;
 
 /**
  * MCQUERY VALIDATOR

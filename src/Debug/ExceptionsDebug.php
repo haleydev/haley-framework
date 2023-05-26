@@ -1,6 +1,6 @@
 <?php
 
-namespace Core\Debug;
+namespace Haley\Debug;
 
 use Core\Collections\Config;
 use Core\Collections\Memory;

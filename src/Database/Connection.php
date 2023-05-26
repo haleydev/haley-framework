@@ -1,5 +1,5 @@
 <?php
-namespace Core\Database;
+namespace Haley\Database;
 
 use Core\Collections\Config;
 use Core\Collections\Log;

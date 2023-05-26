@@ -1,6 +1,6 @@
 <?php
 
-namespace Core\View;
+namespace Haley\View;
 
 use Core\View\Engine\FileEngine;
 use Core\View\Engine\ViewParams;

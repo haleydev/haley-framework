@@ -1,5 +1,5 @@
 <?php
-namespace Core\Database\Migrations;
+namespace Haley\Database\Migrations;
 
 use Core\Database\Migrations\Builder\MigrationMemory;
 use Core\Database\Migrations\Builder\Table;

@@ -1,5 +1,5 @@
 <?php
-namespace Core\Env;
+namespace Haley\Env;
 
 class Env
 {

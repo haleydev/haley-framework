@@ -1,5 +1,5 @@
 <?php
-namespace Core;
+namespace Haley;
 
 use Core\Collections\Config;
 use Core\Collections\Memory;

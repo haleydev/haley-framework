@@ -1,5 +1,5 @@
 <?php
-namespace Core\Console\Commands;
+namespace Haley\Console\Commands;
 
 use Core\Collections\Log;
 use Core\Console\Lines;

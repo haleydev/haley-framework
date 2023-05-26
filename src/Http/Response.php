@@ -1,6 +1,6 @@
 <?php
 
-namespace Core\Http;
+namespace Haley\Http;
 
 use Core\Collections\HttpCodes;
 use Core\Collections\MimeTypes;

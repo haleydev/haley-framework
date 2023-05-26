@@ -1,6 +1,6 @@
 <?php
 
-namespace Core\View\Compiler;
+namespace Haley\View\Compiler;
 
 class CompilerPHP
 {

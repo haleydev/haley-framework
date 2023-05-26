@@ -1,5 +1,5 @@
 <?php
-namespace Core\Collections;
+namespace Haley\Collections;
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
