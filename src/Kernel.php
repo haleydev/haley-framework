@@ -1,4 +1,5 @@
 <?php
+
 namespace Haley;
 
 use Haley\Collections\Config;
@@ -19,15 +20,16 @@ class Kernel
         define('DIRECTORY_PRIVATE', ROOT . DIRECTORY_SEPARATOR . 'private');
         define('DIRECTORY_PUBLIC', ROOT . DIRECTORY_SEPARATOR . 'public');
         define('DIRECTORY_RESOURCES', ROOT . DIRECTORY_SEPARATOR . 'resources');
+        define('DIRECTORY_HALEY', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src');
 
-        date_default_timezone_set(Config::app('timezone'));       
+        date_default_timezone_set(Config::app('timezone'));
 
         return $this;
     }
 
     public function app()
     {
-        Memory::set('kernel','app');
+        Memory::set('kernel', 'app');
 
         (new Exceptions)->handler(function () {
             ini_set('session.gc_maxlifetime', Config::app('session')['lifetime']);
@@ -35,29 +37,29 @@ class Kernel
             ini_set('session.cache_expire', Config::app('session')['lifetime']);
             ini_set('session.name', Config::app('session')['name']);
 
-            if(!empty(Config::app('session')['files'])) {
+            if (!empty(Config::app('session')['files'])) {
                 createDir(Config::app('session')['files']);
                 session_save_path(Config::app('session')['files']);
-            }           
+            }
 
-            if (!isset($_SESSION)) session_start();    
-            if(Config::app('session')['regenerate']) session_regenerate_id(true); 
+            if (!isset($_SESSION)) session_start();
+            if (Config::app('session')['regenerate']) session_regenerate_id(true);
 
             ob_start();
-          
-            foreach(Config::app('helpers') as $helper) {     
+
+            foreach (Config::app('helpers') as $helper) {
                 require_once $helper;
             }
 
-            if (!request()->session()->isset('FRAMEWORK')) request()->session()->create('FRAMEWORK');            
+            if (!request()->session()->isset('FRAMEWORK')) request()->session()->create('FRAMEWORK');
 
-            foreach(Config::routes() as $name => $config) {    
-                $config['name'] = $name;    
-                RouteMemory::resetAttributes();                      
+            foreach (Config::routes() as $name => $config) {
+                $config['name'] = $name;
+                RouteMemory::resetAttributes();
 
                 RouteMemory::$config = $config;
-                require_once $config['path'];              
-            }    
+                require_once $config['path'];
+            }
 
             Route::end();
         });
@@ -65,10 +67,10 @@ class Kernel
 
     public function console()
     {
-        Memory::set('kernel','console');
+        Memory::set('kernel', 'console');
 
-        (new Exceptions)->handler(function () { 
-            foreach(Config::app('helpers') as $helper) {
+        (new Exceptions)->handler(function () {
+            foreach (Config::app('helpers') as $helper) {
                 require_once $helper;
             }
 
@@ -78,15 +80,15 @@ class Kernel
 
     public function jobs()
     {
-        Memory::set('kernel','jobs');
+        Memory::set('kernel', 'jobs');
 
-        foreach(Config::app('helpers') as $helper) {
+        foreach (Config::app('helpers') as $helper) {
             require_once $helper;
         }
     }
 
     public function terminate()
-    {    
+    {
         while (ob_get_level() > 0) {
             ob_end_flush();
         }

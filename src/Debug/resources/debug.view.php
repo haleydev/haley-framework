@@ -6,8 +6,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
-    <?php require ROOT . '/core/Debug/resources/jquery.php' ?>
-    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> -->
+    
+    <script src="{{ dirname(__DIR__) . '/Debug/resources/' }}/jquery.min.js"></script>
     <title>DEBUG</title>
 </head>
 

@@ -1,10 +1,19 @@
 <?php
-$url = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+$path = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 
-if ($url !== '/' and is_file(dirname(__DIR__) . '/../public' . $url)) {
+$folders = [
+    'vendor',
+    'haleydev',
+    'haley-framework',
+    'src',
+    'Collections'
+];
 
-    define('ROOT', dirname(__DIR__));
-    $file = ROOT . '/../public' . $url;
+$replace =  implode(DIRECTORY_SEPARATOR, $folders);
+$root = str_replace($replace, '', __DIR__);
+
+if ($path !== '/' and is_file($root . 'public' . $path)) {
+    $file = $root . 'public' . $path;
 
     if (!is_dir($file)) {
         $mime_types = [
@@ -1224,9 +1233,9 @@ if ($url !== '/' and is_file(dirname(__DIR__) . '/../public' . $url)) {
 
         header('Content-Length: ' . filesize($file));
         return readfile($file);
-    }   
+    }
 } else {
-    require_once(dirname(__DIR__) . '/../public/index.php');
+    require_once($root . '/public/index.php');
 }
 
 exit;

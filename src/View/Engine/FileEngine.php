@@ -21,15 +21,7 @@ class FileEngine
 
         $this->view_file = $file;
 
-        $this->checkCache();
-        
-        $params = ViewParams::$params;
-
-        if (count($params) > 0) {
-            foreach ($params as $key => $value) {
-                $$key = $value;
-            }
-        }
+        $this->checkCache();     
 
         return $this->view_cache;
     }   

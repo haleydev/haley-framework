@@ -202,6 +202,13 @@ function directoryRoot(string|null $path = null)
     return ROOT . DIRECTORY_SEPARATOR . trim(directorySeparator($path), DIRECTORY_SEPARATOR);
 }
 
+function directoryHaley(string|null $path = null)
+{
+    if ($path === null) return DIRECTORY_HALEY;
+
+    return DIRECTORY_HALEY . DIRECTORY_SEPARATOR . trim(directorySeparator($path), DIRECTORY_SEPARATOR);
+}
+
 function createDir(string $path)
 {
     if (file_exists($path)) return true;
