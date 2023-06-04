@@ -13,15 +13,15 @@ class View
 
         if ($path === null) $path = directoryRoot('resources/views/');
 
-        $file = $path . DIRECTORY_SEPARATOR . str_replace('.', DIRECTORY_SEPARATOR, $view) . '.view.php'; 
-    
-        $view = $engine->getView($file);        
+        $file = $path . DIRECTORY_SEPARATOR . str_replace('.', DIRECTORY_SEPARATOR, $view) . '.view.php';
 
-        if(!$view) return;
+        $view = $engine->getView($file);
+
+        if (!$view) return;
 
         foreach ($params as $key => $value) $$key = $value;
-        
-        require_once $view;  
+
+        require_once $view;
 
         return;
     }

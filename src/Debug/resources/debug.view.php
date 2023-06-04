@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
-    
+
     <script src="{{ dirname(__DIR__) . '/Debug/resources/' }}/jquery.min.js"></script>
     <title>DEBUG</title>
 </head>
@@ -14,8 +14,12 @@
 <body>
     <div class="header-menu">
         <div class="error_message">
-            <p><?php echo $error_message ?></p>
-            <p><?php echo $error_file ?></p>
+            <p>
+                <?php echo $error_message ?>
+            </p>
+            <p>
+                <?php echo $error_file ?>
+            </p>
         </div>
 
         <div class="menu">
@@ -36,27 +40,37 @@
                 </div>
 
                 <div class="box-debug display-none" id="error">
-                    <?php if ($error_all) : ?>
-                        <p class="none-border"> <?php dd($error_all) ?> </p>
-                    <?php endif ?>
+                    @if($error_all)
+                    <p class="none-border">
+                    <pre>{{ var_dump($value) }}</pre>
+                    </p>
+                    @endif
                 </div>
 
                 <div class="box-debug display-none" id="request">
-                    <p>METHOD => <?php echo $method ?></p>
+                    <p>METHOD =>
+                        <?php echo $method ?>
+                    </p>
                     <?php if ($request_all != false) : ?>
-                        <?php foreach ($request_all as $key => $value) : ?>
-                            <p><?php echo $key ?> => <?php htmlspecialchars(print_r($value)) ?></p>
-                        <?php endforeach ?>
+                    <?php foreach ($request_all as $key => $value) : ?>
+                    <p>
+                        <?php echo $key ?> =>
+                        <?php htmlspecialchars(print_r($value)) ?>
+                    </p>
+                    <?php endforeach ?>
                     <?php else : ?>
-                        <p>[]</p>
+                    <p>[]</p>
                     <?php endif ?>
                 </div>
 
                 <div class="box-debug display-none" id="header">
                     <?php if ($headers) : ?>
-                        <?php foreach ($headers as $key => $value) : ?>
-                            <p><?php echo $key ?> => <?php echo $value ?></p>
-                        <?php endforeach ?>
+                    <?php foreach ($headers as $key => $value) : ?>
+                    <p>
+                        <?php echo $key ?> =>
+                        <?php echo $value ?>
+                    </p>
+                    <?php endforeach ?>
                     <?php endif ?>
                 </div>
             </div>
@@ -73,7 +87,7 @@
         @media (max-width:1100px) {
             .error_message p {
                 text-align: unset !important;
-            }  
+            }
         }
 
         body {

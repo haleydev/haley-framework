@@ -1,9 +1,12 @@
 <?php
+
 namespace Haley\View\Compiler;
 
-class CompilerIncludes
+use Exception;
+
+class CompilerExtends
 {
-    public array|false $files = false;
+    public array|false $extends = false;
     private $view;
 
     public function run($view)
@@ -22,13 +25,13 @@ class CompilerIncludes
     {
         $regex = "/@extends\((.*?)\)/s";
         if (preg_match($regex, $this->view, $matches)) {
-            return $this->include($matches);
+            return $this->extend($matches);
         }
 
         return true;
     }
 
-    protected function include($matches)
+    protected function extend($matches)
     {
         $query = $matches[0];
         $value = str_replace(['\'', '"', ' ', '.view.php'], '', $matches[1]);
@@ -36,17 +39,17 @@ class CompilerIncludes
         $file = ROOT . '/resources/views/' . $value . '.view.php';
 
         if (file_exists($file)) {
-            if(!is_array($this->files)) {
-                $this->files = [];
+            if (!is_array($this->extends)) {
+                $this->extends = [];
             }
 
-            $this->files[$file] = filemtime($file);
+            $this->extends[$file] = filemtime($file);
             $include = file_get_contents($file);
             $limit = 1;
 
             $this->view = str_replace($query, $include, $this->view, $limit);
         } else {
-            $this->view = str_replace($query, '', $this->view, $limit);
+            throw new Exception('View not found @extends(' . $matches[1] . ')');
         }
 
         return $this->loop();

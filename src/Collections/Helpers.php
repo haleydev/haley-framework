@@ -109,7 +109,7 @@ function old(string $input = null)
 }
 
 function csrf()
-{
+{   
     return new Csrf;
 }
 
@@ -119,6 +119,12 @@ function csrf()
 function dd()
 {
     $all = func_get_args();   
+
+    $backtrace = debug_backtrace();
+    $line = $backtrace[0]['line'] ?? '';  
+    $file = $backtrace[0]['file'] ?? ''; 
+    
+    echo $file . ' - ' . $line . PHP_EOL;
 
     foreach ($all as $value) {
         echo "<pre>" . PHP_EOL;

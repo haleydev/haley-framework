@@ -9,19 +9,19 @@ class ExceptionsDebug
 {
     public function debug($error)
     {
-        if (ob_get_level() > 0) {
-            ob_clean();
-        }
+        if (ob_get_level() > 0)  ob_clean();        
 
         if (Memory::get('kernel') == 'console') {
             die(PHP_EOL . "\033[0;31m{$error->getMessage()}\033[0m" . PHP_EOL . PHP_EOL);
         }
 
-        response()->header('content-type', 'text/html; charset=utf-8');
+        response()->header('content-type', 'text/html; charset=utf-8');      
 
         if (Config::app('debug') == false) {
             return response()->abort(500);
         }
+
+        response()->status('500');
 
         $error_message = ucfirst($error->getMessage());
         $error_file = $error->getFile();

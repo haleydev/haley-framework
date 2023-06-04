@@ -2,9 +2,30 @@
 
 namespace Haley\View\Compiler;
 
+use Haley\Collections\Str;
+
 class CompilerPHP
 {
-    protected $view;
+    protected string $view;
+    protected array $statements;
+
+    protected array $tags = [
+        'endif',
+        'endfor',
+        'endforeach',
+        'endwhile',
+        'break',
+        'continue'
+    ];
+
+    protected array $echo_tags = [
+        'if',
+        'else',
+        'elseif',
+        'foreach',
+        'while',
+        'for'
+    ];
 
     public function run($view)
     {
@@ -26,22 +47,6 @@ class CompilerPHP
             }
         }
 
-        // elseif
-        $regex = "/@elseif\((.*?)\)/s";
-        if (preg_match_all($regex, $this->view, $match)) {
-            foreach ($match[0] as $key => $value) {
-                $this->view = str_replace($value, '<?php elseif(' . $match[1][$key] . ') :?>', $this->view);
-            }
-        }
-
-        // if
-        $regex = "/@if\((.*?)\)/s";
-        if (preg_match_all($regex, $this->view, $match)) {
-            foreach ($match[0] as $key => $value) {
-                $this->view = str_replace($value, '<?php if(' . $match[1][$key] . ') :?>', $this->view);
-            }
-        }
-
         // php
         $regex = "/@php(.*?)@endphp/s";
         if (preg_match_all($regex, $this->view, $match)) {
@@ -50,32 +55,119 @@ class CompilerPHP
             }
         }
 
-        // foreach
-        $regex = "/@foreach\((.*?)\)/s";
-        if (preg_match_all($regex, $this->view, $match)) {
-            foreach ($match[0] as $key => $value) {
-                $this->view = str_replace($value, '<?php foreach(' . $match[1][$key] . ') :?>', $this->view);
+        $this->compilerStatements();
+
+        foreach ($this->statements as $value) {
+            if ($value['tag'] == 'csrf') {
+                $this->view = str_replace($value['original'], csrf()->token(), $this->view);
+                continue;
+            }
+
+            if (in_array($value['tag'], $this->tags)) {
+                if (!empty($value['value'])) {
+                    $this->view = str_replace($value['original'], '<?php ' . $value['tag'] . $value['value'] . ' ?>', $this->view);
+                } else {
+                    $this->view = str_replace($value['original'], '<?php ' . $value['tag'] . ' ?>', $this->view);
+                }
+            } elseif (in_array($value['tag'], $this->echo_tags)) {
+                if (!empty($value['value'])) {
+                    $this->view = str_replace($value['original'], '<?php ' . $value['tag'] . $value['value'] . ' :?>', $this->view);
+                } else {
+                    $this->view = str_replace($value['original'], '<?php ' . $value['tag'] . ' :?>', $this->view);
+                }
             }
         }
-
-        // while
-        $regex = "/@while\((.*?)\)/s";
-        if (preg_match_all($regex, $this->view, $match)) {
-            foreach ($match[0] as $key => $value) {
-                $this->view = str_replace($value, '<?php while(' . $match[1][$key] . ') :?>', $this->view);
-            }
-        }
-
-        $this->replaceTags();
 
         return $this->view;
     }
 
-    private function replaceTags()
+    private function compilerStatements()
     {
-        $search = ['@else', '@endif', '@endforeach', '@endwhile'];
-        $replace = ['<?php else :?>', '<?php endif ?>', '<?php endforeach ?>', '<?php endwhile ?>'];
+        if (preg_match_all('/\B@(@?\w+(?:::\w+)?)([ \t]*)(\( ( [\S\s]*? ) \))?/x', $this->view, $matches)) {
 
-        $this->view = str_replace($search, $replace, $this->view);
+            for ($i = 0; isset($matches[0][$i]); $i++) {
+                $match = [
+                    $matches[0][$i],
+                    $matches[1][$i],
+                    $matches[2][$i],
+                    $matches[3][$i] ?: null,
+                    $matches[4][$i] ?: null,
+                ];
+
+                // Here we check to see if we have properly found the closing parenthesis by
+                // regex pattern or not, and will recursively continue on to the next ")"
+                // then check again until the tokenizer confirms we find the right one.
+                while (isset($match[4]) &&  Str::end($match[0], ')') &&  !$this->hasEvenNumberOfParentheses($match[0])) {
+                    if (($after = Str::after($this->view, $match[0])) === $this->view) {
+                        break;
+                    }
+
+                    $rest = Str::before($after, ')');
+
+                    if (isset($matches[0][$i + 1]) && Str::contains($rest . ')', $matches[0][$i + 1])) {
+                        unset($matches[0][$i + 1]);
+                        $i++;
+                    }
+
+                    $match[0] = $match[0] . $rest . ')';
+                    $match[3] = $match[3] . $rest . ')';
+                    $match[4] = $match[4] . $rest;
+                }
+
+
+                if (empty($match[1])) break;
+
+
+                $this->statements[] = [
+                    'tag' => $match[1],
+                    'original' => $match[0],
+                    'value' => $match[3]
+                ];
+            }
+        };
+    }
+
+    /**
+     * Determine if the given expression has the same number of opening and closing parentheses.
+     *
+     * @param  string  $expression
+     * @return bool
+     */
+    protected function hasEvenNumberOfParentheses(string $expression)
+    {
+        $tokens = token_get_all('<?php ' . $expression);
+
+        if (end($tokens) !== ')') return false;
+
+        $opening = 0;
+        $closing = 0;
+
+        foreach ($tokens as $token) {
+            if ($token == ')') {
+                $closing++;
+            } elseif ($token == '(') {
+                $opening++;
+            }
+        }
+
+        return $opening === $closing;
+    }
+
+    protected function replaceFirstStatement($search, $replace, $subject, $offset)
+    {
+        $search = (string) $search;
+
+        if ($search === '')  return $subject;
+
+        $position = strpos($subject, $search, $offset);
+
+        if ($position !== false) {
+            return [
+                substr_replace($subject, $replace, $position, strlen($search)),
+                $position + strlen($replace),
+            ];
+        }
+
+        return [$subject, 0];
     }
 }
