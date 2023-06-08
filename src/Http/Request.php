@@ -4,56 +4,6 @@ namespace Haley\Http;
 
 class Request
 {
-    /**
-     * Retorna o valor do parâmetro passado em router.
-     * @return string|false
-     */
-    public static function param(string $param)
-    {
-        if (defined('ROUTER_PARAMS') and !empty(ROUTER_PARAMS)) {
-            if (array_key_exists($param, ROUTER_PARAMS)) {
-                return urldecode(ROUTER_PARAMS[$param]);
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Retorna a url da rota nomeada
-     * @return string|false
-     */
-    public static function route(string $name, string|array $params = [])
-    {
-        if (is_string($params)) {
-            $params = explode('/', $params);
-        }
-
-        if (defined('ROUTER_NAMES')) {
-            if (isset(ROUTER_NAMES[$name])) {
-                $route = ROUTER_NAMES[$name];
-
-                foreach ($params as $key => $param) {
-                    if (!empty($param)) {
-                        if (str_contains($route, '{!???!}')) {
-                            $route = preg_replace('/{!???!}/', $param, $route, 1);
-                        } elseif ($key == 0) {
-                            $route .= $param;
-                        } else {
-                            $route .= '/' . $param;
-                        }
-                    }
-                }
-
-                $route = str_replace(['/{!???!}', '{!???!}'], '', $route);
-
-                return rtrim(env('APP_URL') . '/' . $route, '/');
-            }
-        }
-
-        return false;
-    }
-
     public static function get(string $input)
     {
         if (isset($_GET[$input])) {

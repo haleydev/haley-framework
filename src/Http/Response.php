@@ -18,11 +18,11 @@ class Response
     }
 
     public static function abort(int $status = 404, string|null $mesage = null)
-    {
+    {  
         response()->status($status);
         response()->header('content-type', 'text/html; charset=utf-8');
 
-        if ($mesage === null) $mesage = HttpCodes::get($status);
+        if ($mesage === null) $mesage = HttpCodes::get($status);     
 
         if (defined('ROUTER_NOW')) {
             if ($action = ROUTER_NOW['error']) {

@@ -23,7 +23,7 @@ class RouteResolve
 
         foreach ($routes as $route) {
             if (!empty($route['name'])) {
-                $this->names[$route['name']] = preg_replace('/{(.*?)}/', '{!???!}', $route['route']);
+                $this->names[$route['name']] = trim(preg_replace('/{(.*?)}/', '{?}', $route['route']),'/');
             }
 
             $params = $this->routeParams($route['route']);

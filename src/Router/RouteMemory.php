@@ -24,16 +24,16 @@ class RouteMemory
         $namespace = null;
         $domain = [];
 
-        if (!empty(self::$config['prefix'])) array_unshift(self::$attributes['prefix'], self::$config['prefix']);
-
         if (count(self::$attributes['namespace'])) $namespace = implode('\\', self::$attributes['namespace']);
 
         if (count(self::$attributes['name'])) $name = implode('.', self::$attributes['name']);
 
         if (count(self::$attributes['prefix'])) {
-            $prefix = implode('.', self::$attributes['prefix']);
+            $prefix = implode('/', self::$attributes['prefix']);
             $route = $prefix . '/' . $route;
         }
+
+        if (!empty(self::$config['prefix'])) $route = trim(self::$config['prefix'], '/') . '/' . $route;
 
         if (count(self::$attributes['domain'])) {
             foreach (self::$attributes['domain'] as $value) {
@@ -79,7 +79,7 @@ class RouteMemory
 
     public static function resetAttributes()
     {
-        self::$config = null;       
+        self::$config = null;
 
         self::$attributes = [
             'name' => [],

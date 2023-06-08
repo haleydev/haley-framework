@@ -2,10 +2,10 @@
 
 namespace Haley\View\Engine;
 
-use Haley\View\Compiler\CompilerExtends;
 use Haley\View\Compiler\CompilerPHP;
 use Haley\View\Compiler\CompilerSections;
 use Exception;
+use Haley\View\Compiler\CompilerInclude;
 
 class FileEngine
 {
@@ -43,17 +43,17 @@ class FileEngine
         // view file
         $view = file_get_contents($this->view_file);
 
-        // extends
-        $compile_extends = new CompilerExtends;
-        $view = $compile_extends->run($view);
+        // includes
+        $compile_include = new CompilerInclude;
+        $view = $compile_include->run($view);
 
         // sections
         $compile_sections = new CompilerSections;
         $view = $compile_sections->run($view);
 
         // php compiler
-        $compile_mcquery = new CompilerPHP;
-        $view = $compile_mcquery->run($view);
+        $compile_php = new CompilerPHP;
+        $view = $compile_php->run($view);
 
         // formats
         $view = trim($view);
@@ -65,12 +65,12 @@ class FileEngine
         if (file_exists($cache_json_file)) {
             $cache_data = json_decode(file_get_contents($cache_json_file), true);
             $cache_data[$this->view_file]['cache'] = $this->view_cache;
-            $cache_data[$this->view_file]['extends'] = $compile_extends->extends;
+            $cache_data[$this->view_file]['include'] = $compile_include->include;
             $cache_data[$this->view_file]['filemtime'] = filemtime($this->view_file);
             file_put_contents($cache_json_file, json_encode($cache_data, true));
         } else {
             $new_cache[$this->view_file]['cache'] = $this->view_cache;
-            $new_cache[$this->view_file]['extends'] = $compile_extends->extends;
+            $new_cache[$this->view_file]['include'] = $compile_include->include;
             $new_cache[$this->view_file]['filemtime'] = filemtime($this->view_file);
             file_put_contents($cache_json_file, json_encode($new_cache, true));
         }
@@ -93,7 +93,7 @@ class FileEngine
                 $this->compilerExecute();
             } else {
                 // checar alteracoes
-                $extends = $cache[$this->view_file]['extends'];
+                $include = $cache[$this->view_file]['include'];
                 $cache_filemtime = $cache[$this->view_file]['filemtime'];
                 $atual_filemtime = filemtime($this->view_file);
 
@@ -101,8 +101,8 @@ class FileEngine
 
                 if ($cache_filemtime != $atual_filemtime) $compiler = true;
 
-                if ($extends != false and $compiler == false) {
-                    foreach ($extends as $require => $time) {
+                if ($include != false and $compiler == false) {
+                    foreach ($include as $require => $time) {
 
                         if (file_exists($require)) {
                             if ($time != filemtime($require)) $compiler = true;

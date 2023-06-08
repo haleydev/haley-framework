@@ -6,6 +6,7 @@ use Haley\Http\Csrf;
 use Haley\Http\Redirect;
 use Haley\Http\Request;
 use Haley\Http\Response;
+use Haley\Http\Route;
 use Haley\Validator\ValidatorHelper;
 use Haley\View\View;
 
@@ -75,21 +76,16 @@ function password()
 }
 
 /**
- * Retorna o valor do parâmetro passado em router
- * @return string|null
- */
-function param(string $param)
-{
-    return Request::param($param);
-}
-
-/**
  * Retorna a URL da rota nomeada.
- * @return string|null
+ * @return Haley\Http\Route|string|null
  */
-function route(string $name, string|array $params = [])
+function route(string|null $name = null, string|array ...$params)
 {
-    return Request::route($name, $params);
+    if (!empty($params[0])) if (is_array($params[0])) $params = $params[0];   
+
+    if($name !== null) return Route::name($name,$params);    
+   
+    return new Route;
 }
 
 /**
@@ -160,7 +156,11 @@ function middleware(string|array $middlewares)
 
     if (is_array($middlewares) and count($middlewares) > 0) {
         foreach ($middlewares as $middleware) {
-            $params = explode('::', $middleware);
+            if (str_contains($middleware, '::')) {
+                $params = explode('::', $middleware);
+            } else if (str_contains($middleware, '@')) {
+                $params = explode('@', $middleware);
+            }            
 
             $class = "\App\Middlewares\\{$params[0]}";
             $rum = new $class;

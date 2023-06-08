@@ -13,7 +13,12 @@ class RouteAction
 
     private function string(string $action)
     {
-        $params = explode('::', $action);
+        if (str_contains($action, '::')) {
+            $params = explode('::', $action);
+        } else if (str_contains($action, '@')) {
+            $params = explode('@', $action);
+        }
+
         $namespace = '';
 
         if (defined('ROUTER_NOW')) {

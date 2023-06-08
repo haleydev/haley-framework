@@ -40,8 +40,7 @@ class Lines
         $line = $eol ? PHP_EOL : '';     
 
         echo "\033[0;34m$mesage\033[0m $line";
-        return;
-        
+        return;        
     }
 
     // php -r 'echo "\033[31m some colored text \033[0m some white text \n";'

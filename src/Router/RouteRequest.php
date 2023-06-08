@@ -42,37 +42,7 @@ class RouteRequest
             return view($route['params'][0], $route['params'][1]);
         }
 
-        if ($route['type'] == 'file') {
-            return $this->typeFile($route);
-        }
-
         return new RouteAction($route['params']);
-    }
-
-    private function typeFile($route)
-    {
-        $route_params = ROUTER_PARAMS;
-        $file_key = array_key_last($route_params);
-
-        foreach ($route_params as $key => $param) {
-            if ($key != $file_key) {
-                $param = str_replace(['\\', '/', '.',], '', $param);
-                if (empty((string)$param)) {
-                    unset($route_params[$key]);
-                } else {
-                    $route_params[$key] = $param;
-                }
-            }
-        }
-
-        $file_params = !empty($route_params) ? DIRECTORY_SEPARATOR .  implode(DIRECTORY_SEPARATOR, $route_params) : '';
-        $file = directoryRoot($route['params']['path'] . $file_params);
-
-        if ($route['params']['download']) {
-            return response()->download($file);
-        } else {
-            return response()->file($file);
-        }
     }
 
     private function old()
@@ -84,7 +54,7 @@ class RouteRequest
 
             if (!empty($request)) {
                 $url = parse_url($_SERVER['HTTP_REFERER']);
-                $page = request()->url() . '/' . trim($url['path'] ?? $url['host'] ?? '', '/');
+                $page = request()->url($url['path'] ?? $url['host'] ?? null);
                 request()->session()->replace('FRAMEWORK', ['old' => [$page => $request]]);
             }
         }

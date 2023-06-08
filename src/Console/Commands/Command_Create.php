@@ -1,4 +1,5 @@
 <?php
+
 namespace Haley\Console\Commands;
 
 use Haley\Collections\Log;
@@ -13,11 +14,11 @@ class Command_Create extends Lines
     {
         try {
             $database = (new Migration)->modelInfo();
-        } catch (PDOException $error) {          
+        } catch (PDOException $error) {
             Log::create('database', $error->getMessage());
             return $this->red($error->getMessage());
         }
-      
+
         $db_table = null;
 
         if ($database) {
@@ -96,7 +97,7 @@ class Command_Create extends Lines
 
         $namespace = trim(str_replace([basename($name), '/'], ['', '\\'], $name), '\\');
         $namespace = !empty($namespace) ? $namespace = '\\' . $namespace : '';
-      
+
         $mold = (new Molds)->job($class, $namespace);
 
         createDir(dirname($location));
@@ -205,10 +206,10 @@ class Command_Create extends Lines
         $namespace = trim(str_replace([basename($name), '/'], ['', '\\'], $name), '\\');
         $namespace = !empty($namespace) ? $namespace = '\\' . $namespace : '';
         $location = directoryRoot('/database/' . str_replace(basename($name), '', $name) . $class . '.php');
-       
+
 
         $mold = (new Molds)->database($class, $namespace, $table);
-    
+
         createDir(dirname($location));
 
         if (file_exists($location)) {

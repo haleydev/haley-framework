@@ -8,7 +8,7 @@ class Route
     private static array $attributes = [];
 
     /**
-     * @return \Core\Router\RouteOptions
+     * @return \Haley\Router\RouteOptions
      */
     public static function url(string $route, string|array|callable $action)
     {
@@ -17,7 +17,7 @@ class Route
     }
 
     /**   
-     * @return \Core\Router\RouteOptions
+     * @return \Haley\Router\RouteOptions
      */
     public static function get(string $route, string|array|callable $action)
     {
@@ -26,7 +26,7 @@ class Route
     }
 
     /**  
-     * @return \Core\Router\RouteOptions
+     * @return \Haley\Router\RouteOptions
      */
     public static function post(string $route, string|array|callable $action)
     {
@@ -35,7 +35,7 @@ class Route
     }
 
     /**  
-     * @return \Core\Router\RouteOptions
+     * @return \Haley\Router\RouteOptions
      */
     public static function delete(string $route, string|array|callable $action)
     {
@@ -44,7 +44,61 @@ class Route
     }
 
     /**  
-     * @return \Core\Router\RouteOptions
+     * @return \Haley\Router\RouteOptions
+     */
+    public static function put(string $route, string|array|callable $action)
+    {
+        RouteMemory::route($route, $action, ['PUT'], 'put');
+        return new RouteOptions;
+    }
+
+    /**  
+     * @return \Haley\Router\RouteOptions
+     */
+    public static function patch(string $route, string|array|callable $action)
+    {
+        RouteMemory::route($route, $action, ['PATCH'], 'patch');
+        return new RouteOptions;
+    }
+
+    /**  
+     * @return \Haley\Router\RouteOptions
+     */
+    public static function copy(string $route, string|array|callable $action)
+    {
+        RouteMemory::route($route, $action, ['COPY'], 'copy');
+        return new RouteOptions;
+    }
+
+    /**  
+     * @return \Haley\Router\RouteOptions
+     */
+    public static function options(string $route, string|array|callable $action)
+    {
+        RouteMemory::route($route, $action, ['OPTIONS'], 'options');
+        return new RouteOptions;
+    }
+
+    /**  
+     * @return \Haley\Router\RouteOptions
+     */
+    public static function lock(string $route, string|array|callable $action)
+    {
+        RouteMemory::route($route, $action, ['LOCK'], 'lock');
+        return new RouteOptions;
+    }
+
+    /**  
+     * @return \Haley\Router\RouteOptions
+     */
+    public static function unlock(string $route, string|array|callable $action)
+    {
+        RouteMemory::route($route, $action, ['UNLOCK'], 'unlock');
+        return new RouteOptions;
+    }
+
+    /**  
+     * @return \Haley\Router\RouteOptions
      */
     public static function match(string|array $methods, string $route, string|array|callable $action)
     {
@@ -53,15 +107,6 @@ class Route
         foreach ($methods as $key => $method) $methods[$key] = strtoupper($method);
 
         RouteMemory::route($route, $action, $methods, 'match');
-        return new RouteOptions;
-    }
-
-    /**
-     * Retorna um arquivo da pasta private
-     */
-    public static function file(string $route, string $path, bool $download = false, array $methods = ['GET'])
-    {
-        RouteMemory::route($route, ['path' => $path, 'download' => $download], $methods, 'file');
         return new RouteOptions;
     }
 
@@ -76,7 +121,7 @@ class Route
 
     /**
      * Renderizar um view diretamente
-     * @return \Core\Router\RouteOptions
+     * @return \Haley\Router\RouteOptions
      */
     public static function view(string $route, string $view, array $params = [])
     {

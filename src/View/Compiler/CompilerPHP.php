@@ -7,7 +7,7 @@ use Haley\Collections\Str;
 class CompilerPHP
 {
     protected string $view;
-    protected array $statements;
+    protected array $statements = [];
 
     protected array $tags = [
         'endif',
@@ -58,8 +58,52 @@ class CompilerPHP
         $this->compilerStatements();
 
         foreach ($this->statements as $value) {
+            // csrf
             if ($value['tag'] == 'csrf') {
-                $this->view = str_replace($value['original'], csrf()->token(), $this->view);
+                $this->view = str_replace($value['original'], '<?php echo csrf()->token() ?>', $this->view);
+                continue;
+            }
+
+            // route
+            elseif ($value['tag'] == 'route') {
+                if (!empty($value['value'])) {
+                    $this->view = str_replace($value['original'], '<?php echo route' . $value['value'] . ' ?>', $this->view);
+                }
+
+                continue;
+            }
+
+
+            // url
+            elseif ($value['tag'] == 'url') {
+                if (!empty($value['value'])) {
+                    $this->view = str_replace($value['original'], '<?php echo request()->url' . $value['value'] . ' ?>', $this->view);
+                } else {
+                    $this->view = str_replace($value['original'], '<?php echo request()->url() ?>', $this->view);
+                }
+
+                continue;
+            }
+
+            // urlfull
+            elseif ($value['tag'] == 'urlFull') {
+                if (!empty($value['value'])) {
+                    $this->view = str_replace($value['original'], '<?php echo request()->urlFull' . $value['value'] . ' ?>', $this->view);
+                } else {
+                    $this->view = str_replace($value['original'], '<?php echo request()->urlFull() ?>', $this->view);
+                }
+
+                continue;
+            }
+
+            // urlfull
+            elseif ($value['tag'] == 'urlFullQuery') {
+                if (!empty($value['value'])) {
+                    $this->view = str_replace($value['original'], '<?php echo request()->urlFullQuery' . $value['value'] . ' ?>', $this->view);
+                } else {
+                    $this->view = str_replace($value['original'], '<?php echo request()->urlFullQuery() ?>', $this->view);
+                }
+
                 continue;
             }
 

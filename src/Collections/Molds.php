@@ -142,18 +142,15 @@ class ' . $class . ' extends Model
         return
             '<?php
 namespace App\Jobs' . $namespace . ';
-use Haley\Cron;
 
 /**
- * CUIDADO: Se o escript for muito demorado e recomendado que se crie outro documento cronjob para que seja executado de forma assíncrona.
+ * CAUTION: If the script is too long, it is recommended that you create another job to run it asynchronously.
  */        
 class ' . $class . ' 
 {
-    public function job(Cron $schedule)
+    public function job()
     {
-        $schedule->cron(\'03:03\',\'03/03/2023\',function(){
-
-        })->description(\'example\');
+      // ...
     }
 }';
     }

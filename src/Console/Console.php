@@ -5,7 +5,6 @@ namespace Haley\Console;
 use Haley\Console\Commands\{Command_Dashboard};
 
 use Haley\Console\Commands\Command_Cache;
-// use Haley\Console\Commands\Command_Command;
 use Haley\Console\Commands\Command_Create;
 use Haley\Console\Commands\Command_Cronjob;
 use Haley\Console\Commands\Command_DB;
