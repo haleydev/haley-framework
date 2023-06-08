@@ -1,4 +1,5 @@
 <?php
+
 namespace Haley\Database\Migrations;
 
 use Haley\Database\Migrations\Builder\MigrationMemory;
@@ -6,9 +7,9 @@ use Haley\Database\Migrations\Builder\Table;
 use Haley\Database\Migrations\Builder\Seeder;
 use Haley\Database\Migrations\Syntaxes\Mysql;
 use Haley\Database\Query\DB;
-use Haley\Database\Connection;
 use Haley\Collections\Log;
 use FilesystemIterator;
+use Haley\Collections\Config;
 use InvalidArgumentException;
 use PDOException;
 use RecursiveDirectoryIterator;
@@ -16,7 +17,7 @@ use RecursiveIteratorIterator;
 
 class Migration
 {
-    public function migrate($connection = null)
+    public function migrate()
     {
         $params = $this->migrationFiles('database');
 
@@ -36,7 +37,9 @@ class Migration
                     }
 
                     $connection = MigrationMemory::$definitions['connection'];
-                    $config = Connection::getConfig($connection);
+                    if ($connection == null) $connection = Config::database('default');
+
+                    $config = Config::database('connections')[$connection] ?? null;
 
                     // dd($config);die;
 
@@ -61,7 +64,7 @@ class Migration
         }
     }
 
-    public function seeders($connection = null)
+    public function seeders(string|null $connection = null)
     {
         $params = $this->migrationFiles('database');
 
@@ -81,7 +84,9 @@ class Migration
                     }
 
                     $connection = MigrationMemory::$definitions['connection'];
-                    $config = Connection::getConfig($connection);
+                    if ($connection == null) $connection = Config::database('default');
+
+                    $config = Config::database('connections')[$connection] ?? null;
 
                     if (empty($config)) {
                         Log::create('migration', "Connection not found ( {$connection} )");
@@ -90,7 +95,7 @@ class Migration
                     }
 
                     try {
-                        $seeders = MigrationMemory::$seeders;                      
+                        $seeders = MigrationMemory::$seeders;
 
                         if (!empty($seeders)) {
                             $insert = DB::table(MigrationMemory::$definitions['table'])->connection($connection)->insertIgnore($seeders);
@@ -110,9 +115,11 @@ class Migration
         }
     }
 
-    public function dropTable(string $table, string $connection = 'default')
+    public function dropTable(string $table, string|null $connection = null)
     {
-        $config = Connection::getConfig($connection);
+        if ($connection == null) $connection = Config::database('default');
+
+        $config = Config::database('connections')[$connection] ?? null;
 
         if (empty($config)) {
             Log::create('migration', "Connection not found ( {$connection} )");
@@ -129,9 +136,11 @@ class Migration
         }
     }
 
-    public function modelInfo(string $connection = 'default')
+    public function modelInfo(string|null $connection = null)
     {
-        $config = Connection::getConfig($connection);
+        if ($connection == null) $connection = Config::database('default');
+
+        $config = Config::database('connections')[$connection] ?? null;
 
         if (!empty($config)) {
             $syntaxe = $this->syntaxeMigration($config['driver']);
@@ -167,7 +176,7 @@ class Migration
                 $file = $info->getPathname();
                 $class = pathinfo($file, PATHINFO_FILENAME);
 
-                $namespace = trim(str_replace([basename($file), ROOT, '/', $folder], ['', '', '\\', ucfirst($folder)], $file), '\\') . '\\' . $class;
+                $namespace = trim(str_replace([basename($file), directoryRoot(), '/', $folder], ['', '', '\\', ucfirst($folder)], $file), '\\') . '\\' . $class;
                 $namespace = !empty($namespace) ? $namespace = '\\' . $namespace : '';
 
                 $params[] = [

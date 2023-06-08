@@ -53,12 +53,16 @@ class Kernel
 
             if (!request()->session()->isset('FRAMEWORK')) request()->session()->create('FRAMEWORK');
 
-            foreach (Config::routes() as $name => $config) {
-                $config['name'] = $name;
-                RouteMemory::resetAttributes();
+            $routes = Config::routes();
 
-                RouteMemory::$config = $config;
-                require_once $config['path'];
+            if ($routes) {
+                foreach ($routes as $name => $config) {
+                    $config['name'] = $name;
+                    RouteMemory::resetAttributes();
+
+                    RouteMemory::$config = $config;
+                    require_once $config['path'];
+                }
             }
 
             Route::end();

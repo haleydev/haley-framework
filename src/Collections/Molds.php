@@ -34,7 +34,7 @@ class ' . $class . ' extends Middleware
 APP_DEBUG = true
 APP_TIMEZONE = America/Los_Angeles
 
-DB_DRIVE = mysql
+DB_CONNECTION = mysql
 DB_HOST = localhost
 DB_PORT = 3306
 DB_DATABASE = haley
@@ -131,6 +131,7 @@ use Haley\Collections\Model;
 
 class ' . $class . ' extends Model
 {   
+    public static string $connection = \''. Config::database('default','mysql') .'\';
     public static string $table = \'' . $table . '\';
     public static string|null $primary = ' . $primary . ';
     public static array $columns = [' . implode(',', $columns) . ']; 

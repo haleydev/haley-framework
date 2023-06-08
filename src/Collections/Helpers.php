@@ -81,10 +81,10 @@ function password()
  */
 function route(string|null $name = null, string|array ...$params)
 {
-    if (!empty($params[0])) if (is_array($params[0])) $params = $params[0];   
+    if (!empty($params[0])) if (is_array($params[0])) $params = $params[0];
 
-    if($name !== null) return Route::name($name,$params);    
-   
+    if ($name !== null) return Route::name($name, $params);
+
     return new Route;
 }
 
@@ -160,7 +160,7 @@ function middleware(string|array $middlewares)
                 $params = explode('::', $middleware);
             } else if (str_contains($middleware, '@')) {
                 $params = explode('@', $middleware);
-            }            
+            }
 
             $class = "\App\Middlewares\\{$params[0]}";
             $rum = new $class;
@@ -246,3 +246,32 @@ function deleteFile(string $path)
 
     return file_exists($path) ? unlink($path) : true;
 }
+
+// /**
+//  * @return array|null
+//  */
+// function classInfo(string $file)
+// {
+//     if (file_exists($file)) {
+//         require_once $file;
+//         // Obtém todas as classes declaradas no arquivo
+
+//         $all = get_declared_classes();
+//         $class = end($all);       
+    
+//         if($class) {        
+//             $info = [];
+//             $reflection = new ReflectionClass($class);
+
+//             $info['class'] = $reflection->getName();            
+//             $info['namespace'] = $reflection->getNamespaceName();
+//             $info['file'] = $reflection->getFileName();           
+//             $info['properties'] = $reflection->getProperties();  
+//             $info['methods'] = $reflection->getMethods();
+
+//             return $reflection;           
+//         }
+//     }
+
+//     return null;
+// }

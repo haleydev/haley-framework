@@ -6,15 +6,6 @@ use Haley\Database\Connection;
 
 class Execute
 {
-    public function config(string $connection)
-    {
-        $config = Connection::getConfig($connection);
-
-        if ($config) {
-            return $config;
-        }
-    }
-
     public function select(string $query, array $bindparams, string $connection, bool $all = true, $count = false)
     {
         $instance = Connection::instance($connection);

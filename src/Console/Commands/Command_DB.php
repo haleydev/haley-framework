@@ -37,8 +37,6 @@ class Command_DB extends Lines
         }elseif($result == true){
             $this->green("Success, table $table dropped");
         }
-
-        die;
     }
 
     // public function list_migrations()

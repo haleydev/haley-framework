@@ -17,7 +17,7 @@ class ExceptionsDebug
         $error_all = $error;
 
         if (Memory::get('kernel') == 'console') {
-            die(PHP_EOL . "\033[0;31m {$error_file} - {$error_line} " . PHP_EOL . " {$error->getMessage()}\033[0m" . PHP_EOL . PHP_EOL);
+            die(PHP_EOL . "\033[0;31m {$error_file} {$error_line} " . PHP_EOL . " {$error->getMessage()}\033[0m" . PHP_EOL . PHP_EOL);
         }
 
         response()->header('content-type', 'text/html; charset=utf-8');

@@ -1,10 +1,15 @@
 <?php
+
 namespace Haley\Database\Migrations\Builder;
+
+use Haley\Collections\Config;
 
 class Table
 {
-    public static function definitions(string $table, string $connection = 'default')
+    public static function definitions(string $table, string|null $connection = null)
     {
+        if ($connection == null) $connection = Config::database('default');
+
         MigrationMemory::$definitions = [
             'table' => $table,
             'connection' => $connection
@@ -18,10 +23,10 @@ class Table
     {
         if (is_array($column)) {
             foreach ($column as $value) {
-                MigrationMemory::saveDrop($value);
+                MigrationMemory::drop($value);
             }
         } else {
-            MigrationMemory::saveDrop($column);
+            MigrationMemory::drop($column);
         }
     }
 
@@ -32,7 +37,7 @@ class Table
 
     public function foreign(string $column, string $references_table, string $references_column)
     {
-        MigrationMemory::saveForeign($column, [
+        MigrationMemory::foreign($column, [
             'references_table' => $references_table,
             'references_column' => $references_column,
             'on_delete' => false,
@@ -46,10 +51,10 @@ class Table
     {
         if (is_array($column)) {
             foreach ($column as $value) {
-                MigrationMemory::saveIndex($value, $using);
+                MigrationMemory::index($value, $using);
             }
         } else {
-            MigrationMemory::saveIndex($column, $using);
+            MigrationMemory::index($column, $using);
         }
     }
 
@@ -58,7 +63,7 @@ class Table
      */
     public function primary(string $name, int $size = 20)
     {
-        MigrationMemory::saveColumn('primary', $name, [
+        MigrationMemory::column('primary', $name, [
             'size' => $size
         ]);
 
@@ -67,7 +72,7 @@ class Table
 
     public function char(string $name, int $size = 255)
     {
-        MigrationMemory::saveColumn('char', $name, [
+        MigrationMemory::column('char', $name, [
             'size' => $size
         ]);
 
@@ -76,7 +81,7 @@ class Table
 
     public function varchar(string $name, int $size = 255)
     {
-        MigrationMemory::saveColumn('varchar', $name, [
+        MigrationMemory::column('varchar', $name, [
             'size' => $size
         ]);
 
@@ -85,7 +90,7 @@ class Table
 
     public function enum(string $name, array $enums)
     {
-        MigrationMemory::saveColumn('enum', $name, [
+        MigrationMemory::column('enum', $name, [
             'enums' => $enums
         ]);
 
@@ -94,7 +99,7 @@ class Table
 
     public function set(string $name, array $sets)
     {
-        MigrationMemory::saveColumn('set', $name, [
+        MigrationMemory::column('set', $name, [
             'sets' => $sets
         ]);
 
@@ -103,42 +108,42 @@ class Table
 
     public function text(string $name)
     {
-        MigrationMemory::saveColumn('text', $name);
+        MigrationMemory::column('text', $name);
 
         return new TableOptions;
     }
 
     public function mediumText(string $name)
     {
-        MigrationMemory::saveColumn('medium_text', $name);
+        MigrationMemory::column('medium_text', $name);
 
         return new TableOptions;
     }
 
     public function longText(string $name)
     {
-        MigrationMemory::saveColumn('long_text', $name);
+        MigrationMemory::column('long_text', $name);
 
         return new TableOptions;
     }
 
     public function json(string $name)
     {
-        MigrationMemory::saveColumn('json', $name);
+        MigrationMemory::column('json', $name);
 
         return new TableOptions;
     }
 
     public function boolean(string $name)
     {
-        MigrationMemory::saveColumn('boolean', $name);
+        MigrationMemory::column('boolean', $name);
 
         return new TableOptions;
     }
 
     public function tinyint(string $name, int $size = 10)
     {
-        MigrationMemory::saveColumn('tinyint', $name, [
+        MigrationMemory::column('tinyint', $name, [
             'size' => $size
         ]);
 
@@ -147,7 +152,7 @@ class Table
 
     public function int(string $name, int $size = 11)
     {
-        MigrationMemory::saveColumn('int', $name, [
+        MigrationMemory::column('int', $name, [
             'size' => $size
         ]);
 
@@ -156,7 +161,7 @@ class Table
 
     public function bigInt(string $name, int $size = 20)
     {
-        MigrationMemory::saveColumn('big_int', $name, [
+        MigrationMemory::column('big_int', $name, [
             'size' => $size
         ]);
 
@@ -165,7 +170,7 @@ class Table
 
     public function float(string $name, int $size = 11, int $precision = 2)
     {
-        MigrationMemory::saveColumn('float', $name, [
+        MigrationMemory::column('float', $name, [
             'size' => $size,
             'precision' => $precision
         ]);
@@ -175,7 +180,7 @@ class Table
 
     public function double(string $name, int $size = 11, int $precision = 2)
     {
-        MigrationMemory::saveColumn('double', $name, [
+        MigrationMemory::column('double', $name, [
             'size' => $size,
             'precision' => $precision
         ]);
@@ -185,7 +190,7 @@ class Table
 
     public function doublePrecision(string $name, int $size = 11, int $precision = 2)
     {
-        MigrationMemory::saveColumn('double_precision', $name, [
+        MigrationMemory::column('double_precision', $name, [
             'size' => $size,
             'precision' => $precision
         ]);
@@ -195,7 +200,7 @@ class Table
 
     public function decimal(string $name, int $size = 11, int $precision = 2)
     {
-        MigrationMemory::saveColumn('decimal', $name, [
+        MigrationMemory::column('decimal', $name, [
             'size' => $size,
             'precision' => $precision
         ]);
@@ -205,48 +210,48 @@ class Table
 
     public function year(string $name)
     {
-        MigrationMemory::saveColumn('year', $name);
+        MigrationMemory::column('year', $name);
 
         return new TableOptions;
     }
 
     public function time(string $name)
     {
-        MigrationMemory::saveColumn('time', $name);
+        MigrationMemory::column('time', $name);
 
         return new TableOptions;
     }
 
     public function date(string $name)
     {
-        MigrationMemory::saveColumn('date', $name);
+        MigrationMemory::column('date', $name);
 
         return new TableOptions;
     }
 
     public function timestamp(string $name)
     {
-        MigrationMemory::saveColumn('timestamp', $name);
+        MigrationMemory::column('timestamp', $name);
 
         return new TableOptions;
     }
 
     public function updateDate(string $name = 'update_at')
     {
-        MigrationMemory::saveColumn('update_at', $name);
+        MigrationMemory::column('update_at', $name);
 
         return new TableOptions;
     }
 
     public function createdDate(string $name = 'created_at')
     {
-        MigrationMemory::saveColumn('created_at', $name);
+        MigrationMemory::column('created_at', $name);
 
         return new TableOptions;
     }
 
     public function raw(string $name, string $value)
     {
-        MigrationMemory::saveColumn('raw', $name, $value);
+        MigrationMemory::column('raw', $name, $value);
     }
 }

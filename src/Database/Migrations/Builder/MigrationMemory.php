@@ -16,7 +16,7 @@ class MigrationMemory
 
     public static string $last_column;
 
-    public static function saveColumn(string $type, string $name, $values = null)
+    public static function column(string $type, string $name, $values = null)
     {
         if (!isset(self::$columns[$type])) {
             self::$columns[$type] = [];
@@ -32,7 +32,7 @@ class MigrationMemory
         self::$positions[] = $column;
     }
 
-    public static function saveDrop($column)
+    public static function drop($column)
     {
         self::$drops[] = $column;
 
@@ -55,7 +55,7 @@ class MigrationMemory
         self::$renames[$old] = $new;
     }
 
-    public static function saveOption(string $type, $values = null)
+    public static function option(string $type, $values = null)
     {
         if (!isset(self::$options[$type])) {
             self::$options[$type] = [];
@@ -64,12 +64,12 @@ class MigrationMemory
         self::$options[$type][self::$last_column] = $values;
     }
 
-    public static function saveForeign(string $foreign, $values)
+    public static function foreign(string $foreign, $values)
     {
         self::$foreigns[$foreign] = $values;
     }
 
-    public static function saveIndex(string $index, string $using)
+    public static function index(string $index, string $using)
     {
         self::$indexes[$index] = [
             'using' => $using

@@ -1,21 +1,25 @@
 <?php
+
 namespace Haley\Database\Query;
 
+use Haley\Collections\Config;
+use Haley\Collections\Log;
 use Haley\Database\Query\Builder\Execute;
 use Haley\Database\Query\Syntaxes\Syntax;
 use InvalidArgumentException;
+use PDOException;
 
 class Builder extends Syntax
 {
     /**
      * Standard env connection
      */
-    protected string $connection = 'default';
+    protected string|null $connection = null;
 
     /**
      * Use a specific connection
      */
-    public function connection(string $connection = 'default')
+    public function connection(string|null $connection = null)
     {
         $this->connection = $connection;
         return $this;
@@ -52,7 +56,7 @@ class Builder extends Syntax
      */
     public function select(string|array ...$columns)
     {
-        if (count($columns) == 0) {
+        if (!count($columns)) {
             throw new InvalidArgumentException('Undefined variable $columns');
         }
 
@@ -655,7 +659,7 @@ class Builder extends Syntax
     public function getParams(string $type = 'select')
     {
         $execute = new Execute;
-        $config = $execute->config($this->connection);
+        $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
         $this->executeSyntax($type, $config['driver']);
 
         return $this->params;
@@ -669,7 +673,7 @@ class Builder extends Syntax
     public function getQuery(string $type = 'select')
     {
         $execute = new Execute;
-        $config = $execute->config($this->connection);
+        $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
         $this->executeSyntax($type, $config['driver']);
 
         return $this->query;
@@ -683,7 +687,7 @@ class Builder extends Syntax
     public function getBindparams(string $type = 'select')
     {
         $execute = new Execute;
-        $config = $execute->config($this->connection);
+        $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
         $this->executeSyntax($type, $config['driver']);
 
         return $this->bindparams;
@@ -696,10 +700,10 @@ class Builder extends Syntax
     public function one()
     {
         $execute = new Execute;
-        $config = $execute->config($this->connection);
+        $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
         $this->executeSyntax('select', $config['driver']);
 
-        return $execute->select($this->query, $this->bindparams, $this->connection, false);
+        return $execute->select($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'), false);
     }
 
     /**
@@ -709,10 +713,10 @@ class Builder extends Syntax
     public function all()
     {
         $execute = new Execute;
-        $config = $execute->config($this->connection);
+        $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
         $this->executeSyntax('select', $config['driver']);
 
-        return $execute->select($this->query, $this->bindparams, $this->connection);
+        return $execute->select($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'));
     }
 
     public function update(array $values)
@@ -722,10 +726,10 @@ class Builder extends Syntax
         ]);
 
         $execute = new Execute;
-        $config = $execute->config($this->connection);
+        $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
         $this->executeSyntax('update', $config['driver']);
 
-        return $execute->update($this->query, $this->bindparams, $this->connection);
+        return $execute->update($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'));
     }
 
     public function updateIgnore(array $values)
@@ -737,10 +741,10 @@ class Builder extends Syntax
         ]);
 
         $execute = new Execute;
-        $config = $execute->config($this->connection);
+        $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
         $this->executeSyntax('update', $config['driver']);
 
-        return $execute->update($this->query, $this->bindparams, $this->connection);
+        return $execute->update($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'));
     }
 
     /**
@@ -755,10 +759,10 @@ class Builder extends Syntax
         ], false);
 
         $execute = new Execute;
-        $config = $execute->config($this->connection);
+        $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
         $this->executeSyntax('insert', $config['driver']);
 
-        return $execute->insert($this->query, $this->bindparams, $this->connection);
+        return $execute->insert($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'));
     }
 
     /**
@@ -773,10 +777,10 @@ class Builder extends Syntax
         ], false);
 
         $execute = new Execute;
-        $config = $execute->config($this->connection);
+        $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
         $this->executeSyntax('insert', $config['driver']);
 
-        return $execute->insert($this->query, $this->bindparams, $this->connection, true);
+        return $execute->insert($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'), true);
     }
 
     /**
@@ -793,10 +797,10 @@ class Builder extends Syntax
         ], false);
 
         $execute = new Execute;
-        $config = $execute->config($this->connection);
+        $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
         $this->executeSyntax('insert', $config['driver']);
 
-        return $execute->insert($this->query, $this->bindparams, $this->connection);
+        return $execute->insert($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'));
     }
 
     /**
@@ -812,10 +816,10 @@ class Builder extends Syntax
         ], false);
 
         $execute = new Execute;
-        $config = $execute->config($this->connection);
+        $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
         $this->executeSyntax('insert', $config['driver']);
 
-        return $execute->insert($this->query, $this->bindparams, $this->connection);
+        return $execute->insert($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'));
     }
 
     /**
@@ -825,10 +829,10 @@ class Builder extends Syntax
     public function delete()
     {
         $execute = new Execute;
-        $config = $execute->config($this->connection);
+        $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
         $this->executeSyntax('delete', $config['driver']);
 
-        return $execute->delete($this->query, $this->bindparams, $this->connection);
+        return $execute->delete($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'));
     }
 
     /**
@@ -839,10 +843,10 @@ class Builder extends Syntax
         $this->add('explain', true, false);
 
         $execute = new Execute;
-        $config = $execute->config($this->connection);
+        $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
         $this->executeSyntax('select', $config['driver']);
 
-        return $execute->select($this->query, $this->bindparams, $this->connection);
+        return $execute->select($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'));
     }
 
     /**
@@ -852,9 +856,22 @@ class Builder extends Syntax
     public function count()
     {
         $execute = new Execute;
-        $config = $execute->config($this->connection);
+        $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
         $this->executeSyntax('select', $config['driver']);
 
-        return $execute->select($this->query, $this->bindparams, $this->connection, count: true);
+        return $execute->select($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'), count: true);
+    }
+
+    /**
+     * Get connection config
+     */
+    private function getConfig(string $connection)
+    {
+        $config = Config::database('connections');
+
+        if (!empty($config[$connection])) return $config[$connection];        
+
+        Log::create('database', "Connection not found ( {$connection} )");
+        throw new PDOException("Connection not found ( {$connection} )");
     }
 }

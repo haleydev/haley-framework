@@ -22,11 +22,12 @@ class Command_Create extends Lines
         $db_table = null;
 
         if ($database) {
-            if ($params == '--all') {
-                createDir(directoryRoot('app/models'));
+            if ($params == '--all') {             
+               
+                createDir(directoryRoot('app/Models'));
                 $count = 0;
                 foreach ($database as $data) {
-                    $location = directoryRoot("app/models/{$data['table']}.php");
+                    $location = directoryRoot("app/Models/{$data['table']}.php");
                     $mold = (new Molds)->model($data['table'], $data['table'], $data['primary'], $data['columns'], '');
 
                     if (!file_exists($location)) {
@@ -54,7 +55,7 @@ class Command_Create extends Lines
             }
         }
 
-        $location = directoryRoot("app/models/$params.php");
+        $location = directoryRoot("app/Models/$params.php");
         $class = pathinfo($location, PATHINFO_FILENAME);
 
         createDir(dirname($location));

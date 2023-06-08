@@ -1,4 +1,5 @@
 <?php
+
 namespace Haley\Database;
 
 use Haley\Collections\Config;
@@ -17,15 +18,15 @@ class Connection
      * Criar conexão com o banco de dados
      * @return PDO
      */
-    public static function instance(string $connection = 'default')
+    public static function instance(string $connection)
     {
-        if (isset(self::$instances[$connection])) {
-            return self::$instances[$connection];
-        }
+        if (isset(self::$instances[$connection])) return self::$instances[$connection];        
 
-        $config = self::getConfig($connection);
+        $config = Config::database('connections');
 
-        if ($config) {
+        if (!empty($config[$connection])) {
+            $config = $config[$connection];
+
             $drive = $config['driver'];
             $host = $config['host'];
             $port = $config['port'];
@@ -45,20 +46,6 @@ class Connection
 
         Log::create('database', "Connection not found ( {$connection} )");
         throw new PDOException("Connection not found ( {$connection} )");
-    }
-
-    /**
-     * @return array|false
-     */
-    public static function getConfig(string $connection = 'default')
-    {
-        $config = Config::database('connections');
-
-        if ($config and isset($config[$connection])) {
-            return $config[$connection];
-        }
-
-        return false;
     }
 
     public static function close(string $connection = null)

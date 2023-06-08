@@ -1,31 +1,30 @@
 <?php
+
 namespace Haley\Database\Query;
 
+use Haley\Collections\Config;
 use Haley\Database\Connection;
-use Haley\Database\Query\Builder\Delete;
-use Haley\Database\Query\Builder\Insert;
-use Haley\Database\Query\Builder\Select;
 use Haley\Database\Query\Builder;
-use Haley\Database\Query\Builder\Update;
 
-/**
- * @method static int teste(string $query, array $bindings = [])
- */
 class DB
 {
     /** 
-     * GET CONNECTION INSTANCE
+     * Connection instance
      */
-    public static function connection(string $connection = 'default')
+    public static function connection(string|null $connection = null)
     {
+        if ($connection == null) $connection = Config::database('default');
+
         return Connection::instance($connection);
     }
 
     /** 
-     * EXECUTE THE QUERY
+     * Raw query
      */
-    public static function query(string $query, array $bindparams = [], string $connection = 'default')
+    public static function query(string $query, array $bindparams = [], string|null $connection = null)
     {
+        if ($connection == null) $connection = Config::database('default');
+
         $instance = Connection::instance($connection);
         $query = $instance->prepare($query);
 
@@ -43,40 +42,8 @@ class DB
         return $query;
     }
 
-    // /**   
-    //  * QUERY SELECT
-    //  */
-    // public static function select(string $table, null|string $as = null)
-    // {
-    //     return (new Select)->from($table, $as);
-    // }
-
-    // /**   
-    //  * QUERY INSERT
-    //  */
-    // public static function insert(string $table, null|string $as = null)
-    // {
-    //     return (new Insert)->into($table, $as);
-    // }
-
-    // /**   
-    //  * QUERY UPDATE
-    //  */
-    // public static function update(string $table, null|string $as = null)
-    // {
-    //     return (new Update)->table($table, $as);
-    // }
-
-    // /**   
-    //  * QUERY DELETE
-    //  */
-    // public static function delete(string $table, null|string $as = null)
-    // {
-    //     return (new Delete)->from($table, $as);
-    // }
-
     /**   
-     * EM TESTE
+     * Query table
      */
     public static function table(string $table, null|string $as = null)
     {

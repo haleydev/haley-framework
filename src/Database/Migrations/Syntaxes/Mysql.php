@@ -3,7 +3,6 @@ namespace Haley\Database\Migrations\Syntaxes;
 
 use Haley\Collections\Config;
 use Haley\Collections\Log;
-use Haley\Database\Connection;
 use Haley\Database\Migrations\Builder\MigrationMemory;
 use Haley\Database\Query\DB;
 use PDO;
@@ -25,7 +24,7 @@ class Mysql
     {
         try {
             $this->table = MigrationMemory::$definitions['table'];
-            $this->connection = MigrationMemory::$definitions['connection'];            
+            $this->connection = MigrationMemory::$definitions['connection'];   
 
             if ($this->issetTable($this->table, $this->connection)) {
                 $this->db_columns = $this->dbColumns($this->table, $this->connection);
@@ -65,8 +64,10 @@ class Mysql
         return false;
     }
 
-    public function dbColumns(string $table, string $connection = 'default')
+    public function dbColumns(string $table, string|null $connection = null)
     {
+        if ($connection == null) $connection = Config::database('default');
+        
         $columns = DB::query("SHOW FULL COLUMNS FROM {$table}", [], $connection)->fetchAll(PDO::FETCH_ASSOC);
         $db_columns = [];
 
@@ -79,8 +80,10 @@ class Mysql
         return $db_columns;
     }
 
-    public function dbIndexes(string $table, string $connection = 'default')
+    public function dbIndexes(string $table, string|null $connection = null)
     {
+        if ($connection == null) $connection = Config::database('default');
+
         $indexes = DB::query("SHOW INDEX FROM {$table} WHERE Key_name != 'PRIMARY'", connection: $connection)->fetchAll(PDO::FETCH_ASSOC);
         $db_indexes = [];
 
@@ -93,15 +96,15 @@ class Mysql
         return $db_indexes;
     }
 
-    public function dbForeigns(string $table, string $connection = 'default')
+    public function dbForeigns(string $table, string|null $connection = null)
     {
+        if ($connection == null) $connection = Config::database('default');
+
         if(!empty(Config::database('connections')[$connection])) {
             $database = (string)Config::database('connections')[$connection]['database'];
         }else {
             $database = '';
-        }
-        
-        // dd($database);die;
+        }  
 
         $foreings = DB::query("SELECT TABLE_NAME, CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE WHERE REFERENCED_TABLE_SCHEMA = '{$database}' AND REFERENCED_COLUMN_NAME IS NOT NULL AND TABLE_NAME = '{$table}'")->fetchAll(PDO::FETCH_ASSOC);
 
@@ -217,7 +220,7 @@ class Mysql
                 }
             }
 
-            $config = Connection::getConfig($this->connection);
+            $config = Config::database('connections')[$this->connection];
 
             if (isset($config['engine'])) {
                 $definitions .= " ENGINE = {$config['engine']}";
@@ -269,8 +272,7 @@ class Mysql
     }
 
     private function alterTable()
-    {
-       
+    {       
         if (count($this->columns) > 0) {
             $columns = '';
 
