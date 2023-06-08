@@ -1,6 +1,6 @@
 <?php
 
-namespace Haley\Database\Query\Builder;
+namespace Haley\Database\Query;
 
 use Haley\Database\Connection;
 

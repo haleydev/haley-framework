@@ -4,7 +4,6 @@ namespace Haley\Database\Query;
 
 use Haley\Collections\Config;
 use Haley\Collections\Log;
-use Haley\Database\Query\Builder\Execute;
 use Haley\Database\Query\Syntaxes\Syntax;
 use InvalidArgumentException;
 use PDOException;
@@ -658,7 +657,6 @@ class Builder extends Syntax
      */
     public function getParams(string $type = 'select')
     {
-        $execute = new Execute;
         $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
         $this->executeSyntax($type, $config['driver']);
 
@@ -672,7 +670,6 @@ class Builder extends Syntax
      */
     public function getQuery(string $type = 'select')
     {
-        $execute = new Execute;
         $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
         $this->executeSyntax($type, $config['driver']);
 
@@ -686,7 +683,6 @@ class Builder extends Syntax
      */
     public function getBindparams(string $type = 'select')
     {
-        $execute = new Execute;
         $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
         $this->executeSyntax($type, $config['driver']);
 
@@ -869,7 +865,7 @@ class Builder extends Syntax
     {
         $config = Config::database('connections');
 
-        if (!empty($config[$connection])) return $config[$connection];        
+        if (!empty($config[$connection])) return $config[$connection];
 
         Log::create('database', "Connection not found ( {$connection} )");
         throw new PDOException("Connection not found ( {$connection} )");

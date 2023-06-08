@@ -9,12 +9,19 @@ class Syntax
     protected array $bindparams = [];
     protected array $params = [];
 
-    protected function add(string $action, $params, bool $array = true)
+    protected function add(string $action,mixed $params, bool $array = true)
     {
         if ($array == true) {
             $this->params[$action][] = $params;
         } else {
             $this->params[$action] = $params;
+        }
+    }
+
+    protected function addLast(string $action, string $key, mixed $value, bool $array = true)
+    { 
+        if($key = array_key_last($this->params[$action])) {
+
         }
     }
 
