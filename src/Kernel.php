@@ -5,7 +5,7 @@ namespace Haley;
 use Haley\Collections\Config;
 use Haley\Collections\Memory;
 use Haley\Console\Console;
-use Haley\Debug\Exceptions;
+use Haley\Exceptions\Exceptions;
 use Haley\Router\Route;
 use Haley\Router\RouteMemory;
 
@@ -17,9 +17,9 @@ class Kernel
         ini_set('display_startup_erros', 1);
         error_reporting(E_ALL);
 
-        define('DIRECTORY_PRIVATE', ROOT . DIRECTORY_SEPARATOR . 'private');
-        define('DIRECTORY_PUBLIC', ROOT . DIRECTORY_SEPARATOR . 'public');
-        define('DIRECTORY_RESOURCES', ROOT . DIRECTORY_SEPARATOR . 'resources');
+        define('DIRECTORY_PRIVATE', DIRECTORY_ROOT . DIRECTORY_SEPARATOR . 'private');
+        define('DIRECTORY_PUBLIC', DIRECTORY_ROOT . DIRECTORY_SEPARATOR . 'public');
+        define('DIRECTORY_RESOURCES', DIRECTORY_ROOT . DIRECTORY_SEPARATOR . 'resources');
         define('DIRECTORY_HALEY', dirname(__DIR__) . DIRECTORY_SEPARATOR . 'src');
 
         date_default_timezone_set(Config::app('timezone'));
@@ -76,15 +76,6 @@ class Kernel
 
             (new Console)->run();
         });
-    }
-
-    public function jobs()
-    {
-        Memory::set('kernel', 'jobs');
-
-        foreach (Config::app('helpers') as $helper) {
-            require_once $helper;
-        }
     }
 
     public function terminate()

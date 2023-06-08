@@ -109,21 +109,21 @@ function old(string $input = null)
 }
 
 function csrf()
-{   
+{
     return new Csrf;
 }
 
 /**
- * @return var_dump
+ * @return string
  */
 function dd()
 {
-    $all = func_get_args();   
+    $all = func_get_args();
 
     $backtrace = debug_backtrace();
-    $line = $backtrace[0]['line'] ?? '';  
-    $file = $backtrace[0]['file'] ?? ''; 
-    
+    $line = $backtrace[0]['line'] ?? '';
+    $file = $backtrace[0]['file'] ?? '';
+
     echo $file . ' - ' . $line . PHP_EOL;
 
     foreach ($all as $value) {
@@ -203,9 +203,9 @@ function directoryResources(string|null $path = null)
 
 function directoryRoot(string|null $path = null)
 {
-    if ($path === null) return ROOT;
+    if ($path === null) return DIRECTORY_ROOT;
 
-    return ROOT . DIRECTORY_SEPARATOR . trim(directorySeparator($path), DIRECTORY_SEPARATOR);
+    return DIRECTORY_ROOT . DIRECTORY_SEPARATOR . trim(directorySeparator($path), DIRECTORY_SEPARATOR);
 }
 
 function directoryHaley(string|null $path = null)

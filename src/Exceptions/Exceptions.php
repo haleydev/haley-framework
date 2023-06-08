@@ -1,5 +1,5 @@
 <?php
-namespace Haley\Debug;
+namespace Haley\Exceptions;
 
 use Haley\Collections\Log;
 use Error;

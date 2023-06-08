@@ -1,6 +1,6 @@
 <?php
 
-namespace Haley\Debug;
+namespace Haley\Exceptions;
 
 use Haley\Collections\Config;
 use Haley\Collections\Memory;
@@ -9,24 +9,24 @@ class ExceptionsDebug
 {
     public function debug($error)
     {
-        if (ob_get_level() > 0)  ob_clean();        
+        if (ob_get_level() > 0)  ob_clean();
+
+        $error_message = ucfirst($error->getMessage());
+        $error_file = $error->getFile();
+        $error_line = $error->getLine();
+        $error_all = $error;
 
         if (Memory::get('kernel') == 'console') {
-            die(PHP_EOL . "\033[0;31m{$error->getMessage()}\033[0m" . PHP_EOL . PHP_EOL);
+            die(PHP_EOL . "\033[0;31m {$error_file} - {$error_line} " . PHP_EOL . " {$error->getMessage()}\033[0m" . PHP_EOL . PHP_EOL);
         }
 
-        response()->header('content-type', 'text/html; charset=utf-8');      
+        response()->header('content-type', 'text/html; charset=utf-8');
 
         if (Config::app('debug') == false) {
             return response()->abort(500);
         }
 
         response()->status('500');
-
-        $error_message = ucfirst($error->getMessage());
-        $error_file = $error->getFile();
-        $error_line = $error->getLine();
-        $error_all = $error;
 
         $file = file($error_file);
         $analyzer_file = '';
@@ -52,7 +52,7 @@ class ExceptionsDebug
             'headers' => request()->headers(),
         ];
 
-        return view('debug', $params, dirname(__DIR__) . '/Debug/resources');
+        return view('debug', $params, dirname(__DIR__) . '/Exceptions/resources');
     }
 
     public function dd()

@@ -6,10 +6,10 @@ class Command_Dashboard extends Lines
 {   
     public function dashboard()
     { 
-        echo "\033[0;34m mcquery v1.0.0 beta - Warley Rodrigues de Moura\033[0m". PHP_EOL . PHP_EOL; 
+        echo "\033[0;34m haley v1.0.0 beta - Warley Rodrigues de Moura\033[0m". PHP_EOL . PHP_EOL; 
 
         echo "\033[0;33m comandos disponiveis\033[0m" . PHP_EOL;
-        echo "\033[0;32m server\033[0m ativa servidor de desenvolvimento mcquery - server:port 0000 para escolher uma porta" . PHP_EOL;
+        echo "\033[0;32m server\033[0m ativa servidor de desenvolvimento - server:port 0000 para escolher uma porta" . PHP_EOL;
         echo "\033[0;32m cronjob\033[0m ativa/desativa o cronjob 'linux debian' - " . $this->cron_check() . PHP_EOL;
 
         echo "\033[0;33m create\033[0m" . PHP_EOL;        
@@ -30,14 +30,12 @@ class Command_Dashboard extends Lines
 
         echo "\033[0;33m cache\033[0m" . PHP_EOL;
         echo "\033[0;32m cache:view\033[0m limpa o cache dos view" . PHP_EOL;     
-        echo "\033[0;32m cache:env\033[0m armazena e usa as informações do .env em cache - " . $this->env_check() . PHP_EOL . PHP_EOL;
-        
-   
+        echo "\033[0;32m cache:env\033[0m armazena e usa as informações do .env em cache - " . $this->env_check() . PHP_EOL . PHP_EOL;  
     }
 
     private function env_check()
     {
-        if (file_exists(ROOT.'/app/cache/env.json')) {
+        if (file_exists(directoryRoot('storage/cache/jsons/env.json'))) {
             return "\033[0;32mativo\033[0m" . PHP_EOL;
         } else {
             return "\033[0;31mdesativado\033[0m" . PHP_EOL;;
@@ -53,7 +51,7 @@ class Command_Dashboard extends Lines
               
                 $check = shell_exec('crontab -l 2>&1');
 
-                if(str_contains($check,'* * * * * cd '. ROOT .' && php mcquery cronjob:run >> /dev/null 2>&1')){
+                if(str_contains($check,'* * * * * cd '. directoryRoot() .' && php haley cronjob:run >> /dev/null 2>&1')){
                     return "\033[0;32mativo\033[0m" . PHP_EOL; 
                 }
             }          

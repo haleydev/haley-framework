@@ -14,7 +14,7 @@ class Env
      */
     public static function env(string|null $key = null, mixed $or = null)
     {
-        if(empty(self::$env)) { 
+        if(!count(self::$env)) { 
             if (file_exists(directoryRoot('storage/cache/jsons/env.json'))) {
                 self::$env = self::envCache();
             } elseif (file_exists(directoryRoot('.env'))) {
@@ -46,7 +46,7 @@ class Env
      */
     private static function envRead()
     {
-        $file = array_filter(file(ROOT . '/.env'));
+        $file = array_filter(file(directoryRoot('.env')));
         $env = [];
 
         foreach ($file as $value) {
