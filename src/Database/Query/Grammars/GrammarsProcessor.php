@@ -1,10 +1,10 @@
 <?php
 
-namespace Haley\Database\Query\Syntaxes;
+namespace Haley\Database\Query\Grammars;
 
 use InvalidArgumentException;
 
-class Mysql
+class GrammarsProcessor
 {
     public array $params = [];
     public array $bindparams = [];
@@ -135,35 +135,34 @@ class Mysql
 
     private function where(array $params)
     {
+        // dd($params);
+        // die;
+
         foreach ($params as $param) {
             if (!in_array(strtolower($param['operator']), $this->operators) and $param['operator'] != false) {
-                throw new InvalidArgumentException("Operador inválido! ( {$param['operator']} )");
+                throw new InvalidArgumentException("Invalid operator ( {$param['operator']} )");
             }
 
             $type = $param['type'];
-
-            if (isset($param['compact'])) {
-                $this->where_compact = $param['compact'];
-            } else {
-                $this->where_compact = false;
-            }
+            $open = $param['tag_open'] ?? false;
+            $close = $param['tag_close'] ?? false;
 
             // WHERE
             if ($type == 'where') {
-                $this->addWhere("{$this->quotes($param['column'])} {$param['operator']} ?", $param['boolean']);
+                $this->addWhere("{$this->quotes($param['column'])} {$param['operator']} ?", $param['boolean'], $open, $close);
                 $this->bindparams[] = $param['value'];
             }
 
             // WHERE BETWEEN
             elseif ($type == 'where_between') {
-                $this->addWhere("{$this->quotes($param['column'])} BETWEEN ? AND ?", $param['boolean']);
+                $this->addWhere("{$this->quotes($param['column'])} BETWEEN ? AND ?", $param['boolean'], $open, $close);
                 $this->bindparams[] = $param['start'];
                 $this->bindparams[] = $param['end'];
             }
 
             // WHERE NOT BETWEEN
             elseif ($type == 'where_not_between') {
-                $this->addWhere("{$this->quotes($param['column'])} NOT BETWEEN ? AND ?", $param['boolean']);
+                $this->addWhere("{$this->quotes($param['column'])} NOT BETWEEN ? AND ?", $param['boolean'], $open, $close);
                 $this->bindparams[] = $param['start'];
                 $this->bindparams[] = $param['end'];
             }
@@ -176,7 +175,7 @@ class Mysql
                     }
                 }
 
-                $this->addWhere($param['raw'], $param['boolean']);
+                $this->addWhere($param['raw'], $param['boolean'], $open, $close);
             }
 
             // WHERE NOT IN
@@ -188,7 +187,7 @@ class Mysql
                 }
 
                 $binds = trim($binds, ",");
-                $this->addWhere("{$this->quotes($param['column'])} NOT IN ($binds)", $param['boolean']);
+                $this->addWhere("{$this->quotes($param['column'])} NOT IN ($binds)", $param['boolean'], $open, $close);
             }
 
             // WHERE IN
@@ -200,44 +199,44 @@ class Mysql
                 }
 
                 $binds = trim($binds, ",");
-                $this->addWhere("{$this->quotes($param['column'])} IN ($binds)", $param['boolean']);
+                $this->addWhere("{$this->quotes($param['column'])} IN ($binds)", $param['boolean'], $open, $close);
             }
 
             // WHERE NULL
             elseif ($type == 'where_null') {
                 foreach ($param['columns'] as $column) {
-                    $this->addWhere("{$this->quotes($column)} IS NULL", $param['boolean']);
+                    $this->addWhere("{$this->quotes($column)} IS NULL", $param['boolean'], $open, $close);
                 }
             }
 
             // WHERE NOT NULL
             elseif ($type == 'where_not_null') {
                 foreach ($param['columns'] as $column) {
-                    $this->addWhere("{$this->quotes($column)} IS NOT NULL", $param['boolean']);
+                    $this->addWhere("{$this->quotes($column)} IS NOT NULL", $param['boolean'], $open, $close);
                 }
             }
 
             // WHERE YEAR
             elseif ($type == 'where_year') {
-                $this->addWhere("YEAR({$this->quotes($param['column'])}) {$param['operator']} ?", $param['boolean']);
+                $this->addWhere("YEAR({$this->quotes($param['column'])}) {$param['operator']} ?", $param['boolean'], $open, $close);
                 $this->bindparams[] = $param['year'];
             }
 
             // WHERE MONTH
             elseif ($type == 'where_month') {
-                $this->addWhere("MONTH({$this->quotes($param['column'])}) {$param['operator']} ?", $param['boolean']);
+                $this->addWhere("MONTH({$this->quotes($param['column'])}) {$param['operator']} ?", $param['boolean'], $open, $close);
                 $this->bindparams[] = $param['month'];
             }
 
             // WHERE DAY
             elseif ($type == 'where_day') {
-                $this->addWhere("DAY({$this->quotes($param['column'])}) {$param['operator']} ?", $param['boolean']);
+                $this->addWhere("DAY({$this->quotes($param['column'])}) {$param['operator']} ?", $param['boolean'], $open, $close);
                 $this->bindparams[] = $param['day'];
             }
 
             // WHERE DATE
             elseif ($type == 'where_date') {
-                $this->addWhere("DATE({$this->quotes($param['column'])}) {$param['operator']} ?", $param['boolean']);
+                $this->addWhere("DATE({$this->quotes($param['column'])}) {$param['operator']} ?", $param['boolean'], $open, $close);
 
                 $date = date("Y-m-d", strtotime($param['date']));
                 $this->bindparams[] = $date;
@@ -245,28 +244,28 @@ class Mysql
 
             // WHERE HOUR
             elseif ($type == 'where_hour') {
-                $this->addWhere("HOUR({$this->quotes($param['column'])}) {$param['operator']} ?", $param['boolean']);
+                $this->addWhere("HOUR({$this->quotes($param['column'])}) {$param['operator']} ?", $param['boolean'], $open, $close);
 
                 $this->bindparams[] = $param['hour'];
             }
 
             // WHERE MINUTE
             elseif ($type == 'where_minute') {
-                $this->addWhere("MINUTE({$this->quotes($param['column'])}) {$param['operator']} ?", $param['boolean']);
+                $this->addWhere("MINUTE({$this->quotes($param['column'])}) {$param['operator']} ?", $param['boolean'], $open, $close);
 
                 $this->bindparams[] = $param['minute'];
             }
 
             // WHERE SECOND
             elseif ($type == 'where_second') {
-                $this->addWhere("SECOND({$this->quotes($param['column'])}) {$param['operator']} ?", $param['boolean']);
+                $this->addWhere("SECOND({$this->quotes($param['column'])}) {$param['operator']} ?", $param['boolean'], $open, $close);
 
                 $this->bindparams[] = $param['second'];
             }
 
             // WHERE TIME
             elseif ($type == 'where_time') {
-                $this->addWhere("TIME({$this->quotes($param['column'])}) {$param['operator']} ?", $param['boolean']);
+                $this->addWhere("TIME({$this->quotes($param['column'])}) {$param['operator']} ?", $param['boolean'], $open, $close);
 
                 $this->bindparams[] = $param['time'];
             }
@@ -275,21 +274,15 @@ class Mysql
         return;
     }
 
-    private function addWhere(string $where, string $boolean)
+    private function addWhere(string $where, string $boolean, bool $open = false, bool $close = false)
     {
-        $wcs = '';
-        $wce = '';
-
-        if ($this->where_compact == 'start') {
-            $wcs = '(';
-        } elseif ($this->where_compact == 'end') {
-            $wce = ')';
-        }
+        $open = $open ? '(' : '';
+        $close = $close ? ')' : '';
 
         if ($this->where == '') {
-            $this->where = "WHERE $wcs $where $wce";
+            $this->where = 'WHERE ' . $open . $where . $close;
         } else {
-            $this->where = "{$this->where} $boolean $wcs $where $wce";
+            $this->where = $this->where . ' ' . $boolean . ' ' . $open . $where . $close;
         }
 
         return;
@@ -299,7 +292,7 @@ class Mysql
     {
         foreach ($params as $join) {
             if (!in_array(strtolower($join['operator']), $this->operators) and $join['operator'] != false) {
-                throw new InvalidArgumentException("Operador inválido! ( {$join['operator']} )");
+                throw new InvalidArgumentException("Invalid operator ( {$join['operator']} )");
             }
 
             // JOIN
@@ -491,7 +484,7 @@ class Mysql
         return;
     }
 
-    public function query(string $command)
+    public function query(string $command, string $driver)
     {
         isset($this->params['explain']) ?  $explain = 'EXPLAIN' : $explain = '';
         isset($this->params['distinct']) ? $distinct = 'DISTINCT' : $distinct = '';

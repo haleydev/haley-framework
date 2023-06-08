@@ -4,11 +4,10 @@ namespace Haley\Database\Query;
 
 use Haley\Collections\Config;
 use Haley\Collections\Log;
-use Haley\Database\Query\Syntaxes\Syntax;
 use InvalidArgumentException;
 use PDOException;
 
-class Builder extends Syntax
+class Builder extends BuilderController
 {
     /**
      * Standard env connection
@@ -181,34 +180,47 @@ class Builder extends Syntax
         return $this;
     }
 
+    // /**
+    //  * Add multiple "where" clause in query
+    //  */
+    // public function whereCompact(callable $wheres)
+    // {
+    //     if (is_callable($wheres)) {
+    //         $old_last = $this->keyLast('where') ?? 0;
+    //         $old_last += 1;
+
+    //         call_user_func($wheres, $old_last);
+
+    //         if (!empty($this->params['where'][$old_last])) {
+    //             $this->params['where'][$old_last]['tag_open'] = true;
+    //             $this->params['where'][$this->keyLast('where')]['tag_close'] = true;
+    //         }
+    //     }
+
+    //     return $this;
+    // }
+
     /**
      * Add a basic "or where" clause to the query
      */
     public function orWhere(string $column, null|string $operator = null, null|string $value = null)
     {
-        $this->where($column, $operator, $value, 'OR');
-    }
-
-    /**
-     * Add multiple "where" clause in query
-     */
-    public function whereCompact(callable $wheres, ...$use)
-    {
-        if (is_callable($wheres)) {
-            if (isset($this->params['where'])) {
-                $array_key = array_key_last($this->params['where']) + 1;
-            } else {
-                $array_key = 0;
-            }
-
-            call_user_func($wheres, $use);
-
-            if (isset($this->params['where']) and isset($this->params['where'][$array_key])) {
-                $this->params['where'][$array_key]['compact'] = 'start';
-
-                $array_key = array_key_last($this->params['where']);
-                $this->params['where'][$array_key]['compact'] = 'end';
-            }
+        if (func_num_args() === 2 and $value == null) {
+            $this->add('where', [
+                'type' => 'where',
+                'column' => $column,
+                'operator' => '=',
+                'value' => $operator,
+                'boolean' => 'OR'
+            ]);
+        } else {
+            $this->add('where', [
+                'type' => 'where',
+                'column' => $column,
+                'operator' => $operator,
+                'value' => $value,
+                'boolean' => 'OR'
+            ]);
         }
 
         return $this;
@@ -658,7 +670,7 @@ class Builder extends Syntax
     public function getParams(string $type = 'select')
     {
         $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
-        $this->executeSyntax($type, $config['driver']);
+        $this->executeProcessor($type, $config['driver']);
 
         return $this->params;
     }
@@ -671,7 +683,7 @@ class Builder extends Syntax
     public function getQuery(string $type = 'select')
     {
         $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
-        $this->executeSyntax($type, $config['driver']);
+        $this->executeProcessor($type, $config['driver']);
 
         return $this->query;
     }
@@ -684,7 +696,7 @@ class Builder extends Syntax
     public function getBindparams(string $type = 'select')
     {
         $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
-        $this->executeSyntax($type, $config['driver']);
+        $this->executeProcessor($type, $config['driver']);
 
         return $this->bindparams;
     }
@@ -695,9 +707,9 @@ class Builder extends Syntax
      */
     public function one()
     {
-        $execute = new Execute;
+        $execute = new RunQuery;
         $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
-        $this->executeSyntax('select', $config['driver']);
+        $this->executeProcessor('select', $config['driver']);
 
         return $execute->select($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'), false);
     }
@@ -708,9 +720,9 @@ class Builder extends Syntax
      */
     public function all()
     {
-        $execute = new Execute;
+        $execute = new RunQuery;
         $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
-        $this->executeSyntax('select', $config['driver']);
+        $this->executeProcessor('select', $config['driver']);
 
         return $execute->select($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'));
     }
@@ -721,9 +733,9 @@ class Builder extends Syntax
             'values' => $values
         ]);
 
-        $execute = new Execute;
+        $execute = new RunQuery;
         $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
-        $this->executeSyntax('update', $config['driver']);
+        $this->executeProcessor('update', $config['driver']);
 
         return $execute->update($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'));
     }
@@ -736,9 +748,9 @@ class Builder extends Syntax
             'values' => $values
         ]);
 
-        $execute = new Execute;
+        $execute = new RunQuery;
         $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
-        $this->executeSyntax('update', $config['driver']);
+        $this->executeProcessor('update', $config['driver']);
 
         return $execute->update($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'));
     }
@@ -754,9 +766,9 @@ class Builder extends Syntax
             'values' => $values
         ], false);
 
-        $execute = new Execute;
+        $execute = new RunQuery;
         $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
-        $this->executeSyntax('insert', $config['driver']);
+        $this->executeProcessor('insert', $config['driver']);
 
         return $execute->insert($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'));
     }
@@ -772,9 +784,9 @@ class Builder extends Syntax
             'values' => $values
         ], false);
 
-        $execute = new Execute;
+        $execute = new RunQuery;
         $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
-        $this->executeSyntax('insert', $config['driver']);
+        $this->executeProcessor('insert', $config['driver']);
 
         return $execute->insert($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'), true);
     }
@@ -792,9 +804,9 @@ class Builder extends Syntax
             'values' => $values
         ], false);
 
-        $execute = new Execute;
+        $execute = new RunQuery;
         $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
-        $this->executeSyntax('insert', $config['driver']);
+        $this->executeProcessor('insert', $config['driver']);
 
         return $execute->insert($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'));
     }
@@ -811,9 +823,9 @@ class Builder extends Syntax
             'query' => $query
         ], false);
 
-        $execute = new Execute;
+        $execute = new RunQuery;
         $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
-        $this->executeSyntax('insert', $config['driver']);
+        $this->executeProcessor('insert', $config['driver']);
 
         return $execute->insert($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'));
     }
@@ -824,9 +836,9 @@ class Builder extends Syntax
      */
     public function delete()
     {
-        $execute = new Execute;
+        $execute = new RunQuery;
         $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
-        $this->executeSyntax('delete', $config['driver']);
+        $this->executeProcessor('delete', $config['driver']);
 
         return $execute->delete($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'));
     }
@@ -838,9 +850,9 @@ class Builder extends Syntax
     {
         $this->add('explain', true, false);
 
-        $execute = new Execute;
+        $execute = new RunQuery;
         $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
-        $this->executeSyntax('select', $config['driver']);
+        $this->executeProcessor('select', $config['driver']);
 
         return $execute->select($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'));
     }
@@ -851,9 +863,9 @@ class Builder extends Syntax
      */
     public function count()
     {
-        $execute = new Execute;
+        $execute = new RunQuery;
         $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
-        $this->executeSyntax('select', $config['driver']);
+        $this->executeProcessor('select', $config['driver']);
 
         return $execute->select($this->query, $this->bindparams, $this->connection ?? Config::database('default', 'mysql'), count: true);
     }

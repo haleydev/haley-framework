@@ -4,7 +4,7 @@ namespace Haley\Database\Query;
 
 use Haley\Database\Connection;
 
-class Execute
+class RunQuery
 {
     public function select(string $query, array $bindparams, string $connection, bool $all = true, $count = false)
     {
