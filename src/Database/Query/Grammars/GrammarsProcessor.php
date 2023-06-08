@@ -9,7 +9,6 @@ class GrammarsProcessor
     public array $params = [];
     public array $bindparams = [];
 
-    private string|false $where_compact = false;
     private string $table = '';
     private string $table_raw = '';
     private string $columns = '';
@@ -135,17 +134,14 @@ class GrammarsProcessor
 
     private function where(array $params)
     {
-        // dd($params);
-        // die;
-
         foreach ($params as $param) {
             if (!in_array(strtolower($param['operator']), $this->operators) and $param['operator'] != false) {
                 throw new InvalidArgumentException("Invalid operator ( {$param['operator']} )");
             }
 
             $type = $param['type'];
-            $open = $param['tag_open'] ?? false;
-            $close = $param['tag_close'] ?? false;
+            $open = $param['tag_open'] ?? null;
+            $close = $param['tag_close'] ?? null;
 
             // WHERE
             if ($type == 'where') {
@@ -274,15 +270,29 @@ class GrammarsProcessor
         return;
     }
 
-    private function addWhere(string $where, string $boolean, bool $open = false, bool $close = false)
+    private function addWhere(string $where, string $boolean, int|null $open = null, int|null $close = null)
     {
-        $open = $open ? '(' : '';
-        $close = $close ? ')' : '';
+        $tag_open = '';
+        $tag_close = '';
+
+        if (!empty($open)) {
+            while ($open > 0) {
+                $tag_open .= '(';
+                $open--;
+            }
+        }
+
+        if (!empty($close)) {
+            while ($close > 0) {
+                $tag_close .= ')';
+                $close--;
+            }
+        }     
 
         if ($this->where == '') {
-            $this->where = 'WHERE ' . $open . $where . $close;
+            $this->where = 'WHERE ' . $tag_open . $where . $tag_close;
         } else {
-            $this->where = $this->where . ' ' . $boolean . ' ' . $open . $where . $close;
+            $this->where .= ' ' . $boolean . ' ' . $tag_open . $where . $tag_close;
         }
 
         return;

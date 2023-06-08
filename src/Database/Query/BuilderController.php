@@ -13,7 +13,7 @@ class BuilderController
     protected array $params = [];
 
     protected function add(string $action, mixed $params, bool $array = true)
-    {  
+    {
         if ($array == true) {
             $this->params[$action][] = $params;
         } else {
@@ -22,10 +22,10 @@ class BuilderController
     }
 
     protected function keyLast(string $action)
-    {   
-        if(!array_key_exists($action,$this->params)) return null;
+    {
+        if (!array_key_exists($action, $this->params)) return null;
 
-        return array_key_last($this->params[$action]);        
+        return array_key_last($this->params[$action]);
     }
 
     protected function executeProcessor(string $command, string $driver)

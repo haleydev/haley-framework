@@ -180,25 +180,33 @@ class Builder extends BuilderController
         return $this;
     }
 
-    // /**
-    //  * Add multiple "where" clause in query
-    //  */
-    // public function whereCompact(callable $wheres)
-    // {
-    //     if (is_callable($wheres)) {
-    //         $old_last = $this->keyLast('where') ?? 0;
-    //         $old_last += 1;
+    /**
+     * Add multiple "where" clause in query
+     */
+    public function whereCompact(callable $wheres)
+    {
+        if (is_callable($wheres)) {
+            $old_last = $this->keyLast('where') ?? 0;
+            $old_last += 1;
 
-    //         call_user_func($wheres, $old_last);
+            call_user_func($wheres, $old_last);
 
-    //         if (!empty($this->params['where'][$old_last])) {
-    //             $this->params['where'][$old_last]['tag_open'] = true;
-    //             $this->params['where'][$this->keyLast('where')]['tag_close'] = true;
-    //         }
-    //     }
+            if (!empty($this->params['where'][$old_last])) {
+                if (!array_key_exists('tag_open', $this->params['where'][$old_last])) {
+                    $this->params['where'][$old_last]['tag_open'] = 0;
+                }
 
-    //     return $this;
-    // }
+                if (!array_key_exists('tag_close', $this->params['where'][$this->keyLast('where')])) {
+                    $this->params['where'][$this->keyLast('where')]['tag_close'] = 0;
+                }
+
+                $this->params['where'][$old_last]['tag_open'] += 1;
+                $this->params['where'][$this->keyLast('where')]['tag_close'] += 1;
+            }
+        }
+
+        return $this;
+    }
 
     /**
      * Add a basic "or where" clause to the query
@@ -705,7 +713,7 @@ class Builder extends BuilderController
      * Execute the select query
      * @return array|object 'fetch'
      */
-    public function one()
+    public function first()
     {
         $execute = new RunQuery;
         $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
@@ -718,7 +726,7 @@ class Builder extends BuilderController
      * Execute the select query
      * @return array|object 'fetchAll'
      */
-    public function all()
+    public function get()
     {
         $execute = new RunQuery;
         $config = $this->getConfig($this->connection ?? Config::database('default', 'mysql'));
