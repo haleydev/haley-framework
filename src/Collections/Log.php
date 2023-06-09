@@ -21,12 +21,21 @@ class Log
      * Clean log file
      * @return bool
      */
-    public static function clean(string $name)
+    public static function clean(string|array $logs)
     {
-        $file = directoryRoot("storage/logs/$name.log");
+        if (is_string($logs)) $logs = [$logs];
 
-        if (!file_exists($file)) return false;
-        if (file_put_contents($file, '') !== false) return true;
-        return false;
+        $response = false;
+
+        foreach ($logs as $log) {
+            $file = directoryRoot("storage/logs/$log.log");
+
+            if (!file_exists($file)) continue;
+            if (file_put_contents($file, '') !== false) $response = true;;
+
+            $response = false;
+        }
+
+        return $response;
     }
 }

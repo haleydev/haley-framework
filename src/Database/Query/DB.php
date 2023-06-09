@@ -5,6 +5,7 @@ namespace Haley\Database\Query;
 use Haley\Collections\Config;
 use Haley\Database\Connection;
 use Haley\Database\Query\Builder;
+use Haley\Database\Query\Grammars\GrammarsHelpers;
 
 class DB
 {
@@ -48,5 +49,13 @@ class DB
     public static function table(string $table, null|string $as = null)
     {
         return (new Builder)->table($table, $as);
+    }
+
+    /**
+     * Database query helpers
+     */
+    public static function helper(string|null $connection = null)
+    {
+        return new GrammarsHelpers($connection);
     }
 }

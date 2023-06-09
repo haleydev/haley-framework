@@ -5,14 +5,14 @@ class TableOptions
 {
     public function unique()
     {
-        MigrationMemory::saveOption('unique');
+        MigrationMemory::option('unique');
 
         return $this;
     }
 
     public function default(string $default)
     {
-        MigrationMemory::saveOption('default', [
+        MigrationMemory::option('default', [
             'default' => $default
         ]);
 
@@ -21,7 +21,7 @@ class TableOptions
 
     public function comment(string $comment)
     {
-        MigrationMemory::saveOption('comment', [
+        MigrationMemory::option('comment', [
             'comment' => $comment
         ]);
 
@@ -30,7 +30,7 @@ class TableOptions
 
     public function notNull()
     {
-        MigrationMemory::saveOption('not_null');
+        MigrationMemory::option('not_null');
 
         return $this;
     }

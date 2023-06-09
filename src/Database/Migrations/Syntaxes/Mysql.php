@@ -202,7 +202,7 @@ class Mysql
 
         foreach ($columns as $column) {
             if (isset($this->db_columns[$column])) {
-                DB::query("ALTER TABLE {$this->table} DROP `$column`", connection: $this->connection);
+                DB::query("ALTER TABLE {$this->table} DROP COLUMN `$column`", connection: $this->connection);
                 MigrationMemory::message("dropped column $column");
             }
         }
@@ -254,7 +254,7 @@ class Mysql
 
                     if (!empty($values['on_update'])) {
                         $foreign .= " ON UPDATE {$values['on_update']}";
-                    }
+                    }   
 
                     DB::query("ALTER TABLE {$this->table} ADD {$foreign}", connection: $this->connection);
                 }
