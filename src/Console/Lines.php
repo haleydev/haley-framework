@@ -1,54 +1,57 @@
 <?php
+
 namespace Haley\Console;
 
 class Lines
 {
-    public function red(string $mesage, bool $eol = true) 
+    public static function red(string $value)
     {
-        $line = $eol ? PHP_EOL : '';     
-
-        echo "\033[0;31m$mesage\033[0m $line";
-        return;
+        echo "\033[0;31m$value \033[0m";
+        return new self;
     }
 
-    public function green(string $mesage, bool $eol = true) 
+    public static function green(string $value)
     {
-        $line = $eol ? PHP_EOL : '';     
-
-        echo "\033[0;32m$mesage\033[0m $line";
-        return;
+        echo "\033[0;32m$value \033[0m";
+        return new self;
     }
 
-    public function yellow(string $mesage, bool $eol = true) 
+    public static function yellow(string $value)
     {
-        $line = $eol ? PHP_EOL : '';     
-
-        echo "\033[0;43m$mesage\033[0m $line";
-        return;
+        echo "\e[93m$value \033[0m";
+        return new self;
     }
 
-    public function white(string $mesage, bool $eol = true) 
+    public static function normal(string $value)
     {
-        $line = $eol ? PHP_EOL : '';     
-
-        echo "$mesage $line";
-        return;
+        echo $value . ' ';
+        return new self;
     }
 
-    public function blue(string $mesage, bool $eol = true)
+    public static function blue(string $value)
     {
-        $line = $eol ? PHP_EOL : '';     
-
-        echo "\033[0;34m$mesage\033[0m $line";
-        return;        
+        echo "\033[0;34m$value \033[0m";
+        return new self;
     }
 
-    // php -r 'echo "\033[31m some colored text \033[0m some white text \n";'
+    public static function gray(string $value)
+    {
+        echo "\e[90m$value \033[0m";
+        return new self;
+    }
+
+    public static function br()
+    {
+        echo PHP_EOL;
+
+        return new self;
+    }
 
     /**
      * @return string
      */
-    public function readline() {
-        return (string)readline('');
-    }   
+    public static function readline()
+    {
+        return readline('') ?? '';
+    }
 }

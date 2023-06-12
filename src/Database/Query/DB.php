@@ -4,8 +4,8 @@ namespace Haley\Database\Query;
 
 use Haley\Collections\Config;
 use Haley\Database\Connection;
+use Haley\Database\Migration\Query;
 use Haley\Database\Query\Builder;
-use Haley\Database\Query\Grammars\GrammarsHelpers;
 
 class DB
 {
@@ -52,10 +52,10 @@ class DB
     }
 
     /**
-     * Database query helpers
+     * Database migration helper query
      */
     public static function helper(string|null $connection = null)
     {
-        return new GrammarsHelpers($connection);
+        return new Query($connection);
     }
 }

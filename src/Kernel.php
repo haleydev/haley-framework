@@ -78,7 +78,9 @@ class Kernel
                 require_once $helper;
             }
 
-            (new Console)->run();
+            require_once directoryRoot('routes/console.php');
+
+            Console::end();
         });
     }
 

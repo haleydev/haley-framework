@@ -8,7 +8,7 @@ use Haley\Database\Query\DB;
 use InvalidArgumentException;
 use PDO;
 
-class GrammarsHelpers
+class GrammarsHelpers_OLD
 {
     private string|null $connection = null;
     private array|null $config = null;
@@ -28,17 +28,21 @@ class GrammarsHelpers
         $connections = $config['connections'] ?? [];
 
         if ($connection === null) {
-            $this->config = $connections[$config['default']] ?? null;
+            $this->connection = $config['default'];
+            $this->config = $connections[$config['default']];
         } elseif (array_key_exists($connection, $connections)) {
+            $this->connection = $connection;
             $this->config = $connections[$connection];
-        } else if ($this->config == null) {
+        }
+
+        if ($this->config == null || $this->connection == null) {
             Log::create('connection', "Connection not found");
             throw new InvalidArgumentException("Connection not found");
         }
 
         if (!in_array($this->config['driver'] ?? '', $this->compatibilities)) {
-            Log::create('connection', 'Drive not found ( ' . $this->config['driver'] ?? '' . ' )');
-            throw new InvalidArgumentException('Drive not found ( ' . $this->config['driver'] ?? '' . ' )');
+            Log::create('connection', 'Driver not found or not compatible ( ' . $this->config['driver'] ?? '' . ' )');
+            throw new InvalidArgumentException('Driver not found or not compatible ( ' . $this->config['driver'] ?? '' . ' )');
         }
 
         return $this;
@@ -46,7 +50,7 @@ class GrammarsHelpers
 
     /**
      * Get all drivers
-     * @return array
+     * @return array    
      */
     public function getDrivers()
     {
@@ -109,9 +113,10 @@ class GrammarsHelpers
         return false;
     }
 
-    public function createTable(string $table, array $columns, string $definitions = '')
+    public function createTable(string $table, array $columns, string|null $definitions = null)
     {
         if ($this->hasTable($table)) return false;
+        if (empty($definitions)) $definitions = '';
 
         $columns = implode(',', $columns);
 
@@ -219,31 +224,33 @@ class GrammarsHelpers
      * Create column
      */
     public function createColumn(string $table, string $column, string $type)
-    {
-        if ($this->hasColumn($table, $column)) return false;
-
+    {      
         if (in_array($this->config['driver'], ['mysql', 'pgsql', 'mariadb'])) {
             DB::query("ALTER TABLE `{$table}` ADD COLUMN `{$column}` {$type}");
         }
-
-        if ($this->hasColumn($table, $column)) return true;
     }
 
     /**
-     * Change - update column
+     * Change column - return array diference
      * @return array|false
      */
-    public function changeColumn(string $table, string $old_column, string $new_column, string $type)
+    public function changeColumn(string $table, string $column, string $type, string|null $rename = null)
     {
-        if (!$this->hasColumn($table, $old_column) || $this->hasColumn($table, $new_column)) return false;
+        if (!$this->hasColumn($table, $column));
 
-        $old = $this->getColumnSchema($table, $old_column);
+        if (empty($rename)) {
+            $rename = $column;
+        } else {
+            if ($this->hasColumn($table, $rename)) return false;
+        };
+
+        $old = $this->getColumnSchema($table, $column);
 
         if (in_array($this->config['driver'], ['mysql', 'pgsql', 'mariadb'])) {
-            DB::query("ALTER TABLE `{$table}` CHANGE `{$old_column}` `{$new_column}` {$type}");
+            DB::query("ALTER TABLE `{$table}` CHANGE `{$column}` `{$rename}` {$type}", connection: $this->connection);
         }
 
-        $new = $this->getColumnSchema($table, $new_column);
+        $new = $this->getColumnSchema($table, $rename);
 
         if (empty($new)) return false;
 
@@ -275,13 +282,14 @@ class GrammarsHelpers
     {
         $primary = $this->getPrimaryKey($table);
 
-        if (!$primary) return false;
+        if ($primary === null) return false;
 
         if (in_array($this->config['driver'], ['mysql', 'pgsql', 'mariadb'])) {
-            DB::query("ALTER TABLE `{$table}` MODIFY `{$primary}` INT NOT NULL; ALTER TABLE `{$table}` DROP PRIMARY KEY", connection: $this->connection);
+            $this->dropIndex($table, 'PRIMARY');
+            // DB::query("ALTER TABLE `{$table}` DROP PRIMARY KEY", connection: $this->connection);
         }
 
-        if (!$this->getPrimaryKey($table)) return true;
+        if ($this->getPrimaryKey($table) === null) return true;
 
         return false;
     }
@@ -291,7 +299,10 @@ class GrammarsHelpers
      */
     public function setPrimaryKey(string $table, string $column)
     {
-        $this->dropPrimaryKey($table);
+        $atual = $this->getPrimaryKey($table);
+
+        if ($atual == $column) return false;
+        if ($atual !== null) $this->dropPrimaryKey($table);
 
         if (in_array($this->config['driver'], ['mysql', 'pgsql', 'mariadb'])) {
             DB::query("ALTER TABLE `{$table}` ADD PRIMARY KEY (`{$column}`)", connection: $this->connection);
@@ -394,8 +405,8 @@ class GrammarsHelpers
         $data = [];
 
         if (in_array($this->config['driver'], ['mysql', 'pgsql', 'mariadb'])) {
-            $query = DB::query('SELECT INDEX_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND INDEX_NAME IS NOT NULL', [$this->config['database'], $table], $this->connection)->fetchAll(PDO::FETCH_OBJ);
-            if (count($query)) foreach ($query as $value) $data[] = $value->INDEX_NAME;
+            $query = DB::query('SELECT * FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND INDEX_NAME IS NOT NULL', [$this->config['database'], $table], $this->connection)->fetchAll(PDO::FETCH_ASSOC);
+            if (count($query)) return $query;
         }
 
         if (count($data)) return $data;
@@ -412,6 +423,20 @@ class GrammarsHelpers
     {
         if (in_array($this->config['driver'], ['mysql', 'pgsql', 'mariadb'])) {
             $query = DB::query('SELECT INDEX_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND INDEX_NAME IS NOT NULL AND COLUMN_NAME = ?', [$this->config['database'], $table, $column], $this->connection)->fetch(PDO::FETCH_OBJ);
+            if (!empty($query)) return $query->INDEX_NAME;
+        }
+
+        return null;
+    }
+
+    /**
+     * Get index by name
+     * @return string|null
+     */
+    public function getIndexByName(string $table, string $index)
+    {
+        if (in_array($this->config['driver'], ['mysql', 'pgsql', 'mariadb'])) {
+            $query = DB::query('SELECT INDEX_NAME FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND INDEX_NAME = ?', [$this->config['database'], $table, $index], $this->connection)->fetch(PDO::FETCH_OBJ);
             if (!empty($query)) return $query->INDEX_NAME;
         }
 

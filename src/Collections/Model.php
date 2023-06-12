@@ -34,7 +34,7 @@ abstract class Model
 
     public static function all()
     {
-        return (new DB)->table(static::$table)->all();
+        return (new DB)->table(static::$table)->get();
     }
 
     public static function count()

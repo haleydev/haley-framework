@@ -7,7 +7,7 @@ class Molds
     /**
      * @return string
      */
-    public function middleware(string $class, string $namespace)
+    public static function middleware(string $class, string $namespace)
     {
         return
             '<?php
@@ -22,12 +22,12 @@ class ' . $class . ' extends Middleware
             return $this->continue();
         }
 
-        return $this->stop(403);
+        return $this->abort(403);
     }
 }';
     }
 
-    public function env()
+    public static function env()
     {
         return
             'APP_NAME = Code Halley
@@ -49,7 +49,7 @@ MAILER_USERNAME =
 MAILER_PASSWORD =';
     }
 
-    public function controller(string $class, string $namespace)
+    public static function controller(string $class, string $namespace)
     {
         return
             '<?php
@@ -62,7 +62,7 @@ class ' . $class . ' extends Controller
 }';
     }
 
-    public function class(string $class, string $namespace)
+    public static function class(string $class, string $namespace)
     {
         return
             '<?php
@@ -74,7 +74,7 @@ class ' . $class . '
 }';
     }
 
-    public function database(string $class, string $namespace, string $table)
+    public static function database(string $class, string $namespace, string $table)
     {
         return
             '<?php
@@ -116,7 +116,7 @@ class ' . $class . '
 }';
     }
 
-    public function model(string $class, string $table, string|null $primary, array $columns ,string $namespace)
+    public static function model(string $class, string $table, string|null $primary, array $columns ,string $namespace)
     {
         foreach ($columns as $key => $value) {
             $columns[$key] = "'$value'";
@@ -138,7 +138,7 @@ class ' . $class . ' extends Model
 }';
     }
 
-    public function job(string $class, string $namespace)
+    public static function job(string $class, string $namespace)
     {
         return
             '<?php

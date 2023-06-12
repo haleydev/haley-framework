@@ -12,12 +12,12 @@ use InvalidArgumentException;
 use PDOException;
 use UnderflowException;
 
-class Command_Cronjob extends Lines
+class CommandJobs
 {
-    public function cron()
+    public function active()
     {
         $check = shell_exec('crontab -l') ?? '';
-        $cron = '* * * * * cd ' . directoryRoot() . ' && php haley cronjob:run >> /dev/null 2>&1' . PHP_EOL;
+        $cron = '* * * * * cd ' . directoryRoot() . ' && php haley job:run >> /dev/null 2>&1' . PHP_EOL;
         $file = directoryRoot('storage/cache/cronjob.txt');
 
         if (strtolower(PHP_OS) == 'linux') {
@@ -29,7 +29,7 @@ class Command_Cronjob extends Lines
 
                 if (file_exists($file)) unlink($file);
 
-                $this->red('cron job desativado');
+                Lines::red('jobs disabled')->br();
             } else {
                 file_put_contents($file, $cron . $check);
                 shell_exec('crontab ' . $file);
@@ -40,13 +40,13 @@ class Command_Cronjob extends Lines
                 if (str_contains($check, $cron)) {
                     // cron job pode pedir senha
                     shell_exec('sudo service cron restart');
-                    $this->green('cron job ativado');
+                    Lines::green('jobs enabled')->br();
                 } else {
-                    $this->red('erro ao ativar cronjob verifique se o caminho para o mcquery possui pastas com espaços ou caracteres especiais');
+                    Lines::red('failure to activate jobs')->br();
                 }
             }
         } else {
-            $this->red('seu sistema operacional não é linux');
+            Lines::red('your operating system is not linux')->br();
         }
     }
 
@@ -54,9 +54,19 @@ class Command_Cronjob extends Lines
     {
         require_once directoryRoot('routes/job.php');
 
+        $especific = false;
+
         foreach (JobMemory::$jobs as $key => $job) {
+            if (!empty($name)) {
+                if ($job['name'] != $name) continue;
+                else {
+                    $especific = true;
+                    Lines::green('job ' . $name . ' executed')->br();
+                };
+            }
+
             if ($job['valid'] == true) {
-                shell_exec('php ' . directoryRoot() . ' && php haley cronjob:execute ' . $key . ' > /dev/null 2>&1 &');
+                shell_exec('php ' . directoryRoot() . ' && php haley job:execute ' . $key . ' > /dev/null 2>&1 &');
 
                 $log = 'STARTED';
 
@@ -66,6 +76,10 @@ class Command_Cronjob extends Lines
                 Log::create('jobs', $log);
             }
         };
+
+        if (!empty($name) and $especific == false) {
+            Lines::red('job ' . $name . ' not found')->br();
+        }
     }
 
     public function execute(string $key)
@@ -98,7 +112,7 @@ class Command_Cronjob extends Lines
                         $action[0] = new $action[0]();
                         if (is_callable($action)) call_user_func($action);
                     } elseif (is_callable($action)) {
-                        if (is_callable($action)) (call_user_func($action));
+                        call_user_func($action);
                     }
                 } catch (PDOException $error) {
                     $log_error = "{$error->getMessage()} : {$error->getFile()} {$error->getLine()}";
