@@ -6,8 +6,6 @@ use Haley\Collections\Config;
 use Haley\Collections\Log;
 use Haley\Database\Migration\Query\Column;
 use Haley\Database\Migration\Query\Constraint;
-use Haley\Database\Migration\Query\Foreign;
-use Haley\Database\Migration\Query\Index;
 use Haley\Database\Migration\Query\Table;
 use InvalidArgumentException;
 
@@ -57,17 +55,12 @@ class Query
         return new Column($this->connection, $this->driver, $this->database);
     }
 
-    public function foreign()
-    {
-        return new Foreign($this->connection, $this->driver, $this->database);
-    }
-
     public function table()
     {
         return new Table($this->connection, $this->driver, $this->database);
     }
 
-    public function Constraint()
+    public function constraint()
     {
         return new Constraint($this->connection, $this->driver, $this->database);
     }

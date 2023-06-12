@@ -21,13 +21,114 @@ class Constraint
     }
 
     /**
+     * @return bool
+     */
+    public function has(string $table, string $name)
+    {
+        if (in_array($this->driver, ['mysql', 'pgsql', 'mariadb'])) {
+            $query = DB::query('SELECT CONSTRAINT_NAME FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND CONSTRAINT_NAME = ?', [$this->database, $table, $name], $this->connection)->fetch(PDO::FETCH_ASSOC);
+            if (!empty($query)) return true;
+        } else {
+            $this->driverError($this->driver);
+        }
+
+        return false;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getNamesByType(string $table, string $type)
+    {
+        $names = [];
+
+        if (in_array($this->driver, ['mysql', 'pgsql', 'mariadb'])) {
+            $query = DB::query('SELECT CONSTRAINT_NAME as `constraint_name` FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND CONSTRAINT_TYPE = ?', [$this->database, $table, $type], $this->connection)->fetchAll(PDO::FETCH_ASSOC);
+            if (count($query)) foreach ($query as $value) $names[] = $value['constraint_name'];
+        } else {
+            $this->driverError($this->driver);
+        }
+
+        if (count($names)) return $names;
+
+        return null;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getNamesByColumn(string $table, string $column)
+    {
+        $names = [];
+
+        if (in_array($this->driver, ['mysql', 'pgsql', 'mariadb'])) {
+            $query = DB::query('SELECT CONSTRAINT_NAME as `constraint_name` FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ? AND CONSTRAINT_NAME IS NOT NULL', [$this->database, $table, $column], $this->connection)->fetchAll(PDO::FETCH_ASSOC);
+            if (count($query)) foreach ($query as $value) $names[] = $value['constraint_name'];
+        } else {
+            $this->driverError($this->driver);
+        }
+
+        if (count($names)) return $names;
+
+        return null;
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getNames(string $table)
+    {
+        $names = [];
+
+        if (in_array($this->driver, ['mysql', 'pgsql', 'mariadb'])) {
+            $query = DB::query('SELECT CONSTRAINT_NAME as `constraint_name` FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?', [$this->database, $table, 'PRIMARY KEY'], $this->connection)->fetchAll(PDO::FETCH_ASSOC);
+            if (count($query)) foreach ($query as $value) $names[] = $value['constraint_name'];
+        } else {
+            $this->driverError($this->driver);
+        }
+
+        if (count($names)) return $names;
+
+        return null;
+    }
+
+    /**
+     * Drop constraint
+     * @return bool
+     */
+    public function drop(string $table, string $name)
+    {
+        if (in_array($this->driver, ['mysql', 'pgsql', 'mariadb'])) {
+            DB::query(sprintf('ALTER TABLE %s DROP CONSTRAINT %s', $table, $name), connection: $this->connection)->fetch(PDO::FETCH_OBJ);
+        } else {
+            $this->driverError($this->driver);
+        }
+
+        return $this->has($table, $name);
+    }
+
+    /**
+     * @return bool
+     */
+    public function create(string $table, string $name, string $type, string $value)
+    {
+        if (in_array($this->driver, ['mysql', 'pgsql', 'mariadb'])) {
+            DB::query(sprintf('ALTER TABLE %s ADD CONSTRAINT %s %s %s', $table, $name, $type, $value), connection: $this->connection);
+        } else {
+            $this->driverError($this->driver);
+        }
+
+        return $this->has($table, $name);
+    }
+
+    /**
      * Define primary key of the table
      * @return bool
      */
     public function setPrimaryKey(string $table, string $column)
     {
         if (in_array($this->driver, ['mysql', 'pgsql', 'mariadb'])) {
-            DB::query(sprintf("ALTER TABLE %s ADD PRIMARY KEY %s(%s)", $table, 'primary_' . $table . '_' . $column, $column), connection: $this->connection);
+            DB::query(sprintf('ALTER TABLE %s ADD PRIMARY KEY %s(%s)', $table, 'primary_' . $table . '_' . $column, $column), connection: $this->connection);
         } else {
             $this->driverError($this->driver);
         }

@@ -20,8 +20,25 @@ class Column
         $this->database = $database;
     }
 
-    // all coluns
-    // return ;
+
+    /**
+     * @return array|null
+     */
+    public function getNames(string $table)
+    {
+        $data = [];
+
+        if (in_array($this->driver, ['mysql', 'pgsql', 'mariadb'])) {
+            $query = DB::query('SELECT COLUMN_NAME as `column_name` FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = ? AND TABLE_SCHEMA = ?', [$table, $this->database], $this->connection)->fetchAll(PDO::FETCH_OBJ);
+            if (count($query)) foreach ($query as $value) $data[] = $value->column_name;
+        } else {
+            $this->driverError($this->driver);
+        }
+
+        if (count($data)) return $data;
+
+        return null;
+    }
 
     /**
      * @return bool

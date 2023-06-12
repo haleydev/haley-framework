@@ -44,7 +44,10 @@ class BuilderOptions
         $key = array_key_last(BuilderMemory::$columns);
 
         if (in_array($this->driver, ['mysql', 'pgsql', 'mariadb'])) {
-            BuilderMemory::$columns[$key]['query'] = str_replace('[OP:UNIQUE]', 'UNIQUE', BuilderMemory::$columns[$key]['query']);
+            $column = BuilderMemory::$columns[$key]['name'];
+            $name = 'unique_' . BuilderMemory::$table . '_' . $column;
+
+            BuilderMemory::addConstraint($name, 'UNIQUE', "($column)");
         }
 
         return $this;

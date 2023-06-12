@@ -14,7 +14,7 @@ class CommandCreate
         $all = strtolower($name) == '--all';
 
         if ($all) {
-            $names = $helper->getTables() ?? [];
+            $names = $helper->table()->getNames() ?? [];
         } else {
             $names = [$name];
         }
@@ -37,9 +37,9 @@ class CommandCreate
                 $primary = null;
                 $columns = [];
 
-                if ($helper->hasTable($name)) {
-                    $primary = $helper->getPrimaryKey($name);
-                    $columns = $helper->getColumns($name);
+                if ($helper->table()->has($name)) {
+                    $primary = $helper->constraint()->getPrimaryKey($name);
+                    $columns = $helper->column()->getNames($name);
                 }
 
                 $mold = Molds::model($params['class'], $name, $primary, $columns, $params['namespace']);
