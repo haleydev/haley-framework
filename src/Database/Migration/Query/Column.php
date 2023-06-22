@@ -20,7 +20,6 @@ class Column
         $this->database = $database;
     }
 
-
     /**
      * @return array|null
      */
@@ -95,7 +94,7 @@ class Column
 
         if ($rename === null) {
             $rename = $column;
-        } else if ($this->has($table, $rename)) {
+        } elseif ($this->has($table, $rename)) {
             return false;
         }
 

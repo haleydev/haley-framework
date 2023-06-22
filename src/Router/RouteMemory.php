@@ -39,7 +39,7 @@ class RouteMemory
             foreach (self::$attributes['domain'] as $value) {
                 if (is_string($value)) {
                     $domain[] = $value;
-                } else if (is_array($value)) {
+                } elseif (is_array($value)) {
                     foreach ($value as $e) {
                         if (!empty($e) && is_string($e)) $domain[] = $e;
                     }

@@ -1,14 +1,15 @@
 <?php
+
 namespace Haley\Http;
 
 class Upload
 {
-    private $input;
+    protected array|null $input = null;
 
-    public function input(string $input)
+    public function __construct(string $input)
     {
-        $this->input = request()->file($input);   
-        return $this;     
+        $this->input = request()->file($input);
+        return $this;
     }
 
     /**
@@ -16,19 +17,18 @@ class Upload
      */
     public function isValid()
     {
-        if(empty($this->input['name'])) {
-            return false;
-        }
-       
-        if(is_string($this->input['name'])) {
-            if(!is_uploaded_file($this->input['tmp_name']) or !empty($this->input['error'])) {
+        if (empty($this->input['name'])) return false;
+
+
+        if (is_string($this->input['name'])) {
+            if (!is_uploaded_file($this->input['tmp_name']) or !empty($this->input['error'])) {
                 return false;
-            }          
-        }else{
-            foreach($this->input['tmp_name'] as $key => $tmp_name) {
-                if(!is_uploaded_file($tmp_name) and !empty($this->input[$key]['error'])) {
+            }
+        } else {
+            foreach ($this->input['tmp_name'] as $key => $tmp_name) {
+                if (!is_uploaded_file($tmp_name) and !empty($this->input[$key]['error'])) {
                     return false;
-                }    
+                }
             }
         }
 
@@ -40,20 +40,18 @@ class Upload
      */
     public function getSize(bool $format = true)
     {
-        if(empty($this->input['name'])) {            
-            return $format ? formatSize(0) : 0;
-        }
+        if (empty($this->input['name'])) return $format ? formatSize(0) : 0;
 
         $size = 0;
 
-        if(is_array($this->input['size'])){
-            foreach($this->input['size'] as $value){
+        if (is_array($this->input['size'])) {
+            foreach ($this->input['size'] as $value) {
                 $size += $value;
             }
-        }else{
-            $size = $this->input['size'];               
+        } else {
+            $size = $this->input['size'];
         }
-        
+
         return $format ? formatSize($size) : $size;
     }
 
@@ -62,26 +60,26 @@ class Upload
      */
     public function getExtensions()
     {
-        if(empty($this->input['name'])) {
+        if (empty($this->input['name'])) {
             return false;
         }
 
         $extensions = [];
 
-        if(is_array($this->input['name'])){
+        if (is_array($this->input['name'])) {
 
-            foreach($this->input['name'] as $file){
+            foreach ($this->input['name'] as $file) {
                 $extension = pathinfo($file, PATHINFO_EXTENSION);
 
-                if(!in_array($extension,$extensions)) {
+                if (!in_array($extension, $extensions)) {
                     $extensions[] = $extension;
-                }                               
+                }
             }
 
             return $extensions;
         }
-     
-        return pathinfo($this->input['name'], PATHINFO_EXTENSION);        
+
+        return pathinfo($this->input['name'], PATHINFO_EXTENSION);
     }
 
     /**
@@ -89,7 +87,7 @@ class Upload
      */
     public function getOriginalNames()
     {
-        if(empty($this->input['name'])) {
+        if (empty($this->input['name'])) {
             return false;
         }
 
@@ -101,79 +99,77 @@ class Upload
      */
     public function getBaseNames()
     {
-        if(empty($this->input['name'])) {
+        if (empty($this->input['name'])) {
             return false;
         }
 
         $extensions = [];
 
-        if(is_array($this->input['name'])){
+        if (is_array($this->input['name'])) {
 
-            foreach($this->input['name'] as $file){
+            foreach ($this->input['name'] as $file) {
                 $extension = pathinfo($file, PATHINFO_FILENAME);
 
-                if(!in_array($extension,$extensions)) {
+                if (!in_array($extension, $extensions)) {
                     $extensions[] = $extension;
-                }                               
+                }
             }
 
             return $extensions;
         }
-     
-        return pathinfo($this->input['name'], PATHINFO_FILENAME);        
-    }    
+
+        return pathinfo($this->input['name'], PATHINFO_FILENAME);
+    }
 
     /**
-     * @return array|string|false
+     * @return array|string|null
      */
-    public function save(string $path,string|array $names = [])
+    public function save(string $path, string|array $names = [])
     {
-        if(!$this->isValid()) {
-            return false;
-        }
-       
-        createDir($path);              
-       
-        $names = $this->namesResolve($names);  
+        if (!$this->isValid()) return null;
+
+        createDir($path);
+
+        $names = $this->namesResolve($names);
         $path = directorySeparator($path);
 
-        if(is_string($this->input['tmp_name'])) {
+        if (is_string($this->input['tmp_name'])) {
             move_uploaded_file($this->input['tmp_name'], $path . DIRECTORY_SEPARATOR . $names);
-        }        
-
-        if(is_array($this->input['tmp_name'])) {
-            foreach($this->input['tmp_name'] as $key => $value) {
-                move_uploaded_file($value, $path . DIRECTORY_SEPARATOR . $names[$key]);
-            }            
         }
-        
+
+        if (is_array($this->input['tmp_name'])) {
+            foreach ($this->input['tmp_name'] as $key => $value) {
+                move_uploaded_file($value, $path . DIRECTORY_SEPARATOR . $names[$key]);
+            }
+        }
+
         return $names;
     }
 
     /**
      * @return string|array
      */
-    private function namesResolve(string|array $names)
+    protected function namesResolve(string|array $names)
     {
         $original_names = $this->getOriginalNames();
 
-        if(is_string($original_names)) {
-            if(empty($names)) {
+        if (is_string($original_names)) {
+            if (empty($names)) {
                 return md5(bin2hex(random_bytes(5))) . '.' . pathinfo($original_names, PATHINFO_EXTENSION);
-            }else{
-                is_array($names) ? $names = $names[0] : $names; 
+            } else {
+                is_array($names) ? $names = $names[0] : $names;
                 return $names . '.' . pathinfo($original_names, PATHINFO_EXTENSION);
-            }               
-        }          
-       
-        empty($names) ? $names = [] : $names;      
+            }
+        }
+
+        empty($names) ? $names = [] : $names;
         is_string($names) ? $names = [$names] : $names;
 
         $new_names = [];
-        foreach($original_names as $key => $value) {         
-            if(isset($names[$key])) {
-                $new_names[$key] = $names[$key] . '.' . pathinfo($value, PATHINFO_EXTENSION);               
-            }else{
+        foreach ($original_names as $key => $value) {
+            if (isset($names[$key])) {
+                $new_names[$key] = $names[$key] . '.' . pathinfo($value, PATHINFO_EXTENSION);
+            } else {
                 $new_names[$key] = md5(bin2hex(random_bytes(5))) . '.' . pathinfo($value, PATHINFO_EXTENSION);
             }
         }

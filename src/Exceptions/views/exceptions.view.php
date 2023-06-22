@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap" rel="stylesheet">
 
-    <script src="{{ dirname(__DIR__) . '/Debug/resources/' }}/jquery.min.js"></script>
+    <script src="{{ dirname(__DIR__) . '/Debug/resources/' }}jquery.min.js"></script>
     <title>DEBUG</title>
 </head>
 

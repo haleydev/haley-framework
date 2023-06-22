@@ -13,6 +13,7 @@ class BuilderMemory
     public static array $columns = [];
     public static array $constraints = [];
     public static array $rename = [];
+    public static array $foreign = [];
 
     public static function addColumn(string $name, string $type, int|string|array|null $paramns = null)
     {
@@ -24,6 +25,27 @@ class BuilderMemory
                 'type' => $type,
                 'query' => "[CL:NAME] [CL:TYPE] [OP:DEFAULT] [OP:NOT_NULL] [OP:COMMENT]"
             ];
+        }
+    }
+
+    static public function compileForeigns()
+    {
+        foreach (self::$foreign as $value) {
+            $name = $value['name'];
+            $column = $value['column'];
+            $reference_table = $value['reference_table'];
+            $reference_column = $value['reference_column'];
+            $on_delete = $value['on_delete'];
+            $on_update = $value['on_update'];
+
+            if (in_array(self::$driver, ['mysql', 'pgsql', 'mariadb'])) {
+                $value = sprintf('(%s) REFERENCES %s (%s)', $column, $reference_table, $reference_column);
+                if ($on_delete !== null) $value .= $on_delete;
+                if ($on_update !== null) $value .= $on_update;
+                if ($name == null) $name = sprintf('foreign_%s_%s_%s_%s', self::$table, $column, $reference_table, $reference_column);
+
+                self::addConstraint($name, 'FOREIGN KEY', $value);
+            }
         }
     }
 

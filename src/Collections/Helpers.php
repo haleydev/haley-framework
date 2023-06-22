@@ -2,6 +2,7 @@
 
 use Haley\Collections\Password;
 use Haley\Env\Env;
+use Haley\Exceptions\Debug;
 use Haley\Http\Csrf;
 use Haley\Http\Redirect;
 use Haley\Http\Request;
@@ -25,7 +26,7 @@ function view(string $view, array|object $params = [], string|null $path = null)
  */
 function redirect(string|null $destination = null, $status = 302)
 {
-    if ($destination != null) {
+    if ($destination !== null) {
         return (new Redirect)->destination($destination, $status);
     }
 
@@ -79,7 +80,7 @@ function password()
  * Retorna a URL da rota nomeada.
  * @return Haley\Http\Route|string|null
  */
-function route(string|null $name = null, string|array ...$params)
+function route(string|null $name = null, string|array|null ...$params)
 {
     if (!empty($params[0])) if (is_array($params[0])) $params = $params[0];
 
@@ -114,19 +115,11 @@ function csrf()
  */
 function dd()
 {
-    $all = func_get_args();
-
     $backtrace = debug_backtrace();
     $line = $backtrace[0]['line'] ?? '';
     $file = $backtrace[0]['file'] ?? '';
 
-    echo $file . ' - ' . $line . PHP_EOL;
-
-    foreach ($all as $value) {
-        echo "<pre>" . PHP_EOL;
-        var_dump($value);
-        echo "</pre>";
-    }
+    return (new Debug)->dd($line, $file, func_get_args());
 }
 
 function formatSize(int $bytes)
@@ -158,7 +151,7 @@ function middleware(string|array $middlewares)
         foreach ($middlewares as $middleware) {
             if (str_contains($middleware, '::')) {
                 $params = explode('::', $middleware);
-            } else if (str_contains($middleware, '@')) {
+            } elseif (str_contains($middleware, '@')) {
                 $params = explode('@', $middleware);
             }
 
@@ -245,6 +238,54 @@ function deleteFile(string $path)
     $path = directorySeparator($path);
 
     return file_exists($path) ? unlink($path) : true;
+}
+
+function executeCallable(string|array|callable $callable, array $args = [], string|null $namespace = null)
+{
+    $callback = null;
+
+    $namespace = !empty($namespace) ? $namespace . '\\' : '';
+
+    if (is_string($callable)) {
+        if (str_contains($callable, '::')) {
+            $params = explode('::', $callable);
+        } elseif (str_contains($callable, '@')) {
+            $params = explode('@', $callable);
+        }
+
+        if (isset($params[0]) and isset($params[1])) {
+            $callable = [];
+            $class = $namespace . $params[0];
+            $callable[0] = new $class;
+            $callable[1] = $params[1];
+            $reflection = new ReflectionMethod($callable[0], $callable[1]);
+            $callback = $callable;
+        }
+    } elseif (is_array($callable)) {
+        $callable[0] = new $callable[0];
+        $reflection = new ReflectionMethod($callable[0], $callable[1]);
+        $callback = $callable;
+    } elseif (is_callable($callable)) {
+        $callback = $callable;
+        $reflection = new ReflectionFunction($callback);
+    }
+
+    if (is_callable($callback)) {
+        $parameters = $reflection->getParameters();
+        $args_valid = [];
+
+        foreach ($parameters as $value) {
+            $arg = $value->getName();
+
+            if (array_key_exists($arg, $args)) {
+                $args_valid[$arg] = $args[$arg];
+            }
+        }
+
+        return call_user_func_array($callback, $args_valid);
+    }
+
+    return null;
 }
 
 // /**

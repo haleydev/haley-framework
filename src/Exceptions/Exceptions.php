@@ -1,4 +1,5 @@
 <?php
+
 namespace Haley\Exceptions;
 
 use Haley\Collections\Log;
@@ -18,18 +19,18 @@ class Exceptions
         });
 
         try {
-            return call_user_func($debug);           
-        } catch (PDOException $error) {            
+            return call_user_func($debug);
+        } catch (PDOException $error) {
             Log::create('database', $error->getMessage());
-            return (new ExceptionsDebug)->debug($error);
+            return (new Debug)->exceptions($error);
         } catch (Error $error) {
-            return (new ExceptionsDebug)->debug($error);
+            return (new Debug)->exceptions($error);
         } catch (UnderflowException $error) {
-            return (new ExceptionsDebug)->debug($error);
+            return (new Debug)->exceptions($error);
         } catch (InvalidArgumentException $error) {
-            return (new ExceptionsDebug)->debug($error);
+            return (new Debug)->exceptions($error);
         } catch (Exception $error) {
-            return (new ExceptionsDebug)->debug($error);
+            return (new Debug)->exceptions($error);
         }
     }
 }

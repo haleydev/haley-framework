@@ -49,7 +49,7 @@ class CommandCreate
                 file_put_contents($params['file_directory'], $mold);
 
                 if (file_exists($params['file_directory'])) {
-                    Lines::green("model {$params['class']} created: {$params['file_directory']}")->br();
+                    Lines::green("model {$params['class']} created")->normal($params['file_directory'])->br();
                 } else {
                     Lines::red('error: failed to create model')->br();
                 }
@@ -77,7 +77,7 @@ class CommandCreate
         file_put_contents($params['file_directory'], $mold);
 
         if (file_exists($params['file_directory'])) {
-            Lines::green("job {$params['class']} created: {$params['file_directory']}")->br();
+            Lines::green("job {$params['class']} created")->normal($params['file_directory'])->br();
         } else {
             Lines::red('error: failed to create job')->br();
         }
@@ -103,7 +103,7 @@ class CommandCreate
         file_put_contents($params['file_directory'], $mold);
 
         if (file_exists($params['file_directory'])) {
-            Lines::green("controller {$params['class']} created: {$params['file_directory']}")->br();
+            Lines::green("controller {$params['class']} created")->normal($params['file_directory'])->br();
         } else {
             Lines::red('error: failed to create controller')->br();
         }
@@ -129,7 +129,7 @@ class CommandCreate
         file_put_contents($params['file_directory'], $mold);
 
         if (file_exists($params['file_directory'])) {
-            Lines::green("class {$params['class']} created: {$params['file_directory']}")->br();
+            Lines::green("class {$params['class']} created")->normal($params['file_directory'])->br();
         } else {
             Lines::red('error: failed to create class')->br();
         }
@@ -159,7 +159,7 @@ class CommandCreate
         file_put_contents($location, $mold);
 
         if (file_exists($location)) {
-            Lines::green("database migration {$class} created: {$location}")->br();
+            Lines::green("database migration {$class} created")->normal($location)->br();
         } else {
             Lines::red('error: failed to create database migration class');
         }
@@ -185,7 +185,7 @@ class CommandCreate
         file_put_contents($params['file_directory'], $mold);
 
         if (file_exists($params['file_directory'])) {
-            Lines::green("middleware {$params['class']} created: {$params['file_directory']}")->br();
+            Lines::green("middleware {$params['class']} created")->normal($params['file_directory'])->br();
         } else {
             Lines::red('error: failed to create middleware')->br();
         }
@@ -208,7 +208,7 @@ class CommandCreate
         file_put_contents($location, $mold);
 
         if (file_exists($location)) {
-            Lines::green("env created: {$location}")->br();
+            Lines::green("env created")->normal($location)->br();
         } else {
             Lines::red('error: failed to create env')->br();
         }

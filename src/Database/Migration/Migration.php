@@ -38,8 +38,8 @@ class Migration
         }
 
         if (empty($this->connection)) {
-            Log::create('migration', "Connection not found");
-            throw new InvalidArgumentException("Connection not found");
+            Log::create('migration', 'Connection not found');
+            throw new InvalidArgumentException('Connection not found');
         }
 
         if (empty($this->driver) or !in_array($this->driver ?? '', ['mysql', 'pgsql', 'mariadb'])) {

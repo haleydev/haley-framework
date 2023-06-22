@@ -39,26 +39,12 @@ class BuilderOptions
         return $this;
     }
 
-    public function unique()
+    public function nullable(bool $value = true)
     {
         $key = array_key_last(BuilderMemory::$columns);
 
         if (in_array($this->driver, ['mysql', 'pgsql', 'mariadb'])) {
-            $column = BuilderMemory::$columns[$key]['name'];
-            $name = 'unique_' . BuilderMemory::$table . '_' . $column;
-
-            BuilderMemory::addConstraint($name, 'UNIQUE', "($column)");
-        }
-
-        return $this;
-    }
-
-    public function notNull()
-    {
-        $key = array_key_last(BuilderMemory::$columns);
-
-        if (in_array($this->driver, ['mysql', 'pgsql', 'mariadb'])) {
-            BuilderMemory::$columns[$key]['query'] = str_replace('[OP:NOT_NULL]', 'NOT NULL', BuilderMemory::$columns[$key]['query']);
+            BuilderMemory::$columns[$key]['query'] = str_replace('[OP:NOT_NULL]', $value ? 'NULL' : 'NOT NULL', BuilderMemory::$columns[$key]['query']);
         }
 
         return $this;
@@ -72,6 +58,21 @@ class BuilderOptions
             if (!$raw) $value = "'$value'";
 
             BuilderMemory::$columns[$key]['query'] = str_replace('[OP:DEFAULT]', 'DEFAULT ' . $value, BuilderMemory::$columns[$key]['query']);
+        }
+
+        return $this;
+    }
+
+    public function unique(string|null $name = null)
+    {
+        $key = array_key_last(BuilderMemory::$columns);
+
+        if (in_array($this->driver, ['mysql', 'pgsql', 'mariadb'])) {
+            $column = BuilderMemory::$columns[$key]['name'];
+
+            if($name == null) $name = 'unique_' . BuilderMemory::$table . '_' . $column;
+
+            BuilderMemory::addConstraint($name, 'UNIQUE', "($column)");
         }
 
         return $this;

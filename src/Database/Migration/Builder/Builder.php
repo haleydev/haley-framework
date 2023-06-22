@@ -53,6 +53,37 @@ class Builder
         return new BuilderOptions($this->config['driver']);
     }
 
+
+
+    public function dropConstrant()
+    {
+    }
+
+    public function dropColumn()
+    {
+    }
+
+
+
+
+
+
+
+
+    public function foreign(string $column, string $reference_table, string $reference_column)
+    {
+        BuilderMemory::$foreign[] = [
+            'column' => $column,
+            'reference_table' => $reference_table,
+            'reference_column' => $reference_column,
+            'name' => null,
+            'on_delete' => null,
+            'on_update' => null
+        ];
+
+        return new ForeignOptions($this->config['driver']);
+    }
+
     public function rename(string $column, string $to)
     {
         BuilderMemory::$rename[$column] = $to;

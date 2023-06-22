@@ -224,7 +224,7 @@ class GrammarsHelpers_OLD
      * Create column
      */
     public function createColumn(string $table, string $column, string $type)
-    {      
+    {
         if (in_array($this->config['driver'], ['mysql', 'pgsql', 'mariadb'])) {
             DB::query("ALTER TABLE `{$table}` ADD COLUMN `{$column}` {$type}");
         }

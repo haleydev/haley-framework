@@ -20,10 +20,10 @@ class HaleyCommands
                 Console::command('env', 'CommandCreate::env')->description('create a env file');
                 Console::command('class {name}', 'CommandCreate::class')->description('create a new class');
                 Console::command('controller {name}', 'CommandCreate::controller')->description('create a new controller class');
-                Console::command('database {name}', 'CommandCreate::database')->description('create a new database migration class');
                 Console::command('job {name}', 'CommandCreate::job')->description('create a new job class');
+                Console::command('migration {name}', 'CommandCreate::database')->description('create a new migration class');
                 Console::command('middleware {name}', 'CommandCreate::middleware')->description('create a new middleware class');
-                Console::command('model {name} {connection?}', 'CommandCreate::model')->description('create a new model class / --all to create all models in the database');
+                Console::command('model {name} {connection?}', 'CommandCreate::model')->description('create a new model class / name --all to create all models in the database');
             });
 
             Console::title('Database')->prefix('db:')->group(function () {

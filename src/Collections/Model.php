@@ -12,14 +12,14 @@ abstract class Model
 
     public static function create(array $values)
     {
-        if (!empty($values[0]))  if (!is_array($values[0]))  $values = [$values];
+        if (!empty($values[0])) if (!is_array($values[0])) $values = [$values];
 
-        foreach ($values as $key_one => $value_one) {
-            foreach ($value_one as $key_two => $value_two) {
-                if (!in_array($key_two, static::$columns)) unset($values[$key_one][$key_two]);
+        foreach ($values as $key => $data) {
+            foreach ($data as $column => $value) {
+                if (!in_array($column, static::$columns)) unset($values[$key][$column]);
             }
 
-            if (!count($values[$key_one])) unset($values[$key_one]);
+            if (!count($values[$key])) unset($values[$key]);
         }
 
         if (count($values)) return (new DB)->table(static::$table)->insert($values);

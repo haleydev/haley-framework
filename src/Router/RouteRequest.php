@@ -47,7 +47,7 @@ class RouteRequest
 
     private function old()
     {
-        request()->session()->replace('FRAMEWORK', ['old' => null]);
+        request()->session()->replace('HALEY', ['old' => null]);
 
         if (isset($_SERVER['HTTP_REFERER'])) {
             $request = request()->all();
@@ -55,7 +55,7 @@ class RouteRequest
             if (!empty($request)) {
                 $url = parse_url($_SERVER['HTTP_REFERER']);
                 $page = request()->url($url['path'] ?? $url['host'] ?? null);
-                request()->session()->replace('FRAMEWORK', ['old' => [$page => $request]]);
+                request()->session()->replace('HALEY', ['old' => [$page => $request]]);
             }
         }
 

@@ -4,52 +4,24 @@ namespace Haley\Router;
 
 class RouteAction
 {
-    public function __construct($action)
+    public function __construct(string|array|callable|null $action)
     {
-        if (is_string($action)) return $this->string($action);
-        if (is_array($action)) return $this->array($action);
-        if (is_callable($action)) return $this->callable($action);
-    }
-
-    private function string(string $action)
-    {
-        if (str_contains($action, '::')) {
-            $params = explode('::', $action);
-        } else if (str_contains($action, '@')) {
-            $params = explode('@', $action);
-        }
-
-        $namespace = '';
+        $namespace = null;
+        $args = [];
 
         if (defined('ROUTER_NOW')) {
             if (!empty(ROUTER_NOW['namespace'])) $namespace = ROUTER_NOW['namespace'] . '\\';
         }
 
-        if (isset($params[0]) and isset($params[1])) {
-            $class = $namespace . $params[0];
-            $method = $params[1];
-            $rum = new $class;
-
-            return $this->result($rum->$method());
+        if (defined('ROUTER_PARAMS')) {
+            if (!empty(ROUTER_PARAMS)) $args = ROUTER_PARAMS;
         }
 
-        return response()->abort(500);
-    }
+        return $this->result(executeCallable($action, $args, $namespace));
 
-    private function array(array $action)
-    {
-        $action[0] = new $action[0]();
-
-        if (is_callable($action)) return $this->result(call_user_func($action));
-
-        return response()->abort(500);
-    }
-
-    private function callable(callable $action)
-    {
-        if (is_callable($action)) return $this->result(call_user_func($action));
-
-        return response()->abort(500);
+        // if (is_string($action)) return $this->string($action);
+        // if (is_array($action)) return $this->array($action);
+        // if (is_callable($action)) return $this->callable($action);
     }
 
     private function result(mixed $value)

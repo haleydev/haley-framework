@@ -7,13 +7,13 @@ class Route
     /**
      * @return string|null
      */
-    public static function name(string $name, string|array ...$params)
+    public static function name(string $name, string|array|null ...$params)
     {
         if (!empty($params[0])) {
             if (is_array($params[0])) $params = $params[0];
         }
 
-        if (defined('ROUTER_NAMES')) {
+        if (defined('ROUTER_NAMES') and !empty($params)) {
             if (isset(ROUTER_NAMES[$name])) {
                 $route = ROUTER_NAMES[$name];
 
@@ -59,7 +59,7 @@ class Route
      */
     public static function now()
     {
-        if (defined('ROUTER_NOW')) return ROUTER_NOW;        
+        if (defined('ROUTER_NOW')) return ROUTER_NOW;
 
         return null;
     }

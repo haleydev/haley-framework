@@ -57,12 +57,12 @@ class CommandJobs
         $especific = false;
 
         foreach (JobMemory::$jobs as $key => $job) {
-            if (!empty($name)) {
+            if ($name !== null) {
                 if ($job['name'] != $name) continue;
                 else {
                     $especific = true;
                     Lines::green('job ' . $name . ' executed')->br();
-                };
+                }
             }
 
             if ($job['valid'] == true) {
@@ -75,9 +75,9 @@ class CommandJobs
 
                 Log::create('jobs', $log);
             }
-        };
+        }
 
-        if (!empty($name) and $especific == false) {
+        if ($name !== null and $especific == false) {
             Lines::red('job ' . $name . ' not found')->br();
         }
     }
@@ -98,22 +98,7 @@ class CommandJobs
                 });
 
                 try {
-                    if (is_string($action)) {
-                        $params = explode('::', $action);
-                        $namespace = !empty($job['namespace']) ? $job['namespace'] . '\\' : '';
-
-                        if (isset($params[0]) and isset($params[1])) {
-                            $class = $namespace . $params[0];
-                            $method = $params[1];
-                            $rum = new $class;
-                            $rum->$method();
-                        }
-                    } elseif (is_array($action)) {
-                        $action[0] = new $action[0]();
-                        if (is_callable($action)) call_user_func($action);
-                    } elseif (is_callable($action)) {
-                        call_user_func($action);
-                    }
+                    executeCallable($action, [], $job['namespace']);
                 } catch (PDOException $error) {
                     $log_error = "{$error->getMessage()} : {$error->getFile()} {$error->getLine()}";
                 } catch (Error $error) {

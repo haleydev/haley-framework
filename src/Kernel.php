@@ -51,7 +51,7 @@ class Kernel
                 require_once $helper;
             }
 
-            if (!request()->session()->isset('FRAMEWORK')) request()->session()->create('FRAMEWORK');
+            if (!request()->session()->has('HALEY')) request()->session()->create('HALEY');
 
             $routes = Config::routes();
 

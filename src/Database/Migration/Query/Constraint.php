@@ -38,6 +38,21 @@ class Constraint
     /**
      * @return array|null
      */
+    public function getSchema(string $table, string $name)
+    {
+        if (in_array($this->driver, ['mysql', 'pgsql', 'mariadb'])) {
+            $query = DB::query('SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND CONSTRAINT_NAME = ?', [$this->database, $table, $name], $this->connection)->fetch(PDO::FETCH_ASSOC);
+            if (!empty($query)) return $query;
+        } else {
+            $this->driverError($this->driver);
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array|null
+     */
     public function getNamesByType(string $table, string $type)
     {
         $names = [];
@@ -113,12 +128,42 @@ class Constraint
     public function create(string $table, string $name, string $type, string $value)
     {
         if (in_array($this->driver, ['mysql', 'pgsql', 'mariadb'])) {
-            DB::query(sprintf('ALTER TABLE %s ADD CONSTRAINT %s %s %s', $table, $name, $type, $value), connection: $this->connection);
+            DB::query(sprintf('ALTER TABLE %s ADD CONSTRAINT `%s` %s %s', $table, $name, $type, $value), connection: $this->connection);
         } else {
             $this->driverError($this->driver);
         }
 
         return $this->has($table, $name);
+    }
+
+    /**
+     * @return array|false
+     */
+    public function change(string $table, string $name, string $type, string $value)
+    {
+        $old = $this->getSchema($table, $name);
+
+        if (in_array($this->driver, ['mysql', 'pgsql', 'mariadb'])) {
+            if ($this->has($table, $name)) $this->drop($table, $name);
+
+            if ($name == 'unique_haley_fore') {
+                dd($this->has($table, $name));
+            }
+
+            DB::query(sprintf('ALTER TABLE %s ADD CONSTRAINT `%s` %s %s', $table, $name, $type, $value), connection: $this->connection);
+        } else {
+            $this->driverError($this->driver);
+        }
+
+        $new = $this->getSchema($table, $name);
+
+        if (empty($new)) return false;
+
+        $difference = array_diff($new, $old);
+
+        if (!count($difference)) return false;
+
+        return $difference;
     }
 
     /**

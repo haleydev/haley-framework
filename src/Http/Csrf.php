@@ -6,12 +6,12 @@ class Csrf
 {
     public static function unset()
     {
-        request()->session()->replace('FRAMEWORK', ['csrf' => null]);
+        request()->session()->replace('HALEY', ['csrf' => null]);
     }
 
     public static function token()
     {
-        $check = request()->session('FRAMEWORK');
+        $check = request()->session('HALEY');
 
         if (!empty($check['csrf']['lifetime']) and $check['csrf']['lifetime'] > date('dmYHis')) {
             return $check['csrf']['token'];
@@ -22,7 +22,7 @@ class Csrf
 
         if (defined('ROUTER_NOW')) $lifetime = ROUTER_NOW['config']['csrf']['lifetime'] ?? 1800;
 
-        request()->session()->replace('FRAMEWORK', ['csrf' => [
+        request()->session()->replace('HALEY', ['csrf' => [
             'token' => $token,
             'lifetime' => date('dmYHis', strtotime('+' . $lifetime . ' seconds'))
         ]]);

@@ -18,29 +18,20 @@ class Response
     }
 
     public static function abort(int $status = 404, string|null $mesage = null)
-    {  
+    {
         response()->status($status);
         response()->header('content-type', 'text/html; charset=utf-8');
 
-        if ($mesage === null) $mesage = HttpCodes::get($status);     
+        if ($mesage === null) $mesage = HttpCodes::get($status);
 
         if (defined('ROUTER_NOW')) {
             if ($action = ROUTER_NOW['error']) {
-                if (is_string($action)) {
-                    $params = explode('::', $action);
-                    if (isset($params[0]) and isset($params[1])) {
-                        $class = $params[0];
-                        $method = $params[1];
-                        $rum = new $class;
+                executeCallable($action, [
+                    'status' => $status,
+                    'mesage' => $mesage
+                ]);
 
-                        return die($rum->$method($status, $mesage));
-                    }
-                } elseif (is_array($action)) {
-                    $action[0] = new $action[0]();
-                    return die(call_user_func($action, $status, $mesage));
-                } elseif (is_callable($action)) {
-                    return die(call_user_func($action, $status, $mesage));
-                }
+                die;
             }
         }
 
@@ -51,7 +42,7 @@ class Response
             ]));
         }
 
-        if (file_exists(directoryResources('views/error/default.view.php'))) {          
+        if (file_exists(directoryResources('views/error/default.view.php'))) {
             return die(view('error.default', [
                 'status' => $status,
                 'mesage' => $mesage

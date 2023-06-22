@@ -23,17 +23,20 @@ class RouteResolve
 
         foreach ($routes as $route) {
             if (!empty($route['name'])) {
-                $this->names[$route['name']] = trim(preg_replace('/{(.*?)}/', '{?}', $route['route']),'/');
+                $this->names[$route['name']] = trim(preg_replace('/{(.*?)}/', '{?}', $route['route']), '/');
             }
 
-            $params = $this->routeParams($route['route']);
+            if (!$this->check($route['route'])) continue;
 
-            if (in_array($this->method, $route['methods']) and $params == true) {
+            if (in_array($this->method, $route['methods'])) {
                 if (count($route['domain'])) {
                     if (in_array($this->domain, $route['domain'])) $route_valid = $route;
                 } else {
                     $route_valid = $route;
                 }
+            } else {
+                define('ROUTER_NOW', $route);
+                return response()->abort(405);
             }
         }
 
@@ -46,7 +49,7 @@ class RouteResolve
         return (new RouteRequest)->request($route_valid);
     }
 
-    private function routeParams(string $route)
+    private function check(string $route)
     {
         $route = trim($route, '/');
         $check = $route;
@@ -58,12 +61,13 @@ class RouteResolve
 
             foreach ($array_route as $key => $value) {
                 if (preg_match('/{(.*?)}/', $value, $math)) {
-                    if (isset($array_url[$key])) {
-                        $param = str_replace(['?}', '{', '}'], '', $math[0]);
-                        $params[$param] = $array_url[$key];
+                    $param = str_replace(['?}', '{', '}'], '', $math[0]);
 
+                    if (isset($array_url[$key])) {
+                        $params[$param] = $array_url[$key];
                         $check = str_replace($math[0], $array_url[$key], $check);
                     } elseif (substr($value, -2) == '?}') {
+                        $params[$param] = null;
                         $check = str_replace("/$math[0]", '', $check);
                     }
                 }

@@ -3,11 +3,10 @@
 namespace Haley\Console;
 
 use Error;
+use ErrorException;
 use Exception;
 use InvalidArgumentException;
 use PDOException;
-use ReflectionFunction;
-use ReflectionMethod;
 use UnderflowException;
 
 class ConsoleResolve
@@ -36,48 +35,12 @@ class ConsoleResolve
     {
         if (empty($command['action'])) return;
 
-        $callback = null;
+        set_error_handler(function ($errno, $errstr, $errfile, $errline) {
+            throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
+        });
 
         try {
-            if (is_string($command['action'])) {
-                if (str_contains($command['action'], '::')) {
-                    $params = explode('::', $command['action']);
-                } else if (str_contains($command['action'], '@')) {
-                    $params = explode('@', $command['action']);
-                }
-
-                $namespace = !empty($command['namespace']) ? $command['namespace'] . '\\' : '';
-
-                if (isset($params[0]) and isset($params[1])) {
-                    $command['action'] = [];
-                    $class = $namespace . $params[0];
-                    $command['action'][0] = new $class;
-                    $command['action'][1] = $params[1];
-                    $reflection = new ReflectionMethod($command['action'][0], $command['action'][1]);
-                    $callback = $command['action'];
-                }
-            } elseif (is_array($command['action'])) {
-                $command['action'][0] = new $command['action'][0];
-                $reflection = new ReflectionMethod($command['action'][0], $command['action'][1]);
-                $callback = $command['action'];
-            } elseif (is_callable($command['action'])) {
-                $callback = $command['action'];
-                $reflection = new ReflectionFunction($callback);
-            }
-
-            if (is_callable($callback)) {
-                $parameters = $reflection->getParameters();
-                $args = [];
-
-                foreach ($parameters as $value) {
-                    $arg = $value->getName();
-                    if (array_key_exists($arg, $this->params)) {
-                        $args[$arg] = $this->params[$arg];
-                    }
-                }
-
-                call_user_func_array($callback, $args);
-            }
+            executeCallable($command['action'], $this->params, $command['namespace'] ?? null);
         } catch (PDOException $error) {
             Lines::red("{$error->getMessage()} : {$error->getFile()} {$error->getLine()}")->br();
         } catch (Error $error) {
