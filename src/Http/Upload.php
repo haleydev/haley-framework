@@ -19,7 +19,6 @@ class Upload
     {
         if (empty($this->input['name'])) return false;
 
-
         if (is_string($this->input['name'])) {
             if (!is_uploaded_file($this->input['tmp_name']) or !empty($this->input['error'])) {
                 return false;
@@ -56,13 +55,11 @@ class Upload
     }
 
     /**
-     * @return string|array|false
+     * @return string|array|null
      */
     public function getExtensions()
     {
-        if (empty($this->input['name'])) {
-            return false;
-        }
+        if (empty($this->input['name'])) return null;
 
         $extensions = [];
 
@@ -83,25 +80,21 @@ class Upload
     }
 
     /**
-     * @return string|array|false
+     * @return string|array|null
      */
     public function getOriginalNames()
     {
-        if (empty($this->input['name'])) {
-            return false;
-        }
+        if (empty($this->input['name'])) return null;
 
         return $this->input['name'];
     }
 
     /**
-     * @return string|array|false
+     * @return string|array|null
      */
     public function getBaseNames()
     {
-        if (empty($this->input['name'])) {
-            return false;
-        }
+        if (empty($this->input['name'])) return null;
 
         $extensions = [];
 
@@ -122,11 +115,11 @@ class Upload
     }
 
     /**
-     * @return array|string|null
+     * @return array|string|false
      */
     public function save(string $path, string|array $names = [])
     {
-        if (!$this->isValid()) return null;
+        if (!$this->isValid()) return false;
 
         createDir($path);
 
@@ -135,12 +128,8 @@ class Upload
 
         if (is_string($this->input['tmp_name'])) {
             move_uploaded_file($this->input['tmp_name'], $path . DIRECTORY_SEPARATOR . $names);
-        }
-
-        if (is_array($this->input['tmp_name'])) {
-            foreach ($this->input['tmp_name'] as $key => $value) {
-                move_uploaded_file($value, $path . DIRECTORY_SEPARATOR . $names[$key]);
-            }
+        } elseif (is_array($this->input['tmp_name'])) {
+            foreach ($this->input['tmp_name'] as $key => $value) move_uploaded_file($value, $path . DIRECTORY_SEPARATOR . $names[$key]);            
         }
 
         return $names;

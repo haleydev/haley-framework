@@ -284,6 +284,25 @@ class Job
         return new self;
     }
 
+    public static function timeout(int $minutes)
+    {
+        JobMemory::setAttribute('timeout', $minutes);
+        self::$attributes[self::$group][] = 'timeout';
+
+        return new self;
+    }
+
+    /**
+     * Single process, waits for the previous process to finish before starting another one
+     */
+    public static function unique(bool $unique = true)
+    {
+        JobMemory::setAttribute('unique', $unique);
+        self::$attributes[self::$group][] = 'unique';
+
+        return new self;
+    }
+
     public static function group(callable $routes)
     {
         $group = self::$group;

@@ -1,9 +1,9 @@
 <?php
 
-namespace Haley\Database\Migration\Query;
+namespace Haley\Database\Query\Helpers;
 
 use Haley\Collections\Log;
-use Haley\Database\Query\DB;
+use Haley\Database\DB;
 use InvalidArgumentException;
 use PDO;
 

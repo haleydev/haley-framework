@@ -13,9 +13,7 @@ class Command_Cache extends Lines
             unlink($json);
             $this->red('cache env desativado');
         } else {
-            if (file_exists($json)) {
-                unlink($json);
-            }
+            if (file_exists($json)) unlink($json);            
 
             $env = env();
 

@@ -51,15 +51,13 @@ class Migration
     }
 
     public function up(string $table, callable $build)
-    {  
-        BuilderMemory::$driver = $this->driver;     
-        BuilderMemory::$connection = $this->connection;      
-        BuilderMemory::$table = $table;      
+    {
+        BuilderMemory::$connection = $this->connection;
+        BuilderMemory::$config = $this->config;
+        BuilderMemory::$table = $table;
 
-        $builder = new Builder($this->config);
+        $builder = new Builder();
 
         call_user_func($build, $builder);
     }
-
-  
 }

@@ -47,8 +47,6 @@ class CommandDashboard extends Lines
             }
         }
 
-
-
         Lines::br()->blue('haley v1.0.0 beta - Warley Rodrigues de Moura')->br();
 
         foreach ($commands_list as $title => $value) {

@@ -4,14 +4,18 @@ namespace Haley\Http;
 
 class Session
 {
-    public static function create(int|string $key, $values = true)
+    public static function set(int|string $key, $values = true)
     {
+        if ($key === 'HALEY') return false;
+
         $_SESSION[$key] = $values;
+
+        return true;
     }
 
     public static function replace(int|string $key, $values)
     {
-        if (array_key_exists($key, $_SESSION)) {
+        if (array_key_exists($key, $_SESSION) and $key !== 'HALEY') {
             $original = $_SESSION[$key];
 
             if (is_array($original) and is_array($values)) {
@@ -27,7 +31,7 @@ class Session
             return $replace;
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -35,7 +39,7 @@ class Session
      */
     public static function unset(int|string $key)
     {
-        if (array_key_exists($key, $_SESSION) and $key != 'HALEY') {
+        if (array_key_exists($key, $_SESSION) and $key !== 'HALEY') {
             unset($_SESSION[$key]);
             return true;
         }
@@ -44,15 +48,13 @@ class Session
     }
 
     /**
-     * Return session or false
+     * Return session
      */
     public static function get(string $key)
     {
-        if (array_key_exists($key, $_SESSION)) {
-            return $_SESSION[$key];
-        }
+        if (array_key_exists($key, $_SESSION) and $key !== 'HALEY') return $_SESSION[$key];
 
-        return false;
+        return null;
     }
 
     /**
@@ -61,9 +63,7 @@ class Session
      */
     public static function has(string $key)
     {
-        if (array_key_exists($key, $_SESSION)) {
-            return true;
-        }
+        if (array_key_exists($key, $_SESSION) and $key !== 'HALEY') return true;
 
         return false;
     }
@@ -81,5 +81,10 @@ class Session
     public static function expire()
     {
         return session_cache_expire();
+    }
+
+    public static function destroy()
+    {
+        return session_destroy();
     }
 }

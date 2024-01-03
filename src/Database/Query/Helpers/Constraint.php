@@ -1,9 +1,9 @@
 <?php
 
-namespace Haley\Database\Migration\Query;
+namespace Haley\Database\Query\Helpers;
 
 use Haley\Collections\Log;
-use Haley\Database\Query\DB;
+use Haley\Database\DB;
 use InvalidArgumentException;
 use PDO;
 
@@ -96,7 +96,7 @@ class Constraint
         $names = [];
 
         if (in_array($this->driver, ['mysql', 'pgsql', 'mariadb'])) {
-            $query = DB::query('SELECT CONSTRAINT_NAME as `constraint_name` FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?', [$this->database, $table, 'PRIMARY KEY'], $this->connection)->fetchAll(PDO::FETCH_ASSOC);
+            $query = DB::query('SELECT CONSTRAINT_NAME as `constraint_name` FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?', [$this->database, $table], $this->connection)->fetchAll(PDO::FETCH_ASSOC);
             if (count($query)) foreach ($query as $value) $names[] = $value['constraint_name'];
         } else {
             $this->driverError($this->driver);
@@ -114,6 +114,8 @@ class Constraint
     public function drop(string $table, string $name)
     {
         if (in_array($this->driver, ['mysql', 'pgsql', 'mariadb'])) {
+            if ($name == 'PRIMARY') return $this->dropPrimaryKey($table);
+
             DB::query(sprintf('ALTER TABLE %s DROP CONSTRAINT %s', $table, $name), connection: $this->connection)->fetch(PDO::FETCH_OBJ);
         } else {
             $this->driverError($this->driver);
@@ -145,11 +147,6 @@ class Constraint
 
         if (in_array($this->driver, ['mysql', 'pgsql', 'mariadb'])) {
             if ($this->has($table, $name)) $this->drop($table, $name);
-
-            if ($name == 'unique_haley_fore') {
-                dd($this->has($table, $name));
-            }
-
             DB::query(sprintf('ALTER TABLE %s ADD CONSTRAINT `%s` %s %s', $table, $name, $type, $value), connection: $this->connection);
         } else {
             $this->driverError($this->driver);
@@ -215,16 +212,15 @@ class Constraint
     /**
      * Set column id
      */
-    public function setId(string $table,  $column, string|null $comment)
+    public function setId(string $table, string $column, string|null $comment)
     {
         $atual = $this->getPrimaryKey($table);
-        $has_column = DB::helper($this->connection)->column()->has($table, $column);
-        $unset_atual = false;
+        if ($atual == $column) return false;
 
-        if ($atual !== null and $atual !== $column) $unset_atual = true;
+        $has_column = DB::helper($this->connection)->column()->has($table, $column);
 
         if (in_array($this->driver, ['mysql', 'pgsql', 'mariadb'])) {
-            if ($unset_atual) {
+            if ($atual) {
                 DB::helper($this->connection)->column()->change($table, $atual, 'INT NOT NULL');
                 $this->dropPrimaryKey($table);
             }

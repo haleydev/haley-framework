@@ -24,7 +24,6 @@ class Request
     {
         if ($post = $this->post($input)) return $post;
         elseif ($get = $this->get($input)) return $get;
-        elseif ($file = $this->file($input)) return $file;
 
         return $default;
     }

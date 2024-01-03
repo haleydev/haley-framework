@@ -1,10 +1,10 @@
 <?php
 
-namespace Haley\Database\Query;
+namespace Haley\Database;
 
 use Haley\Collections\Config;
 use Haley\Database\Connection;
-use Haley\Database\Migration\Query;
+use Haley\Database\Migration\Helper;
 use Haley\Database\Query\Builder;
 
 class DB
@@ -14,7 +14,7 @@ class DB
      */
     public static function connection(string|null $connection = null)
     {
-        if ($connection == null) $connection = Config::database('default');
+        if ($connection === null) $connection = Config::database('default');
 
         return Connection::instance($connection);
     }
@@ -24,7 +24,7 @@ class DB
      */
     public static function query(string $query, array $bindparams = [], string|null $connection = null)
     {
-        if ($connection == null) $connection = Config::database('default');
+        if ($connection === null) $connection = Config::database('default');
 
         $instance = Connection::instance($connection);
         $query = $instance->prepare($query);
@@ -52,10 +52,10 @@ class DB
     }
 
     /**
-     * Database migration helper query
+     * Database migration helper
      */
     public static function helper(string|null $connection = null)
     {
-        return new Query($connection);
+        return new Helper($connection);
     }
 }

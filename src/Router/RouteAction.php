@@ -18,10 +18,6 @@ class RouteAction
         }
 
         return $this->result(executeCallable($action, $args, $namespace));
-
-        // if (is_string($action)) return $this->string($action);
-        // if (is_array($action)) return $this->array($action);
-        // if (is_callable($action)) return $this->callable($action);
     }
 
     private function result(mixed $value)

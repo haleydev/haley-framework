@@ -1,5 +1,6 @@
 <?php
 
+use Haley\Collections\Memory;
 use Haley\Collections\Password;
 use Haley\Env\Env;
 use Haley\Exceptions\Debug;
@@ -49,6 +50,11 @@ function response()
     return new Response;
 }
 
+function abort(int $status, string|null $mesage = null)
+{
+    return (new Response)->abort($status, $mesage);
+}
+
 /**
  * Validator helper view
  * @return string|array|false|ValidatorHelper
@@ -91,18 +97,16 @@ function route(string|null $name = null, string|array|null ...$params)
 
 /**
  * Retorna o valor de uma request antiga
- * @return MIXED
+ * @return mixed
  */
 function old(string $input = null)
 {
     $page = request()->url();
     $session = request()->session('FRAMEWORK');
 
-    if (!empty($session['old'][$page][$input])) {
-        return $session['old'][$page][$input];
-    }
+    if (!empty($session['old'][$page][$input])) return $session['old'][$page][$input];
 
-    return false;
+    return null;
 }
 
 function csrf()
@@ -118,6 +122,12 @@ function dd()
     $backtrace = debug_backtrace();
     $line = $backtrace[0]['line'] ?? '';
     $file = $backtrace[0]['file'] ?? '';
+
+    if (Memory::get('kernel') == 'console') {
+        var_dump(func_get_args()[0]);
+
+        die;
+    }
 
     return (new Debug)->dd($line, $file, func_get_args());
 }
@@ -143,9 +153,7 @@ function formatSize(int $bytes)
 
 function middleware(string|array $middlewares)
 {
-    if (is_string($middlewares)) {
-        $middlewares = [$middlewares];
-    }
+    if (is_string($middlewares)) $middlewares = [$middlewares];
 
     if (is_array($middlewares) and count($middlewares) > 0) {
         foreach ($middlewares as $middleware) {
@@ -159,9 +167,7 @@ function middleware(string|array $middlewares)
             $rum = new $class;
             $rum->{$params[1]}();
 
-            if ($rum->response == false) {
-                return false;
-            }
+            if ($rum->response == false) return false;
         }
     }
 
@@ -253,16 +259,20 @@ function executeCallable(string|array|callable $callable, array $args = [], stri
             $params = explode('@', $callable);
         }
 
-        if (isset($params[0]) and isset($params[1])) {
+        if (array_key_exists(0, $params) and array_key_exists(1, $params)) {
             $callable = [];
             $class = $namespace . $params[0];
             $callable[0] = new $class;
+
             $callable[1] = $params[1];
             $reflection = new ReflectionMethod($callable[0], $callable[1]);
             $callback = $callable;
         }
     } elseif (is_array($callable)) {
         $callable[0] = new $callable[0];
+
+        if (empty($callable[1])) return $callable[0];
+
         $reflection = new ReflectionMethod($callable[0], $callable[1]);
         $callback = $callable;
     } elseif (is_callable($callable)) {

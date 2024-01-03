@@ -4,12 +4,12 @@ namespace Haley\Database\Migration;
 
 use Haley\Collections\Config;
 use Haley\Collections\Log;
-use Haley\Database\Migration\Query\Column;
-use Haley\Database\Migration\Query\Constraint;
-use Haley\Database\Migration\Query\Table;
+use Haley\Database\Query\Helpers\Column;
+use Haley\Database\Query\Helpers\Constraint;
+use Haley\Database\Query\Helpers\Table;
 use InvalidArgumentException;
 
-class Query
+class Helper
 {
     private string|null $connection = null;
     private string|null $driver = null;

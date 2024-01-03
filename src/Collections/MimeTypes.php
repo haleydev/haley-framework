@@ -1,4 +1,5 @@
 <?php
+
 namespace Haley\Collections;
 
 class MimeTypes
@@ -1213,18 +1214,18 @@ class MimeTypes
     ];
 
     /**
-     * @return string/false
+     * @return string|null
      */
     public static function get(string $mime)
     {
-        if(isset(self::$mime_types[$mime])) {
+        if (array_key_exists($mime, self::$mime_types)) {
             return self::$mime_types[$mime];
         }
 
-        return false;
+        return null;
     }
 
-    public static function getAll()
+    public static function all()
     {
         return self::$mime_types;
     }

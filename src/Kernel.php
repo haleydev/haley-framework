@@ -32,34 +32,34 @@ class Kernel
         Memory::set('kernel', 'app');
 
         (new Exceptions)->handler(function () {
-            ini_set('session.gc_maxlifetime', Config::app('session')['lifetime']);
-            ini_set('session.cookie_lifetime', Config::app('session')['lifetime']);
-            ini_set('session.cache_expire', Config::app('session')['lifetime']);
-            ini_set('session.name', Config::app('session')['name']);
+            ini_set('session.gc_maxlifetime', Config::app('session.lifetime', 86400));
+            ini_set('session.cookie_lifetime', Config::app('session.lifetime', 86400));
+            ini_set('session.cookie_secure', Config::app('session.secure', true));
+            ini_set('session.cache_expire', Config::app('session.lifetime', 86400));
+            ini_set('session.name', Config::app('session.name','HALEY'));
 
-            if (!empty(Config::app('session')['files'])) {
-                createDir(Config::app('session')['files']);
-                session_save_path(Config::app('session')['files']);
+            if (!empty(Config::app('session.files'))) {
+                createDir(Config::app('session.files'));
+                session_save_path(Config::app('session.files'));
             }
 
             if (!isset($_SESSION)) session_start();
-            if (Config::app('session')['regenerate']) session_regenerate_id(true);
+            if (Config::app('session.regenerate', false)) session_regenerate_id(true);
 
             ob_start();
 
-            foreach (Config::app('helpers') as $helper) {
-                require_once $helper;
-            }
+            foreach (Config::app('helpers', []) as $helper) require_once $helper;
 
-            if (!request()->session()->has('HALEY')) request()->session()->create('HALEY');
+            if (!request()->session()->has('HALEY')) request()->session()->set('HALEY');
 
-            $routes = Config::routes();
+            $routes = Config::route('http', []);
 
             if ($routes) {
                 foreach ($routes as $name => $config) {
+                    if (!file_exists($config['path'])) continue;
+
                     $config['name'] = $name;
                     RouteMemory::resetAttributes();
-
                     RouteMemory::$config = $config;
                     require_once $config['path'];
                 }
@@ -74,11 +74,8 @@ class Kernel
         Memory::set('kernel', 'console');
 
         (new Exceptions)->handler(function () {
-            foreach (Config::app('helpers') as $helper) {
-                require_once $helper;
-            }
-
-            require_once directoryRoot('routes/console.php');
+            foreach (Config::app('helpers', []) as $helper) require_once $helper;
+            foreach (Config::route('console', []) as $console) require_once $console;
 
             Console::end();
         });
@@ -86,9 +83,7 @@ class Kernel
 
     public function terminate()
     {
-        while (ob_get_level() > 0) {
-            ob_end_flush();
-        }
+        while (ob_get_level() > 0) ob_end_flush();
 
         exit;
     }

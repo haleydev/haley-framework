@@ -98,6 +98,7 @@ class Response
             $extension = pathinfo($file, PATHINFO_EXTENSION);
             header('Content-type: ' . MimeTypes::get($extension));
             header('Content-Length: ' . filesize($file));
+
             die(readfile($file));
         }
 

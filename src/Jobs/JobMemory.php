@@ -9,25 +9,30 @@ class JobMemory
     private static array $attributes = [
         'name' => [],
         'namespace' => [],
-        'description' => null
+        'timeout' => [],
+        'unique' => []
     ];
 
     public static function job(mixed $action, bool $valid)
     {
         $name = null;
         $namespace = null;
-        $description = null;
+        $timeout = null;
+        $unique = true;
 
         if (count(self::$attributes['name'])) $name = implode('.', self::$attributes['name']);
         if (count(self::$attributes['namespace'])) $namespace = implode('\\', self::$attributes['namespace']);
-        if(!empty(self::$attributes['description'])) $description = self::$attributes['description'];
+        if (count(self::$attributes['timeout'])) $timeout = end(self::$attributes['timeout']);
+        if (count(self::$attributes['unique'])) $unique = end(self::$attributes['unique']);
 
         self::$jobs[] = [
             'action' => $action,
             'valid' => $valid,
             'name' => $name,
             'namespace' => $namespace,
-            'description' => $description
+            'description' => null,
+            'timeout' => $timeout,
+            'unique' => $unique
         ];
     }
 

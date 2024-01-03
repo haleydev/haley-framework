@@ -26,9 +26,7 @@ class Debug
 
         response()->header('content-type', 'text/html; charset=utf-8');
 
-        if (Config::app('debug') == false) {
-            return response()->abort(500);
-        }
+        if (Config::app('debug') == false) return response()->abort(500);
 
         response()->status('500');
 
@@ -63,6 +61,8 @@ class Debug
     {
         if (ob_get_level() > 0) ob_clean();
         response()->header('content-type', 'text/html; charset=utf-8');
+
+        if (!count($values)) $values = [null];
 
         $this->dd .= "<div class=\"dd-title\">$file - $line</div>";
 
@@ -113,11 +113,11 @@ class Debug
             return;
         }
 
-        if (is_string($value)) {            
+        if (is_string($value)) {
             $this->dd .= '<p title="' . gettype($value) . '"' . $this->ddSpace() . ' class="dd-code-string-value ' . $hidden_class . '">' . $key . '"' . htmlspecialchars($value) . '"</p>';
             return;
-        }    
-        
+        }
+
         if (is_object($value)) $value = (array)$value;
 
         if (is_array($value)) {

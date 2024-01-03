@@ -1,4 +1,5 @@
 <?php
+
 namespace Haley\Env;
 
 class Env
@@ -14,22 +15,18 @@ class Env
      */
     public static function env(string|null $key = null, mixed $or = null)
     {
-        if(!count(self::$env)) { 
+        if (!count(self::$env)) {
             if (file_exists(directoryRoot('storage/cache/jsons/env.json'))) {
                 self::$env = self::envCache();
             } elseif (file_exists(directoryRoot('.env'))) {
                 self::$env = self::envRead();
             }
-        }      
+        }
 
-        if($key == null) {
-            return self::$env;
-        }
-       
-        if (isset(self::$env[$key])) {
-            return self::$env[$key];
-        }
-      
+        if ($key == null) return self::$env;
+
+        if (array_key_exists($key, self::$env)) return self::$env[$key];
+
         return $or;
     }
 
@@ -50,13 +47,11 @@ class Env
         $env = [];
 
         foreach ($file as $value) {
-            if ($value[0] != '#') {                
-                $item = explode('=', trim($value), 2);
+            if ($value[0] === '#') continue;
 
-                isset($item[1]) ? $e = self::checkValue(trim($item[1])) : $e = null;     
-
-                $env[trim($item[0])] = $e;
-            }
+            $item = explode('=', trim($value), 2);
+            isset($item[1]) ? $e = self::checkValue(trim($item[1])) : $e = null;
+            $env[trim($item[0])] = $e;
         }
 
         return $env;

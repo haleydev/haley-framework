@@ -2,50 +2,63 @@
 
 namespace Haley\Collections;
 
+use InvalidArgumentException;
+
 class Config
 {
     private static array $configs = [];
 
-    private static function search(string $config, string|null $key = null)
+    public static function app(string|array|null $key = null, mixed $default = null)
     {
-        if (!isset(self::$configs[$config])) {
-            if (file_exists(directoryRoot("config/$config.php"))) {
-                self::$configs[$config] = require directoryRoot("config/$config.php");
-            } else {
-                return null;
-            }
+        return self::get('app', $key, $default);
+    }
+
+    public static function database(string|array|null $key = null, mixed $default = null)
+    {
+        return self::get('database', $key, $default);
+    }
+
+    public static function route(string|array|null $key = null, mixed $default = null)
+    {
+        return self::get('route', $key, $default);
+    }
+
+    /**
+     * @return mixed
+     */
+    public static function __callStatic($name, $arguments)
+    {
+        $keys = $arguments[0] ?? null;
+        $default = null;
+
+        if (array_key_exists(1, $arguments)) $default = $arguments[1];
+
+        return self::get($name, $keys, $default);
+    }
+
+    /**
+     * @return mixed
+     */
+    private static function get(string $name, string|array|null $keys, mixed $default)
+    {
+        if (!isset(self::$configs[$name])) {
+            if (!file_exists(directoryRoot("config/$name.php"))) return $default;
+            self::$configs[$name] = require directoryRoot("config/$name.php");
         }
 
-        if ($key === null) return self::$configs[$config];
+        if ($keys === null) return self::$configs[$name];
 
-        if (isset(self::$configs[$config][$key])) return self::$configs[$config][$key];
+        if (!is_string($keys) and !is_array($keys)) throw new InvalidArgumentException('Invalid keys: string, array or null');
 
-        return null;
-    }
+        if (is_string($keys)) $keys = explode('.', $keys);
 
-    public static function app(string|null $key = null, mixed $or = null)
-    {
-        $result = self::search('app', $key);
+        $result = self::$configs[$name];
 
-        if ($result === null) return $or;
+        foreach ($keys as $key) {
+            if (!array_key_exists($key, $result)) return $default;
 
-        return $result;
-    }
-
-    public static function routes(string|null $key = null, mixed $or = null)
-    {
-        $result = self::search('route', $key);
-
-        if ($result === null) return $or;
-
-        return $result;
-    }
-
-    public static function database(string|null $key = null, mixed $or = null)
-    {
-        $result = self::search('database', $key);
-
-        if ($result === null) return $or;
+            $result = $result[$key];
+        }
 
         return $result;
     }

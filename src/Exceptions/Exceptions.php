@@ -8,6 +8,8 @@ use ErrorException;
 use Exception;
 use InvalidArgumentException;
 use PDOException;
+use Throwable;
+use TypeError;
 use UnderflowException;
 
 class Exceptions
@@ -23,6 +25,8 @@ class Exceptions
         } catch (PDOException $error) {
             Log::create('database', $error->getMessage());
             return (new Debug)->exceptions($error);
+        } catch (Throwable $error) {
+            return (new Debug)->exceptions($error);
         } catch (Error $error) {
             return (new Debug)->exceptions($error);
         } catch (UnderflowException $error) {
@@ -30,6 +34,10 @@ class Exceptions
         } catch (InvalidArgumentException $error) {
             return (new Debug)->exceptions($error);
         } catch (Exception $error) {
+            return (new Debug)->exceptions($error);
+        } catch (TypeError $error) {
+            return (new Debug)->exceptions($error);
+        } catch (ErrorException $error) {
             return (new Debug)->exceptions($error);
         }
     }

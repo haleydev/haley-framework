@@ -33,6 +33,7 @@ class Csrf
     public static function check()
     {
         $token = self::token();
+
         $header_token = request()->headers('X-CSRF-TOKEN') ?: request()->headers('X-Csrf-Token');
         $input_token = request()->post('_token');
 

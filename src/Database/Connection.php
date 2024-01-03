@@ -33,12 +33,9 @@ class Connection
             $dbname = $config['database'];
             $username = $config['username'];
             $password = $config['password'];
+            $options = null;
 
-            if (isset($config['options']) and !empty($config['options'])) {
-                $options = $config['options'];
-            } else {
-                $options = null;
-            }
+            if (isset($config['options']) and !empty($config['options'])) $options = $config['options'];           
 
             self::$instances[$connection] = new PDO("$drive:host=$host;port=$port;dbname=$dbname", $username, $password, $options);
             return self::$instances[$connection];

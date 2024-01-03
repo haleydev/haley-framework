@@ -7,13 +7,6 @@ use InvalidArgumentException;
 
 class Builder
 {
-    private array|null $config = null;
-
-    public function __construct(array $config)
-    {
-        $this->config = $config;
-    }
-
     public function id(string $name = 'id', string|null $comment = null)
     {
         if (!empty(BuilderMemory::$primary) or count(BuilderMemory::$id)) {
@@ -29,7 +22,7 @@ class Builder
 
     public function varchar(string $name, int $size = 255)
     {
-        if (in_array($this->config['driver'], ['mysql', 'pgsql', 'mariadb'])) {
+        if (in_array(BuilderMemory::$config['driver'], ['mysql', 'pgsql', 'mariadb'])) {
             $type = sprintf('varchar(%s)', $size);
         } else {
             return $this->typeError('varchar');
@@ -37,12 +30,38 @@ class Builder
 
         BuilderMemory::addColumn($name, $type);
 
-        return new BuilderOptions($this->config['driver']);
+        return new BuilderOptions(BuilderMemory::$config['driver']);
+    }
+
+    public function text(string $name)
+    {
+        if (in_array(BuilderMemory::$config['driver'], ['mysql', 'pgsql', 'mariadb'])) {
+            $type = 'text';
+        } else {
+            return $this->typeError('varchar');
+        }
+
+        BuilderMemory::addColumn($name, $type);
+
+        return new BuilderOptions(BuilderMemory::$config['driver']);
+    }
+
+    public function json(string $name)
+    {
+        if (in_array(BuilderMemory::$config['driver'], ['mysql', 'pgsql', 'mariadb'])) {
+            $type = 'json';
+        } else {
+            return $this->typeError('varchar');
+        }
+
+        BuilderMemory::addColumn($name, $type);
+
+        return new BuilderOptions(BuilderMemory::$config['driver']);
     }
 
     public function int(string $name, int|null $size = null)
     {
-        if (in_array($this->config['driver'], ['mysql', 'pgsql', 'mariadb'])) {
+        if (in_array(BuilderMemory::$config['driver'], ['mysql', 'pgsql', 'mariadb'])) {
             $type = sprintf($size !== null ? 'INT(%s)' : 'INT', $size);
         } else {
             return $this->typeError('int');
@@ -50,10 +69,8 @@ class Builder
 
         BuilderMemory::addColumn($name, $type);
 
-        return new BuilderOptions($this->config['driver']);
+        return new BuilderOptions(BuilderMemory::$config['driver']);
     }
-
-
 
     public function dropConstrant()
     {
@@ -62,13 +79,6 @@ class Builder
     public function dropColumn()
     {
     }
-
-
-
-
-
-
-
 
     public function foreign(string $column, string $reference_table, string $reference_column)
     {
@@ -81,7 +91,7 @@ class Builder
             'on_update' => null
         ];
 
-        return new ForeignOptions($this->config['driver']);
+        return new ForeignOptions(BuilderMemory::$config['driver']);
     }
 
     public function rename(string $column, string $to)
@@ -91,7 +101,7 @@ class Builder
 
     private function typeError(string $type)
     {
-        Log::create('migration', 'Driver not found for ' . $type);
-        throw new InvalidArgumentException('Driver not found for ' . $type);
+        Log::create('migration', 'Driver does not support the type ' . $type);
+        throw new InvalidArgumentException('Driver does not support the type ' . $type);
     }
 }

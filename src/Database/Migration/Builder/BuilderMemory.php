@@ -4,11 +4,11 @@ namespace Haley\Database\Migration\Builder;
 
 class BuilderMemory
 {
-    public static string|null $driver = null;
     public static string|null $connection = null;
+    public static array|null $config = null;
+
     public static string|null $table = null;
     public static string|null $primary = null;
-
     public static array $id = [];
     public static array $columns = [];
     public static array $constraints = [];
@@ -17,13 +17,13 @@ class BuilderMemory
 
     public static function addColumn(string $name, string $type, int|string|array|null $paramns = null)
     {
-        if (in_array(self::$driver, ['mysql', 'pgsql', 'mariadb'])) {
+        if (in_array(self::$config['driver'], ['mysql', 'pgsql', 'mariadb'])) {
             if ($paramns) $type .= "($paramns)";
 
             self::$columns[] = [
                 'name' => $name,
                 'type' => $type,
-                'query' => "[CL:NAME] [CL:TYPE] [OP:DEFAULT] [OP:NOT_NULL] [OP:COMMENT]"
+                'query' => '[CL:NAME] [CL:TYPE] [OP:DEFAULT] [OP:NOT_NULL] [OP:COMMENT]'
             ];
         }
     }
@@ -38,8 +38,9 @@ class BuilderMemory
             $on_delete = $value['on_delete'];
             $on_update = $value['on_update'];
 
-            if (in_array(self::$driver, ['mysql', 'pgsql', 'mariadb'])) {
+            if (in_array(self::$config['driver'], ['mysql', 'pgsql', 'mariadb'])) {
                 $value = sprintf('(%s) REFERENCES %s (%s)', $column, $reference_table, $reference_column);
+
                 if ($on_delete !== null) $value .= $on_delete;
                 if ($on_update !== null) $value .= $on_update;
                 if ($name == null) $name = sprintf('foreign_%s_%s_%s_%s', self::$table, $column, $reference_table, $reference_column);
@@ -72,5 +73,18 @@ class BuilderMemory
             'type' => $type,
             'value' => $value
         ];
+    }
+
+    static public function reset()
+    {
+        self::$connection = null;
+        self::$config = null;    
+        self::$table = null;
+        self::$primary = null;
+        self::$id = [];
+        self::$columns = [];
+        self::$constraints = [];
+        self::$rename = [];
+        self::$foreign = [];
     }
 }

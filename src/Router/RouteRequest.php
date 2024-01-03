@@ -24,7 +24,7 @@ class RouteRequest
             }
 
             if (!middleware($middlewares)) return response()->abort(403);
-        }
+        }    
 
         if (!empty($route['config']['csrf'])) {
             if (!csrf()->check() and $route['config']['csrf']['active'] === true and !in_array('GET', $route['methods'])) return response()->abort(401);
