@@ -27,89 +27,108 @@ class Websocket
             socket_select($newSocketArray, $null, $null, 0, 0);
 
             if (in_array($socket, $newSocketArray)) {
+
                 $newSocket = socket_accept($socket);
                 $clients[] = $newSocket;
 
-                $header = socket_read($newSocket, 1024);
+
+
+                $header = socket_read($newSocket, 30000000);
                 self::doHandshake($header, $newSocket, $definitions['host'], $definitions['port']);
 
                 socket_getpeername($newSocket, $client_ip_address);
                 $connectionACK = self::newConnectionACK($client_ip_address);
 
-                @socket_write($newSocket, $connectionACK, strlen($connectionACK));
+                // on open
+                foreach ($clients as $cliente_send) {
+                    try {
+                        @socket_write($cliente_send, $connectionACK, strlen($connectionACK));
+                    } catch (Exception $e) {
+                        $error = socket_last_error($cliente_send);
+
+                        if ($error === 107 || $error === 104) {
+                            // 107: Transport endpoint is not connected
+                            // 104: Connection reset by peer
+                            $newSocketIndex = array_search($cliente_send, $clients);
+                            unset($clients[$newSocketIndex]);
+                            socket_close($cliente_send);
+
+                            var_dump('force close on open');
+                        }
+                    }
+                }
 
                 $newSocketIndex = array_search($socket, $newSocketArray);
                 unset($newSocketArray[$newSocketIndex]);
             }
 
             foreach ($newSocketArray as $newSocketArrayResource) {
-                // var_dump($newSocketArrayResource);
-                // var_dump('send', $socket);
 
-                //   $socketData = @socket_read($newSocketArrayResource, 1024, PHP_NORMAL_READ);
+                while (socket_recv($newSocketArrayResource, $socketData,30000000,  0) >= 1) {
 
-                // if ($socketData === false) {
-                //     var_dump('close', $socket);
-
-                //     socket_getpeername($newSocketArrayResource, $client_ip_address);
-                //     $connectionACK = self::connectionDisconnectACK($client_ip_address);
-                //     // var_dump(['socketdata false', 'disconect']);
-                //     @socket_write($newSocketArrayResource, $connectionACK, strlen($connectionACK));
-                //     $newSocketIndex = array_search($newSocketArrayResource, $clients);
-                //     unset($clients[$newSocketIndex]);
-
-                //     continue;
-                // }
-
-                while (socket_recv($newSocketArrayResource, $socketData, 1024, 0) >= 1) {
                     $socketMessage = self::unseal($socketData);
                     $messageObj = json_decode($socketMessage);
+                    var_dump($messageObj);
 
-                    if ($messageObj) {
+
+                    if (empty($messageObj)) break 2;
+
+                    $chat_box_message = self::createChatBoxMessage($messageObj->chat_user, $messageObj->chat_message);
 
 
-                        // global $clients;
+                    foreach ($clients as $cliente_send) {
+                        try {
+                            $chat_box_message = self::createChatBoxMessage($messageObj->chat_user, $messageObj->chat_message);
 
-                        foreach ($clients as $cliente_send) {
-                            try {
-                                $chat_box_message = self::createChatBoxMessage($messageObj->chat_user, $messageObj->chat_message);
+                            // on message
+                            var_dump('clientes: ' . count($clients) - 1);
+                            @socket_write($cliente_send, $chat_box_message, strlen($chat_box_message));
+                        } catch (Exception $e) {
+                            $error = socket_last_error($cliente_send);
 
-                                @socket_write($cliente_send, $chat_box_message, strlen($chat_box_message));
-                            } catch (Exception $e) {
-                                var_dump(['error' => $e->getMessage()]);
+                            if ($error === 107 || $error === 104) {
+                                // 107: Transport endpoint is not connected
+                                // 104: Connection reset by peer
+                                $newSocketIndex = array_search($cliente_send, $clients);
+                                unset($clients[$newSocketIndex]);
+                                socket_close($cliente_send);
+                                var_dump('force close on message');
                             }
                         }
-
-
-                        // self::send($chat_box_message);                        
                     }
 
                     break 2;
                 }
-            }
 
-            // if (count($newSocketArray) > 1) var_dump(['clients', $clients]);
+                socket_getpeername($newSocketArrayResource, $client_ip_address);
+                $connectionACK = self::connectionDisconnectACK($client_ip_address);
+                $newSocketIndex = array_search($newSocketArrayResource, $clients);
+                unset($clients[$newSocketIndex]);
+                socket_close($newSocketArrayResource);
+                // var_dump('close');
+
+                foreach ($clients as $cliente_send) {
+                    try {
+                        // on close
+                        @socket_write($cliente_send, $connectionACK, strlen($connectionACK));
+                    } catch (Exception $e) {
+                        $error = socket_last_error($cliente_send);
+
+                        if ($error === 107 || $error === 104) {
+                            // 107: Transport endpoint is not connected
+                            // 104: Connection reset by peer
+                            $newSocketIndex = array_search($cliente_send, $clients);
+                            unset($clients[$newSocketIndex]);
+                            socket_close($cliente_send);
+                            var_dump('force close on end');
+                        }
+                    }
+                }
+            }
         }
 
         socket_close($socket);
     }
-
-    // private static function send($message)
-    // {
-    // 	global $clientSocketArray;
-    // 	$messageLength = strlen($message);
-
-    //     try {
-    //         foreach ($clientSocketArray as $clientSocket) {
-    //             @socket_write($clientSocket, $message, $messageLength);
-    //         }
-    //     }catch (Exception $e) {
-    //         var_dump(['error' => $e->getMessage()]);
-    //     }
-
-
-    // 	return true;
-    // }
 
     private static function createChatBoxMessage($chat_user, $chat_box_message)
     {
