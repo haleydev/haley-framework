@@ -15,18 +15,15 @@ class WebsocketMemory
         // 'error' => []
     ];
 
-    public static function ws(string $url, string|array|callable $action)
-    {
-        $domain = [];
-        $name = null;
-        $port = '9215';
+    public static function ws(string $port, string|array|callable $action)
+    {     
+        $name = null;    
         $host = 'localhost';
 
         self::$sockets[] = [
-            'url' => $url,
+            // 'url' => $url,
             'action' => $action,
-            'name' => $name,
-            'domain' => $domain,
+            'name' => $name,         
             'port' => $port,
             'host' => $host
         ];

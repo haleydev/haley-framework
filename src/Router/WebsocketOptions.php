@@ -17,10 +17,10 @@ class WebsocketOptions
         return $this;
     }
 
-    public function domain(string $value)
+    public function host(string $value)
     {
         $key = array_key_last(WebsocketMemory::$sockets);
-        WebsocketMemory::$sockets[$key]['domain'][] = $value;
+        WebsocketMemory::$sockets[$key]['host'] = $value;
 
         return $this;
     }
@@ -28,7 +28,7 @@ class WebsocketOptions
     public function port(int $value)
     {
         $key = array_key_last(WebsocketMemory::$sockets);
-        WebsocketMemory::$sockets[$key]['port'][] = $value;
+        WebsocketMemory::$sockets[$key]['port'] = $value;
 
         return $this;
     }
