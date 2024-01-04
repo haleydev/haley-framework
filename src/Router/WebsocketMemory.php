@@ -19,7 +19,7 @@ class WebsocketMemory
     {
         $domain = [];
         $name = null;
-        $port = '9214';
+        $port = '9215';
         $host = 'localhost';
 
         self::$sockets[] = [
