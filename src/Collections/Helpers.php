@@ -268,12 +268,15 @@ function executeCallable(string|array|callable $callable, array $args = [], stri
             $reflection = new ReflectionMethod($callable[0], $callable[1]);
             $callback = $callable;
         }
-    } elseif (is_array($callable)) {
-        $callable[0] = new $callable[0];
+    } elseif (is_array($callable)) {    
 
-        if (empty($callable[1])) return $callable[0];
-
-        $reflection = new ReflectionMethod($callable[0], $callable[1]);
+        if (count($callable) == 1) {
+            return new $callable[0];
+        }else{
+            $callable[0] = new $callable[0];
+            $reflection = new ReflectionMethod($callable[0], $callable[1]);
+        }   
+       
         $callback = $callable;
     } elseif (is_callable($callable)) {
         $callback = $callable;

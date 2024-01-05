@@ -25,7 +25,8 @@ class WebsocketMemory
             'action' => $action,
             'name' => $name,         
             'port' => $port,
-            'host' => $host
+            'host' => $host,
+            'usleep' => 100000
         ];
     }
 }

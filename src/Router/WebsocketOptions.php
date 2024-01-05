@@ -17,7 +17,7 @@ class WebsocketOptions
         return $this;
     }
 
-    public function host(string $value)
+    public function host(string $value = 'localhost')
     {
         $key = array_key_last(WebsocketMemory::$sockets);
         WebsocketMemory::$sockets[$key]['host'] = $value;
@@ -25,10 +25,21 @@ class WebsocketOptions
         return $this;
     }
 
-    public function port(int $value)
+    public function port(int $value = 8045)
     {
         $key = array_key_last(WebsocketMemory::$sockets);
         WebsocketMemory::$sockets[$key]['port'] = $value;
+
+        return $this;
+    }
+
+    /**
+     * Delay execution in microseconds
+     */
+    public function usleep(int $value = 100000)
+    {
+        $key = array_key_last(WebsocketMemory::$sockets);
+        WebsocketMemory::$sockets[$key]['usleep'] = $value;
 
         return $this;
     }

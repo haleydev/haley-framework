@@ -1,9 +1,10 @@
 <?php
+
 namespace Haley\Console\Commands;
 
-use Haley\Collections\Websocket;
 use Haley\Console\Lines;
 use Haley\Router\WebsocketMemory;
+use Haley\WebSocket\SocketServer;
 
 class CommandWebsocket extends Lines
 {
@@ -13,10 +14,10 @@ class CommandWebsocket extends Lines
 
         // dd(WebsocketMemory::$sockets);
 
-        foreach(WebsocketMemory::$sockets as $definitions) {
+        foreach (WebsocketMemory::$sockets as $definitions) {
             // $this->red($definitions['name']);
-            
-            Websocket::run($definitions);
+
+            SocketServer::run($definitions);
         }
 
         // $this->blue('helo ' . $name);
