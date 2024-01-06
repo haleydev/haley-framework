@@ -20,6 +20,8 @@ class Debug
         $error_line = $error->getLine();
         $error_all = $error;
 
+        // get_included_files(), get_required_files(), get_include_path()
+
         if (Memory::get('kernel') == 'console') {
             die(PHP_EOL . "\033[0;31m {$error_file} {$error_line} " . PHP_EOL . " {$error->getMessage()}\033[0m" . PHP_EOL . PHP_EOL);
         }
