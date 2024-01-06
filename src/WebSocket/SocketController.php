@@ -15,9 +15,19 @@ class SocketController
         ];
     }
 
+    public function close(int $id)
+    {       
+        if (!array_key_exists($id, SocketMemory::$clients)) return false;
+        if (in_array($id, SocketMemory::$close)) return true;
+
+        SocketMemory::$close[] = $id;      
+
+        return true;
+    }
+
     public function setProps(int $id, mixed $value)
     {
-        if (!array_key_exists($id, SocketMemory::$clients)) return false;
+        if (!array_key_exists($id, SocketMemory::$clients) || $id === null) return false;
 
         SocketMemory::$props[$id] = $value;
 
@@ -26,7 +36,7 @@ class SocketController
 
     public function getProps(int $id)
     {
-        if (array_key_exists($id, SocketMemory::$props)) return null;
+        if (!array_key_exists($id, SocketMemory::$props)) return null;
 
         return SocketMemory::$props[$id];
     }
@@ -55,6 +65,18 @@ class SocketController
         return $ids;
     }
 
+    public function ip(int $id)
+    {
+        if (!array_key_exists($id, SocketMemory::$ips)) return null;
+
+        return SocketMemory::$ips[$id];
+    }
+
+    public function count()
+    {
+        return count(SocketMemory::$clients) - 1;
+    }
+
     private function seal($value)
     {
         $b1 = 0x80 | (0x1 & 0x0f);
@@ -65,27 +87,5 @@ class SocketController
         elseif ($length >= 65536) $header = pack('CCNN', $b1, 127, $length);
 
         return $header . $value;
-    }
-
-    private function  unseal($value)
-    {
-        $length = ord($value[1]) & 127;
-
-        if ($length == 126) {
-            $masks = substr($value, 4, 4);
-            $data = substr($value, 8);
-        } elseif ($length == 127) {
-            $masks = substr($value, 10, 4);
-            $data = substr($value, 14);
-        } else {
-            $masks = substr($value, 2, 4);
-            $data = substr($value, 6);
-        }
-
-        $value = '';
-
-        for ($i = 0; $i < strlen($data); ++$i) $value .= $data[$i] ^ $masks[$i % 4];
-
-        return $value;
     }
 }
