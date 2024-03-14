@@ -16,11 +16,14 @@ class SocketController
     }
 
     public function close(int $id)
-    {       
+    {
+        // if (array_key_exists($id, SocketMemory::$props)) unset(SocketMemory::$props[$id]);
+        // if (array_key_exists($id, SocketMemory::$ips)) unset(SocketMemory::$ips[$id]);
+
         if (!array_key_exists($id, SocketMemory::$clients)) return false;
         if (in_array($id, SocketMemory::$close)) return true;
 
-        SocketMemory::$close[] = $id;      
+        SocketMemory::$close[] = $id;
 
         return true;
     }

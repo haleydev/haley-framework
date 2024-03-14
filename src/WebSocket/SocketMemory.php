@@ -16,6 +16,6 @@ class SocketMemory
     public static function reset()
     {
         self::$send = [];
-        self::$close = [];
+        // self::$close = [];
     }
 }

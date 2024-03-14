@@ -5,13 +5,8 @@ namespace Haley\Console\Commands;
 use Haley\Collections\Log;
 use Haley\Console\Lines;
 use Haley\Jobs\JobMemory;
-use Error;
-use ErrorException;
-use Exception;
 use Haley\Collections\Config;
-use InvalidArgumentException;
-use PDOException;
-use UnderflowException;
+use Throwable;
 
 class CommandJobs extends Lines
 {
@@ -140,10 +135,7 @@ class CommandJobs extends Lines
             $action = $job['action'] ?? null;
 
             // execute
-            if (!empty($action)) {
-                set_error_handler(function ($errno, $errstr, $errfile, $errline) {
-                    throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
-                });
+            if (!empty($action)) {             
 
                 try {
                     $timeout = $job['timeout'] ? strtotime('+' . $job['timeout'] . ' minutes') : null;
@@ -164,15 +156,7 @@ class CommandJobs extends Lines
 
                     // execute
                     executeCallable($action, [], $job['namespace']);
-                } catch (PDOException $error) {
-                    $log_error = "{$error->getMessage()} : {$error->getFile()} {$error->getLine()}";
-                } catch (Error $error) {
-                    $log_error = "{$error->getMessage()} : {$error->getFile()} {$error->getLine()}";
-                } catch (UnderflowException $error) {
-                    $log_error = "{$error->getMessage()} : {$error->getFile()} {$error->getLine()}";
-                } catch (InvalidArgumentException $error) {
-                    $log_error = "{$error->getMessage()} : {$error->getFile()} {$error->getLine()}";
-                } catch (Exception $error) {
+                } catch (Throwable $error) {
                     $log_error = "{$error->getMessage()} : {$error->getFile()} {$error->getLine()}";
                 }
             }
