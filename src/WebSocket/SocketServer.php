@@ -8,7 +8,7 @@ use Socket;
 
 class SocketServer
 {
-    private static ResourceBundle|Socket|false $socket  = false;
+    private static ResourceBundle|Socket|false $socket = false;
     private static array $clients = [];
     private static int $message_id = 0;
 
@@ -66,24 +66,25 @@ class SocketServer
     {
         $client = socket_accept(self::$socket);
 
-        SocketMemory::$id = sprintf('%d%d', random_int(1, 10000), random_int(1, 10000));
-        SocketMemory::$clients[SocketMemory::$id] = $client;
+        SocketMemory::$client_id = sprintf('%d%d', random_int(1, 10000), random_int(1, 10000));
+        SocketMemory::$clients[SocketMemory::$client_id] = $client;
 
         socket_getpeername($client, $ip);
-        SocketMemory::$ips[SocketMemory::$id] = $ip;
+        SocketMemory::$ips[SocketMemory::$client_id] = $ip;
 
         $header = socket_read($client, 30000000);
+
         self::doHandshake($header, $client, $definitions['host'], $definitions['port']);
     }
 
     private static function onOpen($class)
-    {  
+    {
         if (!method_exists($class, 'onOpen')) return;
-      
-        SocketMemory::$send = [];    
+
+        SocketMemory::$send = [];
 
         try {
-            $class->onOpen(new SocketController);
+            $class->onOpen(new SocketClient);
 
             if (count(SocketMemory::$send)) foreach (SocketMemory::$send as $value) {
                 if (count($value['id'])) foreach ($value['id'] as $to) {
@@ -92,7 +93,7 @@ class SocketServer
                     }
                 }
             }
-        } catch (Throwable $error) {       
+        } catch (Throwable $error) {
             self::onError('open', $class, $error);
         }
     }
@@ -106,10 +107,10 @@ class SocketServer
         $message = self::unseal($message);
 
         SocketMemory::$send = [];
-        SocketMemory::$id = $client_id;
+        SocketMemory::$client_id = $client_id;
 
         try {
-            $class->onMessage($message, self::$message_id, new SocketController);
+            $class->onMessage($message, self::$message_id, new SocketClient);
 
             if (count(SocketMemory::$send)) foreach (SocketMemory::$send as $value) {
                 if (count($value['id'])) foreach ($value['id'] as $to) {
@@ -131,9 +132,9 @@ class SocketServer
             unset(SocketMemory::$clients[$client_id]);
 
             SocketMemory::$send = [];
-            SocketMemory::$id = $client_id;
+            SocketMemory::$client_id = $client_id;
 
-            $class->onClose(new SocketController);
+            $class->onClose(new SocketClient);
 
             try {
                 if (count(SocketMemory::$send)) foreach (SocketMemory::$send as $value) {
@@ -148,9 +149,10 @@ class SocketServer
             }
         }
 
-        if (array_key_exists($client_id, SocketMemory::$props)) unset(SocketMemory::$props[$client_id]);
-        if (array_key_exists($client_id, SocketMemory::$ips)) unset(SocketMemory::$ips[$client_id]);
         if (array_key_exists($client_id, SocketMemory::$close)) unset(SocketMemory::$close[$client_id]);
+        if (array_key_exists($client_id, SocketMemory::$props)) unset(SocketMemory::$props[$client_id]);
+        if (array_key_exists($client_id, SocketMemory::$ips)) unset(SocketMemory::$ips[$client_id]);  
+        if (array_key_exists($client_id, SocketMemory::$headers)) unset(SocketMemory::$headers[$client_id]);
     }
 
     private static function onError($on, $class, Throwable $error)
@@ -158,7 +160,7 @@ class SocketServer
         if (method_exists($class, 'onError')) {
             SocketMemory::$send = [];
 
-            $class->onError($on, new SocketController, $error);
+            $class->onError($on, new SocketClient, $error);
 
             if (count(SocketMemory::$send)) foreach (SocketMemory::$send as $value) {
                 if (count($value['id'])) foreach ($value['id'] as $to) {
@@ -187,7 +189,7 @@ class SocketServer
 
         $socketData = '';
 
-        for ($i = 0; $i < strlen($data); ++$i) $socketData .= $data[$i] ^ $masks[$i % 4];       
+        for ($i = 0; $i < strlen($data); ++$i) $socketData .= $data[$i] ^ $masks[$i % 4];
 
         return $socketData;
     }
@@ -204,6 +206,8 @@ class SocketServer
                 $headers[$matches[1]] = $matches[2];
             }
         }
+
+        SocketMemory::$headers[SocketMemory::$client_id] = $headers;
 
         if (empty($headers['Sec-WebSocket-Key'])) return;
 

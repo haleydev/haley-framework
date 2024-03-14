@@ -10,7 +10,7 @@ class CommandWebsocket extends Lines
 {
     public function run(string|null $name = null)
     {
-        require_once directoryRoot('routes/socket.php');
+        require_once directoryRoot('routes/websocket.php');
 
         // dd(WebsocketMemory::$sockets);
 

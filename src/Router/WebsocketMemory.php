@@ -15,7 +15,7 @@ class WebsocketMemory
         // 'error' => []
     ];
 
-    public static function ws(string $port, string|array|callable $action)
+    public static function channel(string $port, string|array|callable $action)
     {     
         $name = null;    
         $host = 'localhost';

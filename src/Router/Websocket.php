@@ -4,9 +4,9 @@ namespace Haley\Router;
 
 class Websocket
 {
-    public static function ws(int $port, string|array|callable $action)
+    public static function channel(int $port, string|array|callable $action)
     {
-        WebsocketMemory::ws($port, $action);
+        WebsocketMemory::channel($port, $action);
 
         return new WebsocketOptions;
     }
