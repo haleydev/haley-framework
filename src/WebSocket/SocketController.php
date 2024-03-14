@@ -17,9 +17,6 @@ class SocketController
 
     public function close(int $id)
     {
-        // if (array_key_exists($id, SocketMemory::$props)) unset(SocketMemory::$props[$id]);
-        // if (array_key_exists($id, SocketMemory::$ips)) unset(SocketMemory::$ips[$id]);
-
         if (!array_key_exists($id, SocketMemory::$clients)) return false;
         if (in_array($id, SocketMemory::$close)) return true;
 
@@ -30,7 +27,7 @@ class SocketController
 
     public function setProps(int $id, mixed $value)
     {
-        if (!array_key_exists($id, SocketMemory::$clients) || $id === null) return false;
+        if (!array_key_exists($id, SocketMemory::$clients)) return false;
 
         SocketMemory::$props[$id] = $value;
 
@@ -44,12 +41,21 @@ class SocketController
         return SocketMemory::$props[$id];
     }
 
+    public function clearProps(int $id)
+    {
+        if (!array_key_exists($id, SocketMemory::$props)) return false;
+
+        unset(SocketMemory::$props[$id]);
+
+        return true;
+    }
+
     /**
      * @return int|null
      */
     public function id()
     {
-        if (SocketMemory::$id == 0) return null;
+        if (!SocketMemory::$id) return null;
 
         return SocketMemory::$id;
     }

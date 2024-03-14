@@ -36,7 +36,7 @@ class WebsocketOptions
     /**
      * Delay execution in microseconds
      */
-    public function usleep(int $value = 100000)
+    public function usleep(int $value = 100)
     {
         $key = array_key_last(WebsocketMemory::$sockets);
         WebsocketMemory::$sockets[$key]['usleep'] = $value;

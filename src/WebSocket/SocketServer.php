@@ -49,6 +49,7 @@ class SocketServer
                     // on message
                     else self::onMessage($class, $message, $new_client_id);
 
+                    // disconnect client
                     if (in_array($new_client_id, SocketMemory::$close)) {
                         self::onClose($class, $new_client, $new_client_id);
                     }
@@ -76,22 +77,23 @@ class SocketServer
     }
 
     private static function onOpen($class)
-    {
+    {  
         if (!method_exists($class, 'onOpen')) return;
+      
+        SocketMemory::$send = [];    
 
-        foreach (SocketMemory::$clients as $id => $client_send) {
-            try {
-                SocketMemory::reset();
-                $class->onOpen(new SocketController);
+        try {
+            $class->onOpen(new SocketController);
 
-                if (!empty(SocketMemory::$send)) foreach (SocketMemory::$send as $msend) {
-                    if (in_array($id, $msend['id'])) {
-                        @socket_write($client_send, $msend['data'], strlen($msend['data']));
+            if (count(SocketMemory::$send)) foreach (SocketMemory::$send as $value) {
+                if (count($value['id'])) foreach ($value['id'] as $to) {
+                    if (array_key_exists($to, SocketMemory::$clients)) {
+                        @socket_write(SocketMemory::$clients[$to], $value['data'], strlen($value['data']));
                     }
                 }
-            } catch (Throwable $e) {
-                self::onError('open', $client_send, $id, $class, $e);
             }
+        } catch (Throwable $error) {       
+            self::onError('open', $class, $error);
         }
     }
 
@@ -103,66 +105,66 @@ class SocketServer
 
         $message = self::unseal($message);
 
-        foreach (SocketMemory::$clients as $id => $client_send) {
-            try {
-                SocketMemory::reset();
-                SocketMemory::$id = $id;
+        SocketMemory::$send = [];
+        SocketMemory::$id = $client_id;
 
-                $class->onMessage($message, self::$message_id, new SocketController);
+        try {
+            $class->onMessage($message, self::$message_id, new SocketController);
 
-                if (!empty(SocketMemory::$send)) foreach (SocketMemory::$send as $msend) {
-                    if (in_array($id, $msend['id'])) {
-                        @socket_write($client_send, $msend['data'], strlen($msend['data']));
+            if (count(SocketMemory::$send)) foreach (SocketMemory::$send as $value) {
+                if (count($value['id'])) foreach ($value['id'] as $to) {
+                    if (array_key_exists($to, SocketMemory::$clients)) {
+                        @socket_write(SocketMemory::$clients[$to], $value['data'], strlen($value['data']));
                     }
-                }             
-            } catch (Throwable $e) {
-                self::onError('message', $client_send, $id, $class, $e);
-            }
-        }
-    }
-
-    private static function onClose($class, $client, $id)
-    {
-        var_dump(SocketMemory::$clients[$id]);
-
-        if (method_exists($class, 'onClose')) {   
-            SocketMemory::$id = $id;
-
-            socket_close($client);
-
-            unset(SocketMemory::$clients[$id]);
-
-            $class->onClose(new SocketController);           
-
-            foreach (SocketMemory::$clients as $client_id => $client_send) {  
-                try {
-                    if (!empty(SocketMemory::$send)) foreach (SocketMemory::$send as $msend) {
-                        if (in_array($client_id, $msend['id'])) {
-                            @socket_write($client_send, $msend['data'], strlen($msend['data']));
-                        }
-                    }
-                } catch (Throwable $e) {
-                    self::onError('close', $client_send, $client_id, $class, $e);
                 }
             }
-            // }
+        } catch (Throwable $error) {
+            self::onError('message', $class, $error);
         }
-
-        if (array_key_exists($id, SocketMemory::$props)) unset(SocketMemory::$props[$id]);
-        if (array_key_exists($id, SocketMemory::$ips)) unset(SocketMemory::$ips[$id]);
-        if (array_key_exists($id, SocketMemory::$close)) unset(SocketMemory::$close[$id]);
     }
 
-    private static function onError($on, $client, $client_id, $class, Throwable $error)
+    private static function onClose($class, $client, $client_id)
+    {
+        if (method_exists($class, 'onClose')) {
+
+            socket_close($client);
+            unset(SocketMemory::$clients[$client_id]);
+
+            SocketMemory::$send = [];
+            SocketMemory::$id = $client_id;
+
+            $class->onClose(new SocketController);
+
+            try {
+                if (count(SocketMemory::$send)) foreach (SocketMemory::$send as $value) {
+                    if (count($value['id'])) foreach ($value['id'] as $to) {
+                        if (array_key_exists($to, SocketMemory::$clients)) {
+                            @socket_write(SocketMemory::$clients[$to], $value['data'], strlen($value['data']));
+                        }
+                    }
+                }
+            } catch (Throwable $error) {
+                self::onError('close', $class, $error);
+            }
+        }
+
+        if (array_key_exists($client_id, SocketMemory::$props)) unset(SocketMemory::$props[$client_id]);
+        if (array_key_exists($client_id, SocketMemory::$ips)) unset(SocketMemory::$ips[$client_id]);
+        if (array_key_exists($client_id, SocketMemory::$close)) unset(SocketMemory::$close[$client_id]);
+    }
+
+    private static function onError($on, $class, Throwable $error)
     {
         if (method_exists($class, 'onError')) {
-            SocketMemory::reset();
-            SocketMemory::$id = $client_id;
+            SocketMemory::$send = [];
+
             $class->onError($on, new SocketController, $error);
 
-            if (!empty(SocketMemory::$send)) foreach (SocketMemory::$send as $msend) {
-                if (in_array($client_id, $msend['id'])) {
-                    @socket_write($client, $msend['data'], strlen($msend['data']));
+            if (count(SocketMemory::$send)) foreach (SocketMemory::$send as $value) {
+                if (count($value['id'])) foreach ($value['id'] as $to) {
+                    if (array_key_exists($to, SocketMemory::$clients)) {
+                        @socket_write(SocketMemory::$clients[$to], $value['data'], strlen($value['data']));
+                    }
                 }
             }
         }
@@ -183,10 +185,9 @@ class SocketServer
             $data = substr($socketData, 6);
         }
 
-        $socketData = "";
-        for ($i = 0; $i < strlen($data); ++$i) {
-            $socketData .= $data[$i] ^ $masks[$i % 4];
-        }
+        $socketData = '';
+
+        for ($i = 0; $i < strlen($data); ++$i) $socketData .= $data[$i] ^ $masks[$i % 4];       
 
         return $socketData;
     }

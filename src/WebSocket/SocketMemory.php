@@ -12,10 +12,4 @@ class SocketMemory
     // actions
     public static array $send = [];
     public static array $close = [];
-
-    public static function reset()
-    {
-        self::$send = [];
-        // self::$close = [];
-    }
 }
