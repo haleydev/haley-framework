@@ -16,17 +16,17 @@ class WebsocketMemory
     ];
 
     public static function channel(string $port, string|array|callable $action)
-    {     
-        $name = null;    
+    {
+        $name = null;
         $host = 'localhost';
 
         self::$sockets[] = [
             // 'url' => $url,
             'action' => $action,
-            'name' => $name,         
+            'name' => $name,
             'port' => $port,
             'host' => $host,
-            'usleep' => 100000
+            'usleep' => 10000
         ];
     }
 }

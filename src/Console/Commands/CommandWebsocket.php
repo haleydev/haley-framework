@@ -2,9 +2,11 @@
 
 namespace Haley\Console\Commands;
 
+use App\Controllers\WebSocket\Teste;
 use Haley\Console\Lines;
 use Haley\Router\WebsocketMemory;
 use Haley\WebSocket\SocketServer;
+use Ratchet\Server\IoServer;
 
 class CommandWebsocket extends Lines
 {
@@ -19,6 +21,14 @@ class CommandWebsocket extends Lines
 
             SocketServer::run($definitions);
         }
+
+
+        // $server = IoServer::factory(
+        //     new Teste(),
+        //     8080
+        // );
+
+        // $server->run();
 
         // $this->blue('helo ' . $name);
     }

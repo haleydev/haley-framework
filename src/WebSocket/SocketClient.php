@@ -2,15 +2,24 @@
 
 namespace Haley\WebSocket;
 
+use Haley\Console\Lines;
+
 class SocketClient
 {
-    public function send(mixed $data, int|array|null $client_id = null)
+    public function send(string $data, int|array|null $client_id = null)
     {
         if (is_int($client_id)) $client_id = [$client_id];
         elseif (is_null($client_id)) $client_id = $this->ids();
 
+
+        // if (!mb_check_encoding($data, 'UTF-8')) {
+        //     $data = mb_convert_encoding($data, 'UTF-8');
+        // }
+
+        if(empty($data)) return;
+
         SocketMemory::$send[] = [
-            'data' => $this->seal(json_encode($data)),
+            'data' => $this->seal($data),
             'id' => $client_id
         ];
     }
@@ -63,11 +72,17 @@ class SocketClient
     /**
      * @return array
      */
-    public function ids()
+    public function ids(bool $this_client_id = true)
     {
         if (!count(SocketMemory::$clients)) return [];
 
         $ids = array_keys(SocketMemory::$clients);
+
+        if (!$this_client_id) {
+            $not_this_id = array_search(SocketMemory::$client_id, $ids);
+
+            if ($not_this_id) unset($ids[$not_this_id]);
+        };
 
         if (array_key_exists(0, $ids)) unset($ids[0]);
 
@@ -104,15 +119,19 @@ class SocketClient
         if (array_key_exists($key, SocketMemory::$headers[$client_id])) return SocketMemory::$headers[$client_id][$key];
     }
 
-    private function seal($value)
+    private function seal($socketData)
     {
         $b1 = 0x80 | (0x1 & 0x0f);
-        $length = strlen($value);
+        $length = strlen($socketData);
 
-        if ($length <= 125) $header = pack('CC', $b1, $length);
-        elseif ($length > 125 && $length < 65536) $header = pack('CCn', $b1, 126, $length);
-        elseif ($length >= 65536) $header = pack('CCNN', $b1, 127, $length);
+        if ($length <= 125) {
+            $header = pack('CC', $b1, $length);
+        } elseif ($length < 65536) {
+            $header = pack('CCn', $b1, 126, $length);
+        } else {
+            $header = pack('CCNN', $b1, 127, 0, $length);
+        }
 
-        return $header . $value;
+        return $header . $socketData;
     }
 }

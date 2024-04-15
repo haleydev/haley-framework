@@ -62,7 +62,11 @@ class CommandJobs extends Lines
 
         // kill jobs timeout
         foreach ($cache as $cache_x_key => $cache_x_value) {
-            if (empty($cache_x_value)) continue;
+            if (empty($cache_x_value)) {
+                
+                unset($cache[$cache_x_key]);
+                continue;
+            }
 
             foreach ($cache_x_value as $cache_key => $cache_value) {
                 if ($cache_value['timeout']) {

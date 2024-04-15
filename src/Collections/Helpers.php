@@ -22,6 +22,12 @@ function view(string $view, array|object $params = [], string|null $path = null)
     return (new View)->view($view, $params, $path);
 }
 
+function isJson($string)
+{
+    json_decode($string);
+    return (json_last_error() == JSON_ERROR_NONE);
+}
+
 /**
  * Redirecionamentos
  */
@@ -311,19 +317,19 @@ function executeCallable(string|array|callable $callable, array $args = [], stri
 //         // Obtém todas as classes declaradas no arquivo
 
 //         $all = get_declared_classes();
-//         $class = end($all);       
-    
-//         if($class) {        
+//         $class = end($all);
+
+//         if($class) {
 //             $info = [];
 //             $reflection = new ReflectionClass($class);
 
-//             $info['class'] = $reflection->getName();            
+//             $info['class'] = $reflection->getName();
 //             $info['namespace'] = $reflection->getNamespaceName();
-//             $info['file'] = $reflection->getFileName();           
-//             $info['properties'] = $reflection->getProperties();  
+//             $info['file'] = $reflection->getFileName();
+//             $info['properties'] = $reflection->getProperties();
 //             $info['methods'] = $reflection->getMethods();
 
-//             return $reflection;           
+//             return $reflection;
 //         }
 //     }
 

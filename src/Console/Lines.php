@@ -54,4 +54,19 @@ class Lines
     {
         return readline('') ?? '';
     }
+
+    // centralizar texto
+    // function centralizarTexto($texto, $larguraTerminal) {
+    //     $tamanhoTexto = strlen($texto);
+    //     $espacosAntes = ($larguraTerminal - $tamanhoTexto) / 2;
+    //     $espacosAntes = floor($espacosAntes); // Arredondar para baixo para garantir que seja um número inteiro
+
+    //     // Adicionar espaços antes do texto
+    //     echo str_repeat(" ", $espacosAntes) . $texto . PHP_EOL;
+    // }
+
+    // // Exemplo de uso
+    // $texto = "Texto centralizado";
+    // $larguraTerminal = exec('tput cols'); // Obtém a largura do terminal
+    // centralizarTexto($texto, $larguraTerminal);
 }

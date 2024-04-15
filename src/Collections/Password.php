@@ -1,17 +1,19 @@
 <?php
+
 namespace Haley\Collections;
 
 class Password
 {
-    public string $salt = '';
+    public static string $salt = '';
 
     /**
      * Retorna um hash de uma string
      * @param string $password
-     * @return string|false 
+     * @return string|false
      */
-    public function create(string $password){
-        $rash = password_hash($this->salt.$password, PASSWORD_DEFAULT);
+    public static function create(string $password)
+    {
+        $rash = password_hash(self::$salt . $password, PASSWORD_DEFAULT);
         return $rash;
     }
 
@@ -19,17 +21,18 @@ class Password
      * Verifica se o password bate com o hash, retorna true ou false
      * @param string $password
      * @param string $hash
-     * @return true|false 
+     * @return true|false
      */
-    public function check(string $password, string $hash){
-        return password_verify($this->salt.$password, $hash);
+    public static function check(string $password, string $hash)
+    {
+        return password_verify(self::$salt . $password, $hash);
     }
 
     /**
      * Cria um token random
-     * @return string 
+     * @return string
      */
-    public function token(int $length = 5)
+    public static function token(int $length = 5)
     {
         return strtoupper(bin2hex(random_bytes($length)));
     }
