@@ -25,10 +25,10 @@ class SocketServer
         // socket_set_option(self::$socket, SOL_TCP, TCP_DEFER_ACCEPT, 1);
 
         // entrada
-        socket_set_option(self::$socket, SOL_SOCKET, SO_RCVTIMEO, array('sec' => 0, 'usec' => 500000)); // 500000 - 0.5 segundos
+        // socket_set_option(self::$socket, SOL_SOCKET, SO_RCVTIMEO, array('sec' => 0, 'usec' => 1200)); // 500000 - 0.5 segundos (100000)
 
         // saida
-        // socket_set_option(self::$socket, SOL_SOCKET, SO_SNDTIMEO, array('sec' => 0, 'usec' => 8000));
+        // socket_set_option(self::$socket, SOL_SOCKET, SO_SNDTIMEO, array('sec' => 0, 'usec' => 10));
 
         socket_bind(self::$socket, $definitions['host'], $definitions['port']);
         socket_listen(self::$socket);
@@ -53,25 +53,48 @@ class SocketServer
                     $message = null;
 
                     try {
-                        $connected = socket_recv($new_client, $check, 1, MSG_PEEK);
+                        $connected = socket_recv($new_client, $frame, 100, MSG_PEEK);
 
-                        if ($connected) socket_recv($new_client, $message, 3000000, MSG_WAITALL);
+                        if ($connected) while ($bytes = socket_recv($new_client, $buffer, 1024 * 250, 0)) {
+                            if ($buffer === null) continue;
+
+                            $unseal = self::unseal($buffer);
+
+                            $first_letter = substr($unseal, 0, 1);
+                            $last_letter = substr($unseal, -1);
+
+                            if ($message == null) {
+                                if ($first_letter != '{') {
+                                    $message = null;
+                                    continue;
+                                }
+                                $message = $unseal;
+                            } else {
+                                $message .= $unseal;
+                            }
+                            if ($bytes < 1024 * 250) {
+                                if ($last_letter != '}') continue;
+
+                                break;
+                            }
+                        }
                     } catch (Throwable $e) {
                         Lines::red($e->getMessage() . ' - ' . $e->getFile()  . ' ' . $e->getLine())->br();
                     }
 
-                    // disconnect client
-                    if (in_array($new_client_id, SocketMemory::$close)) self::onClose($class, $new_client, $new_client_id);
+                    // on message
+                    if ($message !== null) self::onMessage($class, $message, $new_client_id);
+
 
                     // on close
                     else if (!$connected) self::onClose($class, $new_client, $new_client_id);
 
-                    // on message
-                    else if ($message !== null) self::onMessage($class, $message, $new_client_id);
+                    // disconnect client
+                    else  if (in_array($new_client_id, SocketMemory::$close)) self::onClose($class, $new_client, $new_client_id);
+
+                    else usleep($definitions['usleep']);
                 }
             }
-
-            usleep($definitions['usleep']);
         }
 
         socket_close(self::$socket);
@@ -104,14 +127,20 @@ class SocketServer
         }
     }
 
-
     private static function onMessage($class, $message, $client_id)
     {
         self::$message_id++;
 
         if (!method_exists($class, 'onMessage')) return;
 
-        $message = self::unseal($message);
+        // $message = self::unseal($message);
+
+        if (!mb_check_encoding($message, 'UTF-8')) {
+            $message = mb_convert_encoding($message, 'UTF-8');
+            // echo "Erro: Os dados recebidos não estão em formato UTF-8 válido." . PHP_EOL;
+        } else {
+            // echo "Dados recebidos do cliente: " . $message . PHP_EOL;
+        }
 
         SocketMemory::$client_id = $client_id;
 
@@ -212,8 +241,8 @@ class SocketServer
         $secKey = $headers['Sec-WebSocket-Key'];
         $secAccept = base64_encode(pack('H*', sha1($secKey . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')));
         $buffer  =
-            // "HTTP/1.1 101 Web Socket Protocol Handshake\r\n" .
-            "HTTP/1.1 101 Switching Protocols\r\n" .
+            "HTTP/1.1 101 Web Socket Protocol Handshake\r\n" .
+            // "HTTP/1.1 101 Switching Protocols\r\n" .
             "Upgrade: websocket\r\n" .
             "Connection: Upgrade\r\n" .
             "WebSocket-Origin: $host_name\r\n" .

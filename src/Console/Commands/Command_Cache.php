@@ -7,13 +7,14 @@ class Command_Cache extends Lines
     public function cache_env()
     {
         $json = directoryRoot('storage/cache/jsons/env.json');
+
         createDir('storage/cache/jsons');
 
-        if (file_exists($json)) {           
+        if (file_exists($json)) {
             unlink($json);
             $this->red('cache env desativado');
         } else {
-            if (file_exists($json)) unlink($json);            
+            if (file_exists($json)) unlink($json);
 
             $env = env();
 
@@ -21,17 +22,17 @@ class Command_Cache extends Lines
 
             file_put_contents($json,json_encode($file,true));
 
-            
+
             if(file_exists($json)){
                 $this->green('cache env ativado');
-            }else{               
+            }else{
                 $this->red('erro ao gravar cache do .env');
-            }   
+            }
         }
     }
 
     public function template_clear()
-    { 
+    {
         $files = directoryRoot('storage/cache/views');
         $json = directoryRoot('storage/cache/jsons/views.json');
 
@@ -42,6 +43,6 @@ class Command_Cache extends Lines
             $this->green('cache de views limpo');
         }else{
             $this->red('falha ao limpar cache (verifique as permissões)');
-        }               
+        }
     }
 }

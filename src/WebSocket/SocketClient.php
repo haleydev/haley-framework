@@ -11,11 +11,6 @@ class SocketClient
         if (is_int($client_id)) $client_id = [$client_id];
         elseif (is_null($client_id)) $client_id = $this->ids();
 
-
-        // if (!mb_check_encoding($data, 'UTF-8')) {
-        //     $data = mb_convert_encoding($data, 'UTF-8');
-        // }
-
         if(empty($data)) return;
 
         SocketMemory::$send[] = [

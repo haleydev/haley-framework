@@ -118,7 +118,7 @@ class SocketServer
 
                         $fullResult = '';
 
-                        while (0 != socket_recv($new_client, $out, 1024 * 1024,0)) {
+                        while (0 != socket_recv($new_client, $out, 1024 * 1024, 0)) {
                             if ($out != null) $fullResult .= $out;
                         };
 

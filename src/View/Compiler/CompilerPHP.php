@@ -33,6 +33,9 @@ class CompilerPHP
 
         // comment
         $regex = "/{{--(.*?)--}}/s";
+
+        // substr_count($this->view, '{{--');
+
         if (preg_match_all($regex, $this->view, $match)) {
             foreach ($match as $key => $value) {
                 $this->view = str_replace($value, '', $this->view);
@@ -41,6 +44,7 @@ class CompilerPHP
 
         // echo
         $regex = "/{{(.*?)}}/s";
+
         if (preg_match_all($regex, $this->view, $match)) {
             foreach ($match[0] as $key => $value) {
                 $this->view = str_replace($value, preg_replace('/( ){2,}/', '$1', '<?php echo ' . $match[1][$key] . ' ?>'), $this->view);
