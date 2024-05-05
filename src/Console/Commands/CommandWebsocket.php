@@ -3,6 +3,8 @@
 namespace Haley\Console\Commands;
 
 use App\Controllers\WebSocket\Teste;
+use DateInterval;
+use DateTime;
 use Haley\Console\Lines;
 use Haley\Router\WebsocketMemory;
 use Haley\Shell\Shell;
@@ -13,19 +15,18 @@ class CommandWebsocket extends Lines
 {
     public function run(string|null $name = null)
     {
-        // var_dump(Shell::memory(69266));
 
-        // $test = Shell::readline();
 
-        // Shell::red($test)->br();
 
-        Shell::magenta('aaaaaaa');
 
-        // Shell::list(shell::green('command', true, false) . shell::red('[blabla]', false, false), 'word word word word word word word')->br();
-        //  Shell::list(shell::blue('helo', false, false), 'word')->br();
-        // Shell::list(shell::yellow('helo', false, false), 'word')->br();
-        // Shell::list(shell::red('helo', false, false), 'word')->br();
-        // Shell::list(shell::gray('helo', false, false), 'word')->br();
+
+
+
+
+
+
+
+
 
         // // test
         // $command = sprintf('php %s >/dev/null 2>&1 &', directoryRoot('test.php'));
@@ -37,10 +38,6 @@ class CommandWebsocket extends Lines
 
         // $pids = Shell::pids();
 
-        //
-
-
-
 
 
         // $command = sprintf('%s >/dev/null 2>&1 &', 'php -S localhost:' . 9011 . ' ' . directoryHaley('Collections/Server.php'));
@@ -49,10 +46,6 @@ class CommandWebsocket extends Lines
         // Shell::exec($command, function (string $line, array $status) {
         //     // var_dump($line, $status);
         // });
-
-
-
-
 
 
         // require_once directoryRoot('routes/websocket.php');

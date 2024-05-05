@@ -8,7 +8,8 @@ class Job
     private static array $attributes = [];
 
     /**
-     * Specific date - H:i d/m/Y
+     * Specific date
+     * @param string $date H:i d/m/Y
      */
     public static function date(string $date, string|array|callable|null $action = null)
     {
@@ -20,7 +21,7 @@ class Job
     }
 
     /**
-     * Raw
+     * If in values as date
      */
     public static function raw(string|array $values, string $date, string|array|callable|null $action = null)
     {
@@ -41,15 +42,18 @@ class Job
     }
 
     /**
-     * Every minute - i
+     * Every minute
+     * @param string $interval range 1 - 59
      */
-    public static function everyMinute(int $minute, string|array|callable|null $action = null)
+    public static function everyMinute(int $interval, string|array|callable|null $action = null)
     {
+        if ($interval > 59) $interval = 59;
+
         $max = 60;
         $valid = false;
 
         while ($max > 0) {
-            $max -= $minute;
+            $max -= $interval;
 
             if ($max == date('i')) {
                 $valid = true;
@@ -63,15 +67,18 @@ class Job
     }
 
     /**
-     * Every hour - G
+     * Every hour
+     * @param string $interval range 1 - 23
      */
-    public static function everyHour(int $hour, string|array|callable|null $action = null)
+    public static function everyHour(int $interval, string|array|callable|null $action = null)
     {
+        if ($interval > 23) $interval = 23;
+
         $max = 24;
         $valid = false;
 
         while ($max > 0) {
-            $max -= $hour;
+            $max -= $interval;
 
             if (date('i') !== '00') break;
 
@@ -87,7 +94,8 @@ class Job
     }
 
     /**
-     * Every day at - H:i | H
+     * Every day at
+     * @param string|int $hours H:i or H
      */
     public static function everyDayAt(string|int $hours, string|array|callable|null $action = null)
     {
@@ -105,7 +113,9 @@ class Job
     }
 
     /**
-     * Day at - d , H:i | H
+     * Day at
+     * @param int|array $days d or [d, ...]
+     * @param string|int $hours H:i or H
      */
     public static function dayAt(int|array $days, string|int $hours,  string|array|callable|null $action = null)
     {
@@ -121,6 +131,8 @@ class Job
                     if (date('H') == $hours and date('i') == '00') $valid = true;
                 }
             }
+
+            if ($valid) break;
         }
 
         JobMemory::job($action, $valid);
@@ -129,7 +141,8 @@ class Job
     }
 
     /**
-     * Sundays at - H:i | H
+     * Sundays at
+     * @param string|int $hours H:i or H
      */
     public static function sundaysAt(string|int $hours, string|array|callable|null $action = null)
     {
@@ -149,7 +162,8 @@ class Job
     }
 
     /**
-     * Mondays at - H:i | H
+     * Mondays at
+     * @param string|int $hours H:i or H
      */
     public static function mondaysAt(string|int $hours, string|array|callable|null $action = null)
     {
@@ -169,7 +183,8 @@ class Job
     }
 
     /**
-     * Tuesdays at - H:i | H
+     * Tuesdays at
+     * @param string|int $hours H:i or H
      */
     public static function tuesdaysAt(string|int $hours, string|array|callable|null $action = null)
     {
@@ -189,7 +204,8 @@ class Job
     }
 
     /**
-     * Wednesdays at - H:i | H
+     * Wednesdays at
+     * @param string|int $hours H:i or H
      */
     public static function wednesdaysAt(string|int $hours, string|array|callable|null $action = null)
     {
@@ -209,7 +225,8 @@ class Job
     }
 
     /**
-     * Thursdays at - H:i | H
+     * Thursdays at
+     * @param string|int $hours H:i or H
      */
     public static function thursdaysAt(string|int $hours, string|array|callable|null $action = null)
     {
@@ -229,7 +246,8 @@ class Job
     }
 
     /**
-     * Fridays at - H:i | H
+     * Fridays at
+     * @param string|int $hours H:i or H
      */
     public static function fridaysAt(string|int $hours, string|array|callable|null $action = null)
     {
@@ -249,7 +267,8 @@ class Job
     }
 
     /**
-     * Saturdays at - H:i | H
+     * Saturdays at
+     * @param string|int $hours H:i or H
      */
     public static function saturdaysAt(string|int $hours, string|array|callable|null $action = null)
     {
