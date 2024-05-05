@@ -6,32 +6,39 @@ use Error;
 use ErrorException;
 use Exception;
 use Haley\Console\Lines;
+use Haley\Shell\Shell;
 
 class CommandServe
 {
     public function run(string|null $port = null)
     {
-        if (empty($port)) {
+        if ($port) {
+            if ((int)$port != $port or !is_numeric($port)) {
+                Lines::red('the port must contain only numbers')->br();
+
+                return;
+            } else if (!$this->checkPort($port)) {
+                Lines::red('port ' . $port . ' unavailable')->br();
+
+                return;
+            }
+        } else {
             $port = 3000;
 
             while ($this->checkPort($port) == false) {
+
                 Lines::red('port ' . $port . ' unavailable')->br();
                 $port++;
             }
-
-            Lines::green('development server enabled on')->normal('http://localhost:' . $port)->br();
-
-            shell_exec('php -S localhost:' . $port . ' ' . directoryHaley('Collections/Server.php'));
-        } else  if (is_numeric($port)) {
-            if ($this->checkPort($port)) {
-                Lines::green('development server enabled on')->normal('http://localhost:' . $port)->br();
-                shell_exec('php -S localhost:' . $port . ' ' . directoryHaley('Collections/Server.php'));
-            } else {
-                Lines::red('port ' . $port . ' unavailable')->br();
-            }
-        } else {
-            Lines::red('the port must contain only numbers')->br();
         }
+
+        Lines::green('development server enabled on')->normal('http://localhost:' . $port)->br()->br();
+
+        $command = sprintf('php -S localhost:%s "%s"', $port, directoryHaley('Collections/Server.php'));
+
+        Shell::exec($command, function ($line) {
+            if (!str_contains($line, 'Development Server')) Lines::normal($line)->br();
+        }, 'server', 'development server port ' . $port);
     }
 
     private function checkPort(string $port)

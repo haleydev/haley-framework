@@ -1232,6 +1232,7 @@ if ($path !== '/' and is_file($root . 'public' . $path)) {
         }
 
         header('Content-Length: ' . filesize($file));
+        
         return readfile($file);
     }
 } else {
