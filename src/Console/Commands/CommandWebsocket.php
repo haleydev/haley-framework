@@ -21,7 +21,7 @@ class CommandWebsocket extends Lines
 
 
 
-
+        Shell::kill(Shell::pids());
 
 
 

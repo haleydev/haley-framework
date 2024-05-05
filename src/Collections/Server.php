@@ -1,4 +1,5 @@
 <?php
+
 $path = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 
 $folders = [
@@ -7,6 +8,41 @@ $folders = [
     'haley-framework',
     'src',
     'Collections'
+];
+
+// request
+function method()
+{
+    $accepted = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'COPY', 'OPTIONS', 'LOCK', 'UNLOCK'];
+
+    $post_method = $_POST['_method'] ?? null;
+
+    if ($post_method) $method = strtoupper($post_method);
+    elseif (isset($_SERVER['REQUEST_METHOD'])) $method = $_SERVER['REQUEST_METHOD'];
+    else $method = null;
+
+    return in_array(strtoupper($method), $accepted) ? $method : 'GET';
+}
+
+function url()
+{
+    return 'http://' . trim("$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]", '/');
+}
+
+function message($message)
+{
+    $message = json_encode($message) . "\n";
+    $stdout = fopen('php://stdout', 'w');
+    
+    fwrite($stdout, $message);
+    fclose($stdout);
+}
+
+// end request
+$message = [
+    'date' => date('d/m/Y H:i:s'),
+    'file' => null,
+    'request' => null
 ];
 
 $replace =  implode(DIRECTORY_SEPARATOR, $folders);
@@ -1232,10 +1268,25 @@ if ($path !== '/' and is_file($root . 'public' . $path)) {
         }
 
         header('Content-Length: ' . filesize($file));
-        
+
+        $message['file'] = [
+            'url' => url(),
+            'size' => filesize($file)
+        ];
+
+        message($message);
+
         return readfile($file);
     }
 } else {
+    $message['request'] = [
+        'method' => method(),
+        'url' => url(),
+        'size' => $_SERVER['CONTENT_LENGTH']
+    ];
+
+    message($message);
+
     require_once($root . '/public/index.php');
 }
 

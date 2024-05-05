@@ -11,12 +11,11 @@
         {
             "name": "Warley Rodrigues de Moura",
             "email": "haleytrader@hotmail.com",
-            "role": "Developer"      
+            "role": "Developer"
         }
     ],
     "require": {
-        "php": "^8.1.0",
-        "phpmailer/phpmailer": "^6.8"
+        "php": "^8.1.0"
     },
     "autoload": {
         "psr-4": {
@@ -24,7 +23,7 @@
         },
 
         "files": [
-            "src/Collections/Helpers.php"           
+            "src/Collections/Helpers.php"
         ]
     },
     "config": {

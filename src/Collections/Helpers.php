@@ -141,17 +141,15 @@ function dd()
 function formatSize(int $bytes)
 {
     if ($bytes >= 1073741824) {
-        $bytes = number_format($bytes / 1073741824, 2) . ' GB';
+        $bytes = number_format($bytes / 1073741824, 2) . ' gb';
     } elseif ($bytes >= 1048576) {
-        $bytes = number_format($bytes / 1048576, 2) . ' MB';
+        $bytes = number_format($bytes / 1048576, 2) . ' mb';
     } elseif ($bytes >= 1024) {
-        $bytes = number_format($bytes / 1024, 2) . ' KB';
-    } elseif ($bytes > 1) {
-        $bytes = $bytes . ' bytes';
-    } elseif ($bytes == 1) {
-        $bytes = $bytes . ' byte';
+        $bytes = number_format($bytes / 1024, 2) . ' kb';
+    } elseif ($bytes) {
+        $bytes = $bytes . ' b';
     } else {
-        $bytes = '0 bytes';
+        $bytes = '0 b';
     }
 
     return $bytes;

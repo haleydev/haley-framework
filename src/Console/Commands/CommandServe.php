@@ -37,7 +37,29 @@ class CommandServe
         $command = sprintf('php -S localhost:%s "%s"', $port, directoryHaley('Collections/Server.php'));
 
         Shell::exec($command, function ($line) {
-            if (!str_contains($line, 'Development Server')) Lines::normal($line)->br();
+            if (isJson($line)) {
+                $data = json_decode($line, true);
+
+                if (!empty($data['file'])) {
+                    $start = Shell::normal($data['date'], true, false);
+                    $start .= Shell::gray(strtoupper(formatSize($data['file']['size'])), false, false);
+
+                    $end = Shell::magenta('FILE', true, false);
+                    $end .= Shell::blue($data['file']['url'], false, false);
+
+                    Shell::list($start, $end)->br();
+                } elseif (!empty($data['request'])) {
+                    $start = Shell::normal($data['date'], true, false);
+                    $start .= Shell::gray(strtoupper(formatSize($data['request']['size'] ?? 0)), false, false);
+
+                    $end = Shell::green($data['request']['method'], true, false);
+                    $end .= Shell::blue($data['request']['url'], false, false);
+
+                    Shell::list($start, $end)->br();
+                }
+            }
+
+            // if (!str_contains($line, 'Development Server')) Lines::normal($line)->br();
         }, 'server', 'development server port ' . $port);
     }
 
