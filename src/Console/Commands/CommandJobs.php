@@ -6,43 +6,90 @@ use Haley\Collections\Log;
 use Haley\Console\Lines;
 use Haley\Jobs\JobMemory;
 use Haley\Collections\Config;
+use Haley\Shell\Shell;
 use Throwable;
 
 class CommandJobs extends Lines
 {
+    private array $cache = [
+        'master' => [
+            'pid' => null,
+            'active' => false
+        ],
+
+        'jobs' => []
+    ];
+
+    // start (verifica timeouts e arrays vazios) => executa
+    // list para listar jobs e seus status
+
     public function active()
     {
-        $check = shell_exec('crontab -l') ?? '';
-        $cron = '* * * * * cd ' . directoryRoot() . ' && php haley job:run >> /dev/null 2>&1' . PHP_EOL;
-        $file = directoryRoot('storage/cache/cronjob.txt');
+        if (self::running()) {
+            $this->stopJobs();
 
-        if (strtolower(PHP_OS) == 'linux') {
-            if (str_contains($check, $cron)) {
-                $new_cron = str_replace($cron, '', $check);
-                file_put_contents($file, $new_cron);
-                shell_exec('crontab ' . $file);
-                shell_exec('sudo service cron restart');
-
-                if (file_exists($file)) unlink($file);
-
-                $this->red('jobs disabled')->br();
-            } else {
-                file_put_contents($file, $cron . $check);
-                shell_exec('crontab ' . $file);
-                $check = shell_exec('crontab -l') ?? '';
-
-                if (file_exists($file)) unlink($file);
-
-                if (str_contains($check, $cron)) {
-                    // cron job pode pedir senha
-                    shell_exec('sudo service cron restart');
-                    $this->green('jobs enabled')->br();
-                } else {
-                    $this->red('failure to activate jobs')->br();
-                }
-            }
+            Shell::red('jobs disabled')->br();
         } else {
-            $this->red('your operating system is not linux')->br();
+            Shell::green('jobs enabled')->br();
+            $this->startJobs();
+        }
+    }
+
+    public function stopJobs()
+    {
+        $cache = $this->cache;
+
+        $cache_path = directoryRoot('storage/cache/jsons/jobs.json');
+
+        if (file_exists($cache_path)) $cache = json_decode(file_get_contents($cache_path), true);
+
+        if ($cache['master']['active']) Shell::kill($cache['master']['pid']);
+
+        $pids = [];
+
+        foreach ($cache['jobs'] as $job) {
+            foreach ($job as $value) $pids[] = $value['pid'];
+        }
+
+        file_put_contents($cache_path, json_encode($this->cache));
+
+        Shell::kill($pids);
+    }
+
+    public function startJobs()
+    {
+        set_time_limit(0);
+
+        $this->stopJobs(false);
+
+        $pid = getmypid();
+
+        $cache_path = directoryRoot('storage/cache/jsons/jobs.json');
+        $cache = $this->cache;
+
+        if (file_exists($cache_path)) $cache = json_decode(file_get_contents($cache_path), true);
+
+        $cache['master'] = [
+            'active' => true,
+            'pid' => $pid
+        ];
+
+        file_put_contents($cache_path, json_encode($cache));
+
+        $minute = date('i');
+
+        while (true) {
+            if ($minute == date('i')) {
+                sleep(1);
+
+                continue;
+            }
+
+            $minute = date('i');
+
+            // adicionar forma de ler os jobs aqui e adicionar as chaves no json para uma outra funcao executar
+
+            Shell::exec('cd ' . directoryRoot() . ' && php haley job:run >> /dev/null 2>&1');
         }
     }
 
@@ -55,51 +102,51 @@ class CommandJobs extends Lines
         createDir(directoryRoot('storage/cache/jsons'));
 
         $cache_path = directoryRoot('storage/cache/jsons/jobs.json');
-        $cache = [];
+        $cache = $this->cache;
         $run = false;
 
         if (file_exists($cache_path)) $cache = json_decode(file_get_contents($cache_path), true);
 
         // kill jobs timeout
-        foreach ($cache as $cache_x_key => $cache_x_value) {
-            if (empty($cache_x_value)) {
-                
-                unset($cache[$cache_x_key]);
+        foreach ($cache['jobs'] as $job_key => $job) {
+            if (empty($job)) {
+
+                unset($cache['jobs'][$job_key]);
                 continue;
             }
 
-            foreach ($cache_x_value as $cache_key => $cache_value) {
-                if ($cache_value['timeout']) {
-                    if (strtotime('now') >= $cache_value['timeout']) {
-                        if (posix_kill($cache_value['pid'], SIGTERM)) {
+            foreach ($job as $key => $value) {
+                if ($value['timeout']) {
+                    if (strtotime('now') >= $value['timeout']) {
+                        if (Shell::kill($value['pid'])) {
                             $job_name = '???';
                             $job_description = '???';
 
-                            if (array_key_exists($cache_x_key, JobMemory::$jobs)) {
-                                if (JobMemory::$jobs[$cache_x_key]['name']) $job_name = JobMemory::$jobs[$cache_x_key]['name'];
-                                if (JobMemory::$jobs[$cache_x_key]['description']) $job_name = JobMemory::$jobs[$cache_x_key]['description'];
+                            if (array_key_exists($job_key, JobMemory::$jobs)) {
+                                if (JobMemory::$jobs[$job_key]['name']) $job_name = JobMemory::$jobs[$job_key]['name'];
+                                if (JobMemory::$jobs[$job_key]['description']) $job_name = JobMemory::$jobs[$job_key]['description'];
                             }
 
                             Log::create('jobs', sprintf('TIMEOUT KILL - %s : %s', $job_name, $job_description));
                         }
 
-                        unset($cache[$cache_x_key][$cache_key]);
+                        unset($cache['jobs'][$job_key][$key]);
                     }
                 }
             }
 
-            if (!array_key_exists($cache_x_key, JobMemory::$jobs)) unset($cache[$cache_x_key]);
+            if (!array_key_exists($job_key, JobMemory::$jobs)) unset($cache['jobs'][$job_key]);
         }
 
         foreach (JobMemory::$jobs as $key => $job) {
             if ($name !== null and $job['name'] !== $name) continue;
 
-            if (array_key_exists($key, $cache)) {
-                foreach ($cache[$key] as $cache_key => $cache_value) {
+            if (array_key_exists($key, $cache['jobs'])) {
+                foreach ($cache['jobs'][$key] as $cache_key => $cache_value) {
                     $posix_getpgid = posix_getpgid($cache_value['pid']);
 
                     if ($job['unique'] and $posix_getpgid) $job['valid'] = false;
-                    if (!$posix_getpgid) unset($cache[$key][$cache_key]);
+                    if (!$posix_getpgid) unset($cache['jobs'][$key][$cache_key]);
                 }
             }
 
@@ -129,8 +176,15 @@ class CommandJobs extends Lines
 
     public function execute(string $key)
     {
-        $pid = getmypid();
+        set_time_limit(0);
+
         foreach (Config::route('job') as $job) require_once $job;
+
+        $pid = getmypid();
+        $cache = $this->cache;
+        $cache_path = directoryRoot('storage/cache/jsons/jobs.json');
+
+        if (file_exists($cache_path)) $cache = json_decode(file_get_contents($cache_path), true);
 
         if (array_key_exists($key, JobMemory::$jobs)) {
             $job = JobMemory::$jobs[$key];
@@ -138,20 +192,11 @@ class CommandJobs extends Lines
             $log_error = null;
             $action = $job['action'] ?? null;
 
-            // execute
-            if (!empty($action)) {             
-
+            if (!empty($action)) {
                 try {
                     $timeout = $job['timeout'] ? strtotime('+' . $job['timeout'] . ' minutes') : null;
-                    $cache_path = directoryRoot('storage/cache/jsons/jobs.json');
 
-                    if (file_exists($cache_path)) {
-                        $cache = json_decode(file_get_contents($cache_path), true);
-                    } else {
-                        $cache = [];
-                    }
-
-                    $cache[$key][] = [
+                    $cache['jobs'][$key][] = [
                         'pid' => $pid,
                         'timeout' => $timeout
                     ];
@@ -174,16 +219,29 @@ class CommandJobs extends Lines
 
             $cache = json_decode(file_get_contents($cache_path), true);
 
-            if (array_key_exists($key, $cache)) {
-                foreach ($cache[$key] as $cache_key => $value) {
+            if (array_key_exists($key, $cache['jobs'])) {
+                foreach ($cache['jobs'][$key] as $cache_key => $value) {
                     if ($value['pid'] !== $pid) continue;
 
-                    unset($cache[$key][$cache_key]);
+                    unset($cache['jobs'][$key][$cache_key]);
                     file_put_contents($cache_path, json_encode($cache, true));
                 }
             }
-
-            // posix_kill($pid, SIGTERM);
         }
+    }
+
+    public function running()
+    {
+        $cache_path = directoryRoot('storage/cache/jsons/jobs.json');
+
+        if (!file_exists($cache_path)) return false;
+
+        $cache = json_decode(file_get_contents($cache_path), true);
+
+        if ($cache['master']['active']) {
+            if (Shell::running($cache['master']['pid'])) return true;
+        }
+
+        return false;
     }
 }

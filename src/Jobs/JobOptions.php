@@ -21,16 +21,16 @@ class JobOptions
     {
         $key = array_key_last(JobMemory::$jobs);
 
-        JobMemory::$jobs[$key]['description'] = $value;     
+        JobMemory::$jobs[$key]['description'] = $value;
 
         return $this;
     }
 
-    public function timeout(string $minutes)
+    public function timeout(int|false $minutes)
     {
         $key = array_key_last(JobMemory::$jobs);
 
-        JobMemory::$jobs[$key]['timeout'] = $minutes;     
+        JobMemory::$jobs[$key]['timeout'] = $minutes;
 
         return $this;
     }
@@ -39,7 +39,7 @@ class JobOptions
     {
         $key = array_key_last(JobMemory::$jobs);
 
-        JobMemory::$jobs[$key]['unique'] = $unique;     
+        JobMemory::$jobs[$key]['unique'] = $unique;
 
         return $this;
     }

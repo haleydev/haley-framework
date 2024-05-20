@@ -9,6 +9,7 @@ use Haley\Http\Redirect;
 use Haley\Http\Request;
 use Haley\Http\Response;
 use Haley\Http\Route;
+use Haley\Kernel;
 use Haley\Validator\ValidatorHelper;
 use Haley\View\View;
 
@@ -131,8 +132,8 @@ function dd()
 
     if (Memory::get('kernel') == 'console') {
         var_dump(func_get_args()[0]);
-
-        die;
+        
+        (new Kernel)->terminate();
     }
 
     return (new Debug)->dd($line, $file, func_get_args());

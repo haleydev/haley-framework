@@ -11,12 +11,12 @@ class Shell extends Lines
     public static function exec(string $command, callable|null $callback = null, string|null $name = null, string|null $description = null)
     {
         $process = proc_open($command, [
-            0 => ['pipe', 'r'], // Entrada padrão do processo
-            1 => ['pipe', 'w'], // Saída padrão do processo
-            2 => ['pipe', 'w']  // Saída de erro do processo
+            0 => ['pipe', 'r'], // Standard process input
+            1 => ['pipe', 'w'], // Standard process output
+            2 => ['pipe', 'w']  // Process error output
         ], $pipes);
 
-        // Verifica se o processo foi aberto com sucesso
+        // checks whether the process was opened successfully
         if (!is_resource($process)) return false;
 
         $status = proc_get_status($process);
@@ -36,11 +36,10 @@ class Shell extends Lines
 
         file_put_contents($cache_path, json_encode($cache));
 
-        // Configura a saída padrão e de erro para não bloquear
+        // configure standard and error output to not block
         stream_set_blocking($pipes[1], 0);
         stream_set_blocking($pipes[2], 0);
 
-        // Loop para ler a saída do processo em tempo real
         while (true) {
             $status = proc_get_status($process);
 
@@ -76,17 +75,54 @@ class Shell extends Lines
             usleep(10000);
         }
 
-        // Fecha os pipes
+        // close os pipes
         fclose($pipes[0]);
         fclose($pipes[1]);
         fclose($pipes[2]);
 
-        // Fecha o processo
+        // close process
         proc_close($process);
 
-        if (posix_kill($pid, 0)) return $pid;
+        usleep(1000);
+
+        self::updateCache();
+
+        if (self::running($pid)) return $pid;
 
         return true;
+    }
+
+    /**
+     * @return array
+     */
+    public static function pids()
+    {
+        $cache_path = directoryRoot('storage/cache/jsons/shell.json');
+        $cache = [];
+
+        if (file_exists($cache_path)) {
+            $cache = json_decode(file_get_contents($cache_path), true);
+
+            $save = false;
+
+            foreach (array_keys($cache) as $pid) if (!self::running($pid, 0)) {
+                unset($cache[$pid]);
+
+                $save = true;
+            }
+
+            if ($save) file_put_contents($cache_path, json_encode($cache));
+        }
+
+        return $cache;
+    }
+
+    /**
+     * @return string
+     */
+    public static function readline()
+    {
+        return readline('') ?? '';
     }
 
     /**
@@ -106,23 +142,29 @@ class Shell extends Lines
             if ($kill) $response = true;
         }
 
+        self::updateCache();
+
         return $response;
     }
 
     /**
-     * @return array
+     * @return bool
      */
-    public static function pids()
+    public static function running(int $pid)
+    {
+        return posix_kill($pid, 0);
+    }
+
+    private static function updateCache()
     {
         $cache_path = directoryRoot('storage/cache/jsons/shell.json');
-        $cache = [];
 
         if (file_exists($cache_path)) {
             $cache = json_decode(file_get_contents($cache_path), true);
 
             $save = false;
 
-            foreach (array_keys($cache) as $pid) if (!posix_kill($pid, 0)) {
+            foreach (array_keys($cache) as $pid) if (!self::running($pid, 0)) {
                 unset($cache[$pid]);
 
                 $save = true;
@@ -130,17 +172,5 @@ class Shell extends Lines
 
             if ($save) file_put_contents($cache_path, json_encode($cache));
         }
-
-        return $cache;
-    }
-
-    public static function readline()
-    {
-        return readline('') ?? '';
-    }
-
-    public static function memory(int $pid)
-    {
-        if (!posix_kill($pid, 0)) return null;
     }
 }

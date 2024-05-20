@@ -19,8 +19,6 @@ class SocketServer
 
     public static function run(array $definitions)
     {
-        die;
-
         $class = executeCallable($definitions['action']);
 
         self::$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);

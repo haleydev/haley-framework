@@ -4,6 +4,7 @@ namespace Haley\Exceptions;
 
 use Haley\Collections\Config;
 use Haley\Collections\Memory;
+use Haley\Kernel;
 
 class Debug
 {
@@ -13,6 +14,7 @@ class Debug
 
     public function exceptions($error)
     {
+        if (!defined('HALEY_STOP')) define('HALEY_STOP', microtime(true));
         if (ob_get_level() > 0) ob_clean();
 
         $error_message = ucfirst($error->getMessage());
@@ -23,7 +25,9 @@ class Debug
         // get_included_files(), get_required_files(), get_include_path()
 
         if (Memory::get('kernel') == 'console') {
-            die(PHP_EOL . "\033[0;31m {$error_file} {$error_line} " . PHP_EOL . " {$error->getMessage()}\033[0m" . PHP_EOL . PHP_EOL);
+            PHP_EOL . "\033[0;31m {$error_file} {$error_line} " . PHP_EOL . " {$error->getMessage()}\033[0m" . PHP_EOL . PHP_EOL;
+
+            (new Kernel)->terminate();
         }
 
         response()->header('content-type', 'text/html; charset=utf-8');
@@ -56,12 +60,16 @@ class Debug
             'headers' => request()->headers(),
         ];
 
-        return view('exceptions', $params, directoryHaley('Exceptions/views'));
+        view('exceptions', $params, directoryHaley('Exceptions/views'));
+
+        (new Kernel)->terminate();
     }
 
     public function dd(int $line, string $file, $values)
     {
+        if (!defined('HALEY_STOP')) define('HALEY_STOP', microtime(true));
         if (ob_get_level() > 0) ob_clean();
+
         response()->header('content-type', 'text/html; charset=utf-8');
 
         if (!count($values)) $values = [null];
@@ -74,7 +82,9 @@ class Debug
             $this->dd .= '</div>';
         }
 
-        die(view('dd', ['dd' => $this->dd], directoryHaley('Exceptions/views')));
+        view('dd', ['dd' => $this->dd], directoryHaley('Exceptions/views'));
+
+        (new Kernel)->terminate();
     }
 
     protected function ddValues($value, string|null $array_name = null)

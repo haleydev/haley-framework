@@ -33,7 +33,7 @@ function message($message)
 {
     $message = json_encode($message) . "\n";
     $stdout = fopen('php://stdout', 'w');
-    
+
     fwrite($stdout, $message);
     fclose($stdout);
 }
@@ -1279,6 +1279,8 @@ if ($path !== '/' and is_file($root . 'public' . $path)) {
         return readfile($file);
     }
 } else {
+    require_once($root . '/public/index.php');
+
     $message['request'] = [
         'method' => method(),
         'url' => url(),
@@ -1286,8 +1288,4 @@ if ($path !== '/' and is_file($root . 'public' . $path)) {
     ];
 
     message($message);
-
-    require_once($root . '/public/index.php');
 }
-
-exit;

@@ -303,7 +303,7 @@ class Job
         return new self;
     }
 
-    public static function timeout(int $minutes)
+    public static function timeout(int|false $minutes)
     {
         JobMemory::setAttribute('timeout', $minutes);
         self::$attributes[self::$group][] = 'timeout';

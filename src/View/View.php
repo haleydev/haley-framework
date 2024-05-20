@@ -9,6 +9,8 @@ class View
 {
     public function view(string $view, array|object $params = [], string|null $path = null)
     {
+        if (ob_get_level() > 0) ob_clean();
+
         $engine = new FileEngine;
 
         if ($path === null) $path = directoryRoot('resources/views/');

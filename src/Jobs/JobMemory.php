@@ -17,7 +17,7 @@ class JobMemory
     {
         $name = null;
         $namespace = null;
-        $timeout = null;
+        $timeout = false;
         $unique = true;
 
         if (count(self::$attributes['name'])) $name = implode('.', self::$attributes['name']);

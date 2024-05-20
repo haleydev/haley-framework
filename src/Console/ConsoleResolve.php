@@ -27,8 +27,6 @@ class ConsoleResolve
         }
 
         Lines::red('command not found')->br();
-
-        exit;
     }
 
     private function execute(array $command)

@@ -36,7 +36,7 @@ class Kernel
             ini_set('session.cookie_lifetime', Config::app('session.lifetime', 86400));
             ini_set('session.cookie_secure', Config::app('session.secure', true));
             ini_set('session.cache_expire', Config::app('session.lifetime', 86400));
-            ini_set('session.name', Config::app('session.name','HALEY'));
+            ini_set('session.name', Config::app('session.name', 'HALEY'));
 
             if (!empty(Config::app('session.files'))) {
                 createDir(Config::app('session.files'));
@@ -81,9 +81,19 @@ class Kernel
         });
     }
 
+    public function onTerminate(string|array|callable $callback)
+    {
+    }
+
     public function terminate()
     {
+        if (!defined('HALEY_STOP')) define('HALEY_STOP', microtime(true));
+
         while (ob_get_level() > 0) ob_end_flush();
+
+        // if (!is_null($callback)) executeCallable($callback);
+
+        echo floor((HALEY_STOP - HALEY_START) * 1000) . 'ms' . '<br>';
 
         exit;
     }

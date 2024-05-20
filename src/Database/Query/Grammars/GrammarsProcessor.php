@@ -33,13 +33,10 @@ class GrammarsProcessor
 
     private function table(array $params)
     {
-        if (!empty($params['as'])) {
-            $table = "{$params['table']} AS {$params['as']}";
-        } else {
-            $table = "{$params['table']}";
-        }
+        $table = empty($params['as']) ? $params['table'] : sprintf('%s AS %s', $params['table'], $params['as']);
 
         $this->table = $this->quotes($table);
+
         return;
     }
 
@@ -51,13 +48,12 @@ class GrammarsProcessor
             $table_raw = " {$value['raw']}";
 
             if (count($value['bindparams']) > 0) {
-                foreach ($value['bindparams'] as $bind) {
-                    $this->bindparams[] = $bind;
-                }
+                foreach ($value['bindparams'] as $bind)  $this->bindparams[] = $bind;
             }
         }
 
         $this->table_raw = trim($table_raw);
+
         return;
     }
 
@@ -67,7 +63,7 @@ class GrammarsProcessor
             // DEFAULT
             if ($values['type'] == 'column') {
                 foreach ($values['column'] as $column) {
-                    $this->columns = "{$this->columns},{$this->quotes($column, limit: 3)}";
+                    $this->columns = "{$this->columns},{$this->quotes($column)}";
                 }
             }
 
@@ -287,7 +283,7 @@ class GrammarsProcessor
                 $tag_close .= ')';
                 $close--;
             }
-        }     
+        }
 
         if ($this->where == '') {
             $this->where = 'WHERE ' . $tag_open . $where . $tag_close;
@@ -315,7 +311,7 @@ class GrammarsProcessor
                 $this->addJoin("LEFT JOIN {$this->quotes($join['table'])} ON {$this->quotes($join['first'])} {$join['operator']} {$this->quotes($join['second'])}");
             }
 
-            // RIGHT JOIN            
+            // RIGHT JOIN
             elseif ($join['type'] == 'right_join') {
                 $this->addJoin("RIGHT JOIN {$this->quotes($join['table'])} ON {$this->quotes($join['first'])} {$join['operator']} {$this->quotes($join['second'])}");
             }
@@ -494,66 +490,30 @@ class GrammarsProcessor
         return;
     }
 
-    public function query(string $command, string $driver)
+    public function query(string $command)
     {
         isset($this->params['explain']) ?  $explain = 'EXPLAIN' : $explain = '';
         isset($this->params['distinct']) ? $distinct = 'DISTINCT' : $distinct = '';
         isset($this->params['ignore']) ?  $ignore = 'IGNORE' : $ignore = '';
 
-        if (isset($this->params['columns'])) {
-            $this->columns($this->params['columns']);
-        } else {
-            $this->columns = '*';
-        }
+        if (isset($this->params['columns'])) $this->columns($this->params['columns']);
+        else $this->columns = '*';
 
-        if (isset($this->params['insert'])) {
-            $this->insert($this->params['insert']);
-        }
-
-        if (isset($this->params['table'])) {
-            $this->table($this->params['table']);
-        }
-
-        if (isset($this->params['table_raw'])) {
-            $this->tableRaw($this->params['table_raw']);
-        }
-
-        if (isset($this->params['update'])) {
-            $this->update($this->params['update']);
-        }
-
-        if (isset($this->params['join'])) {
-            $this->join($this->params['join']);
-        }
-
-        if (isset($this->params['where'])) {
-            $this->where($this->params['where']);
-        }
-
-        if (isset($this->params['group'])) {
-            $this->groupBy($this->params['group']);
-        }
-
-        if (isset($this->params['having'])) {
-            $this->having($this->params['having']);
-        }
-
-        if (isset($this->params['raw'])) {
-            $this->raw($this->params['raw']);
-        }
-
-        if (isset($this->params['order'])) {
-            $this->order($this->params['order']);
-        }
-
-        if (isset($this->params['limit'])) {
-            $this->limit($this->params['limit']);
-        }
+        if (isset($this->params['insert'])) $this->insert($this->params['insert']);
+        if (isset($this->params['table'])) $this->table($this->params['table']);
+        if (isset($this->params['table_raw'])) $this->tableRaw($this->params['table_raw']);
+        if (isset($this->params['update'])) $this->update($this->params['update']);
+        if (isset($this->params['join'])) $this->join($this->params['join']);
+        if (isset($this->params['where'])) $this->where($this->params['where']);
+        if (isset($this->params['group'])) $this->groupBy($this->params['group']);
+        if (isset($this->params['having'])) $this->having($this->params['having']);
+        if (isset($this->params['raw'])) $this->raw($this->params['raw']);
+        if (isset($this->params['order'])) $this->order($this->params['order']);
+        if (isset($this->params['limit'])) $this->limit($this->params['limit']);
 
         $table = $this->table;
         $table_raw = $this->table_raw;
         $columns = $this->columns;
-
         $where = $this->where;
         $limit = $this->limit;
         $order = $this->order;
@@ -561,47 +521,57 @@ class GrammarsProcessor
         $group = $this->group;
         $join = $this->join;
         $raw = $this->raw;
-
         $insert = $this->insert;
         $update = $this->update;
 
-        if ($command == 'select') {
-            $query = "$explain SELECT $distinct $columns FROM $table $table_raw $join $where $group $having $raw $order $limit";
-        } elseif ($command == 'insert') {
-            $query = "INSERT $ignore INTO $table $insert";
-        } elseif ($command == 'update') {
-            $query = "UPDATE $ignore $table $join $update $where $raw $limit";
-        } elseif ($command == 'delete') {
-            $query = "DELETE FROM $table $table_raw $join $where $raw $limit";
-        } else {
-            return '';
-        }
+        if ($command == 'select') $query = "$explain SELECT $distinct $columns FROM $table $table_raw $join $where $group $having $raw $order $limit";
+        elseif ($command == 'insert') $query = "INSERT $ignore INTO $table $insert";
+        elseif ($command == 'update') $query = "UPDATE $ignore $table $join $update $where $raw $limit";
+        elseif ($command == 'delete') $query = "DELETE FROM $table $table_raw $join $where $raw $limit";
+        else return '';
 
         return trim(preg_replace('/( ){2,}/', '$1', $query));
     }
 
     private function quotes(string $string, string $first = '`', string $last = '`', int|null $limit = null)
     {
-        $string = str_replace([' as ', ' As ', ' aS '], ' AS ', $string);
-        $separators = [' ', '.', ' AS '];
-        $ignore = ['AS'];
+        $string = preg_replace('/\b(?!as\b)(\w+)\b/i', $first . '$1' . $last, $string);
+        $string = preg_replace('/(' . preg_quote($first) . ')\s/', '$1 ', $string);
 
-        foreach ($separators as $separator) {
-            if ($limit === null) {
-                $values = explode($separator, $string);
-            } else {
-                $values = explode($separator, $string, $limit);
-            }
+        return str_replace([' as ', ' aS ', ' aS '], ' AS ', $string);
 
-            foreach ($values as $key => $value) {
-                if (!in_array($value, $ignore)) {
-                    $values[$key] = $first . trim($value, "$first\\$last") . $last;
-                }
-            }
 
-            $string = implode($separator, $values);
-        }
+        // $string = str_replace([' as ', ' As ', ' aS '], ' AS ', $string);
+        // $separators = [' ', '.', ' AS '];
+        // $ignore = ['AS'];
 
-        return $string;
+        // foreach ($separators as $separator) {
+        //     if ($limit === null) {
+        //         $values = explode($separator, $string);
+        //     } else {
+        //         $values = explode($separator, $string, $limit);
+        //     }
+
+        //     foreach ($values as $key => $value) {
+        //         if (!in_array($value, $ignore)) {
+        //             $values[$key] = $first . trim($value, "$first\\$last") . $last;
+        //         }
+        //     }
+
+        //     $string = implode($separator, $values);
+        // }
+
+        // return $string;
     }
+
+
+    // public function phrases(string $value, string $open = '`', string $close = '`')
+    // {
+    //     // Substitui todas as ocorrências de uma palavra (exceto "as" com ou sem variações de maiúsculas/minúsculas) seguida por um espaço em branco por essa palavra entre crases
+    //     $value = preg_replace('/\b(?!as\b)(\w+)\b/i', $open . '$1' . $close, $value);
+    //     // Substitui todas as ocorrências de crases seguidas por um espaço em branco por essa crase seguida por um espaço em branco
+    //     $value = preg_replace('/(' . preg_quote($open) . ')\s/', '$1 ', $value);
+
+    //     return str_replace([' as ', ' aS ', ' aS '], ' AS ', $value);
+    // }
 }

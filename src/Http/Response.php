@@ -19,6 +19,8 @@ class Response
 
     public static function abort(int $status = 404, string|null $mesage = null)
     {
+        if (ob_get_level() > 0) ob_clean();
+
         response()->status($status);
         response()->header('content-type', 'text/html; charset=utf-8');
 
@@ -26,46 +28,42 @@ class Response
 
         if (defined('ROUTER_NOW')) {
             if ($action = ROUTER_NOW['error']) {
-                executeCallable($action, [
+                return executeCallable($action, [
                     'status' => $status,
                     'mesage' => $mesage
                 ]);
-
-                die;
             }
         }
 
         if (file_exists(directoryResources('views/error/' . $status . '.view.php'))) {
-            return die(view('error.' . $status, [
+            return view('error.' . $status, [
                 'status' => $status,
                 'mesage' => $mesage
-            ]));
+            ]);
         }
 
         if (file_exists(directoryResources('views/error/default.view.php'))) {
-            return die(view('error.default', [
+            view('error.default', [
                 'status' => $status,
                 'mesage' => $mesage
-            ]));
+            ]);
         }
 
-        if (ob_get_level() > 0) ob_clean();
-
-        return die(self::status($status));
+        return self::status($status);
     }
 
     public static function json(mixed $value)
     {
+        if (ob_get_level() > 0) ob_clean();
+
         header('Content-type: application/json; charset=utf-8');
-        return die(print(json_encode($value)));
+        print(json_encode($value));
     }
 
     public static function download(string $file, string $rename = null)
     {
         if (file_exists($file)) {
-            if (ob_get_level() > 0) {
-                ob_clean();
-            }
+            if (ob_get_level() > 0) ob_clean();
 
             if ($rename == null) {
                 $file_name = basename($file);
@@ -82,7 +80,9 @@ class Response
             header('Pragma: public');
             header('Content-Length: ' . filesize($file));
 
-            die(readfile($file));
+            readfile($file);
+
+            return;
         }
 
         return response()->abort(404);
@@ -91,15 +91,15 @@ class Response
     public static function file(string $file)
     {
         if (file_exists($file)) {
-            if (ob_get_level() > 0) {
-                ob_clean();
-            }
+            if (ob_get_level() > 0) ob_clean();
 
             $extension = pathinfo($file, PATHINFO_EXTENSION);
             header('Content-type: ' . MimeTypes::get($extension));
             header('Content-Length: ' . filesize($file));
 
-            die(readfile($file));
+            readfile($file);
+
+            return;
         }
 
         return response()->abort(404);

@@ -22,12 +22,10 @@ class RouteAction
 
     private function result(mixed $value)
     {
-        if (is_string($value) || is_numeric($value)) echo $value;
-
-        if (is_array($value) || is_object($value)) {
-            if (!is_callable($value)) print(json_encode($value));
+        if (is_string($value) || is_numeric($value)) {
+            echo $value;
+        } else if (is_array($value) || is_object($value)) {
+            if (!is_callable($value)) return response()->json($value);
         }
-
-        die;
     }
 }

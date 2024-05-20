@@ -38,7 +38,7 @@ class BuilderController
         $syntax = new GrammarsProcessor;
         $syntax->params = $this->params;
 
-        $this->query = $syntax->query($command, $driver);
+        $this->query = $syntax->query($command);
         $this->bindparams = $syntax->bindparams;
     }
 }

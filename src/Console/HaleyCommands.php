@@ -10,7 +10,24 @@ class HaleyCommands
     {
         Console::namespace('Haley\Console\Commands')->group(function () {
             Console::command('', 'CommandDashboard::run', false);
-            Console::command('serve {port?}', 'CommandServe::run')->description('development Server');
+
+            // Console::title('Servers')->prefix('server:')->group(function () {
+                Console::command('server {port?}', 'CommandServe::run')->description('development web server');
+            // });
+
+            Console::title('Jobs')->prefix('job:')->group(function () {
+                Console::command('active', 'CommandJobs::active')->description('enable or disable jobs ' . self::checkJob());
+                Console::command('run {name?}', 'CommandJobs::run')->description('execute jobs');
+                Console::command('execute {key}', 'CommandJobs::execute', false);
+            });
+
+            Console::title('Migration')->prefix('migration:')->group(function () {
+                Console::command('run {name?}', 'CommandMigration::run')->description('run pending migrations');
+            });
+
+            Console::title('Websocket')->prefix('websocket:')->group(function () {
+                Console::command('run {name?}', 'CommandWebsocket::run')->description('run websocket');
+            });
 
             Console::title('Create')->prefix('create:')->group(function () {
                 Console::command('env', 'CommandCreate::env')->description('create a env file');
@@ -24,20 +41,6 @@ class HaleyCommands
             });
 
             Console::title('Clean')->group(function () {
-            });
-
-            Console::title('Job')->prefix('job:')->group(function () {
-                Console::command('active', 'CommandJobs::active')->description('enable or disable jobs ' . self::checkJob());
-                Console::command('run {name?}', 'CommandJobs::run')->description('execute jobs');
-                Console::command('execute {key}', 'CommandJobs::execute', false);
-            });
-
-            Console::title('Migration')->prefix('migration:')->group(function () {
-                Console::command('run {name?}', 'CommandMigration::run')->description('run pending migrations');
-            });
-
-            Console::title('Websocket')->prefix('websocket:')->group(function () {
-                Console::command('run {name?}', 'CommandWebsocket::run')->description('run websocket');
             });
         });
     }
