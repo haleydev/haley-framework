@@ -8,7 +8,7 @@ use Exception;
 use Haley\Console\Lines;
 use Haley\Shell\Shell;
 
-class CommandServe
+class CommandWeb
 {
     public function run(string|null $port = null)
     {
@@ -32,7 +32,7 @@ class CommandServe
             }
         }
 
-        Lines::green('development server enabled on')->normal('http://localhost:' . $port)->br()->br();
+        Lines::green('web development server enabled on')->normal('http://localhost:' . $port)->br()->br();
 
         $command = sprintf('php -S localhost:%s "%s"', $port, directoryHaley('Collections/Server.php'));
 
@@ -60,7 +60,7 @@ class CommandServe
             }
 
             // if (!str_contains($line, 'Development Server')) Lines::normal($line)->br();
-        }, 'server', 'development server port ' . $port);
+        }, 'server', 'web development server port ' . $port);
     }
 
     private function checkPort(string $port)

@@ -2,26 +2,22 @@
 
 namespace Haley\Console\Commands;
 
-use App\Controllers\WebSocket\Teste;
-use DateInterval;
-use DateTime;
-use Haley\Console\Lines;
-use Haley\Router\WebsocketMemory;
-use Haley\Shell\Shell;
-use Haley\WebSocket\SocketServer;
-use Ratchet\Server\IoServer;
 
-class CommandWebsocket extends Lines
+use Haley\Console\Lines;
+use Haley\Server\ServerMemory;
+
+class CommandServer extends Lines
 {
     public function run(string|null $name = null)
     {
 
+        require_once directoryRoot('routes/server.php');
 
 
+        dd(ServerMemory::$servers);
 
 
-
-        Shell::kill(Shell::pids());
+        // Shell::kill(Shell::pids());
 
 
 

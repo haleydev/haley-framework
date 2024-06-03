@@ -12,7 +12,7 @@ class HaleyCommands
             Console::command('', 'CommandDashboard::run', false);
 
             // Console::title('Servers')->prefix('server:')->group(function () {
-                Console::command('server {port?}', 'CommandServe::run')->description('development web server');
+            Console::command('web {port?}', 'CommandWeb::run')->description('development web server');
             // });
 
             Console::title('Jobs')->prefix('job:')->group(function () {
@@ -25,8 +25,8 @@ class HaleyCommands
                 Console::command('run {name?}', 'CommandMigration::run')->description('run pending migrations');
             });
 
-            Console::title('Websocket')->prefix('websocket:')->group(function () {
-                Console::command('run {name?}', 'CommandWebsocket::run')->description('run websocket');
+            Console::title('Server')->prefix('server:')->group(function () {
+                Console::command('run {name?}', 'CommandServer::run')->description('run servers');
             });
 
             Console::title('Create')->prefix('create:')->group(function () {
