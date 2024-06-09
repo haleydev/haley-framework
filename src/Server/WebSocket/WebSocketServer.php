@@ -85,7 +85,7 @@ class WebSocketServer
             }
         });
 
-        $this->server->on('message', function ($server, $frame) use ($class) {
+        $this->server->on('message', function ($server, $frame) use ($class, $params) {
             if (!method_exists($class, 'onMessage') or empty($params['receive'])) return;
 
             // dd($frame);
