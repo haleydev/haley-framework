@@ -21,6 +21,8 @@ class CommandServer
 
         if (!is_writable(directoryRoot('storage/cache/jsons'))) {
             Shell::red('storage/cache/jsons not writable')->br();
+
+            return;
         }
 
         $config = Config::route('server');
@@ -104,6 +106,8 @@ class CommandServer
     {
         if (!is_writable(directoryRoot('storage/cache/jsons'))) {
             Shell::red('storage/cache/jsons not writable')->br();
+
+            return;
         }
 
         $cache_path = directoryRoot('storage/cache/jsons/server.json');
@@ -163,6 +167,8 @@ class CommandServer
 
         if (!is_writable(directoryRoot('storage/cache/jsons'))) {
             Shell::red('storage/cache/jsons not writable')->br();
+
+            return;
         }
 
         $config = Config::route('server');
@@ -207,6 +213,8 @@ class CommandServer
     {
         if (!is_writable(directoryRoot('storage/cache/jsons'))) {
             Shell::red('storage/cache/jsons not writable')->br();
+
+            return;
         }
 
         $config = Config::route('server');
