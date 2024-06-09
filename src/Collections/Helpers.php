@@ -131,9 +131,9 @@ function dd()
     $file = $backtrace[0]['file'] ?? '';
 
     if (Memory::get('kernel') == 'console') {
-        var_dump(func_get_args()[0]);
-        
-        (new Kernel)->terminate();
+        foreach (func_get_args() as $arg) var_dump($arg);
+
+        return;
     }
 
     return (new Debug)->dd($line, $file, func_get_args());
