@@ -2,9 +2,10 @@
 
 namespace Haley\Server\WebSocket;
 
+use Haley\Server\Timer;
 use Haley\Shell\Shell;
 use Swoole\WebSocket\Server;
-use Swoole\Timer;
+// use Swoole\Timer;
 use Throwable;
 
 class WebSocketServer
@@ -37,7 +38,8 @@ class WebSocketServer
             if (!empty($params['connections'])) {
                 if ($status['connection_num'] > $params['connections']) {
                     $response->end();
-                    return false;
+
+                    return;
                 }
             }
 
@@ -48,16 +50,36 @@ class WebSocketServer
 
                 if ($request_params === false) {
                     $response->end();
-                    return false;
+
+                    return;
                 };
             }
+
+            if (method_exists($class, 'onHandshake')) {
+                try {
+                    $aproved =  $class->onHandshake($request->fd, $request_params, $request->header, new WebSocket($request->fd, $this->server));
+
+                    if (!$aproved) {
+                        $response->end();
+
+                        return;
+                    }
+                } catch (Throwable $error) {
+                    $this->handleError($request->fd, $class, 'handshake', $error);
+
+                    $response->end();
+
+                    return;
+                }
+            };
 
             $secWebSocketKey = $request->header['sec-websocket-key'];
             $pattern = '#^[+/0-9A-Za-z]{21}[AQgw]==$#';
 
             if (0 === preg_match($pattern, $secWebSocketKey) || 16 !== strlen(base64_decode($secWebSocketKey))) {
                 $response->end();
-                return false;
+
+                return;
             }
 
             $key = base64_encode(
@@ -115,16 +137,20 @@ class WebSocketServer
             }
         });
 
-        // Timer::tick(5000, function () {
-        //     dd($this->server->stats());
-        // });
+        if (method_exists($class, 'timer')) {
+            try {
+                $class->timer(new Timer, new WebSocket(null, $this->server));
+            } catch (Throwable $error) {
+                $this->handleError(null, $class, 'timer', $error);
+            }
+        }
 
         $this->server->start();
 
         die;
     }
 
-    protected function handleError(int $fd, $class, string $on, Throwable $error)
+    protected function handleError(int|null $fd, $class, string $on, Throwable $error)
     {
         if (!method_exists($class, 'onClose')) return;
 

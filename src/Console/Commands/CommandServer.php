@@ -3,7 +3,6 @@
 namespace Haley\Console\Commands;
 
 use Haley\Collections\Config;
-use Haley\Collections\Log;
 use Haley\Server\ServerMemory;
 use Haley\Server\WebSocket\WebSocketServer;
 use Haley\Shell\Shell;

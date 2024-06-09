@@ -11,7 +11,7 @@ class WebSocket
     protected Request|null $request = null;
     protected int|null $fd = null;
 
-    public function __construct(int $fd, Server $server, Request|null $request = null)
+    public function __construct(int|null $fd, Server $server, Request|null $request = null)
     {
         $this->fd = $fd;
         $this->server = $server;
@@ -28,7 +28,8 @@ class WebSocket
         $clients = [];
 
         foreach ($this->server->connections as $fd) {
-            if (!$self && $fd == $this->fd) continue;
+            if ($this->fd) if (!$self && $fd == $this->fd) continue;
+            if (!$this->server->isEstablished($fd)) continue;
 
             $clients[] = $fd;
         }

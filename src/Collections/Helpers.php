@@ -255,6 +255,8 @@ function executeCallable(string|array|callable $callable, array $args = [], stri
 {
     $callback = null;
 
+    $args = array_values($args);
+
     $namespace = !empty($namespace) ? $namespace . '\\' : '';
 
     if (is_string($callable)) {
@@ -292,12 +294,10 @@ function executeCallable(string|array|callable $callable, array $args = [], stri
         $parameters = $reflection->getParameters();
         $args_valid = [];
 
-        foreach ($parameters as $value) {
-            $arg = $value->getName();
+        foreach ($parameters as $key => $value) {
+            $arg_name = $value->getName();
 
-            if (array_key_exists($arg, $args)) {
-                $args_valid[$arg] = $args[$arg];
-            }
+            if (array_key_exists($key, $args)) $args_valid[$arg_name] = $args[$key];
         }
 
         return call_user_func_array($callback, $args_valid);

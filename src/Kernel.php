@@ -93,7 +93,7 @@ class Kernel
 
         // if (!is_null($callback)) executeCallable($callback);
 
-        echo floor((HALEY_STOP - HALEY_START) * 1000) . 'ms' . '<br>';
+        // echo floor((HALEY_STOP - HALEY_START) * 1000) . 'ms' . '<br>';
 
         exit;
     }
