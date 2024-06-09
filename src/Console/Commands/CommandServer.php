@@ -19,6 +19,10 @@ class CommandServer
             return;
         }
 
+        if (!is_writable(directoryRoot('storage/cache/jsons'))) {
+            Shell::red('storage/cache/jsons not writable')->br();
+        }
+
         $config = Config::route('server');
 
         if (empty($config['path'])) {
@@ -30,7 +34,15 @@ class CommandServer
         $cache_path = directoryRoot('storage/cache/jsons/server.json');
         $cache = [];
 
-        if (file_exists($cache_path)) $cache = json_decode(file_get_contents($cache_path), true);
+        if (file_exists($cache_path)) {
+            if (!is_readable($cache_path)) {
+                Shell::red('storage/cache/jsons/server.json not readable')->br();
+
+                return;
+            }
+
+            $cache = json_decode(file_get_contents($cache_path), true);
+        }
 
         $count = 0;
 
@@ -90,9 +102,19 @@ class CommandServer
 
     public function stop(string|null $name = null)
     {
+        if (!is_writable(directoryRoot('storage/cache/jsons'))) {
+            Shell::red('storage/cache/jsons not writable')->br();
+        }
+
         $cache_path = directoryRoot('storage/cache/jsons/server.json');
 
         if (!file_exists($cache_path)) return;
+
+        if (!is_readable($cache_path)) {
+            Shell::red('storage/cache/jsons/server.json not readable')->br();
+
+            return;
+        }
 
         $cache = json_decode(file_get_contents($cache_path), true);
         $count = 0;
@@ -139,6 +161,10 @@ class CommandServer
             return;
         }
 
+        if (!is_writable(directoryRoot('storage/cache/jsons'))) {
+            Shell::red('storage/cache/jsons not writable')->br();
+        }
+
         $config = Config::route('server');
 
         if (empty($config['path'])) {
@@ -179,6 +205,10 @@ class CommandServer
 
     public function list()
     {
+        if (!is_writable(directoryRoot('storage/cache/jsons'))) {
+            Shell::red('storage/cache/jsons not writable')->br();
+        }
+
         $config = Config::route('server');
 
         if (empty($config['path'])) {
@@ -190,7 +220,15 @@ class CommandServer
         $cache_path = directoryRoot('storage/cache/jsons/server.json');
         $cache = [];
 
-        if (file_exists($cache_path)) $cache = json_decode(file_get_contents($cache_path), true);
+        if (file_exists($cache_path)) {
+            if (!is_readable($cache_path)) {
+                Shell::red('storage/cache/jsons/server.json not readable')->br();
+
+                return;
+            }
+
+            $cache = json_decode(file_get_contents($cache_path), true);
+        }
 
         $online = [];
 
@@ -229,19 +267,5 @@ class CommandServer
     protected function execute(string $type, array $params)
     {
         if ($type == 'websocket') (new WebSocketServer)->run($params);
-    }
-
-    protected function checkPort(string $host, int $port)
-    {
-        try {
-            if ($socket = @fsockopen($host, $port, $errno, $errstr, 2)) {
-                return false;
-                fclose($socket);
-            } else {
-                return true;
-            }
-        } catch (Throwable) {
-            return true;
-        }
     }
 }
