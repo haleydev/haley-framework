@@ -64,7 +64,8 @@ class CommandServer
                         'type' => $type,
                         'port' => $params['port'],
                         'host' => $params['host'],
-                        'name' => $params['name']
+                        'name' => $params['name'],
+                        'alias' => $params['alias'],
                     ];
 
                     $pid = Shell::exec('php ' . directoryRoot() . ' && php haley server:run ' . $type . ':' .  $params['host'] . ':' . $params['port'] . ' > /dev/null 2>&1 &');
