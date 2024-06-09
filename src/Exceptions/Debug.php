@@ -5,6 +5,7 @@ namespace Haley\Exceptions;
 use Haley\Collections\Config;
 use Haley\Collections\Memory;
 use Haley\Kernel;
+use Haley\Shell\Shell;
 
 class Debug
 {
@@ -25,7 +26,7 @@ class Debug
         // get_included_files(), get_required_files(), get_include_path()
 
         if (Memory::get('kernel') == 'console') {
-            PHP_EOL . "\033[0;31m {$error_file} {$error_line} " . PHP_EOL . " {$error->getMessage()}\033[0m" . PHP_EOL . PHP_EOL;
+            Shell::red("{$error->getMessage()} : {$error->getFile()} {$error->getLine()}")->br();
 
             (new Kernel)->terminate();
         }

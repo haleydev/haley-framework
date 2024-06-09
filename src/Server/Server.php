@@ -12,18 +12,19 @@ class Server
     /**
      * Create websocket server
      */
-    public static function ws(string $host, int $port, string $class)
+    public static function ws(int $port, string $class)
     {
         $class = trim($class, '\\');
 
         ServerMemory::server('websocket', [
-            'host' => $host,
+            'host' => null,
+            'alias' => null,
             'port' => $port,
+            'namespace' => null,
             'class' => $class,
             'name' => null,
             'receive' => true,
             'connections' => null,
-            'namespace' => null,
             'path' => null
         ]);
 
@@ -42,6 +43,22 @@ class Server
     {
         ServerMemory::setAttribute('name', $value);
         self::$attributes[self::$group][] = 'name';
+
+        return new self;
+    }
+
+    public static function host(string $value)
+    {
+        ServerMemory::setAttribute('host', $value);
+        self::$attributes[self::$group][] = 'host';
+
+        return new self;
+    }
+
+    public static function alias(string $value)
+    {
+        ServerMemory::setAttribute('alias', $value);
+        self::$attributes[self::$group][] = 'alias';
 
         return new self;
     }

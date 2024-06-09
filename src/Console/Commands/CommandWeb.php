@@ -5,8 +5,8 @@ namespace Haley\Console\Commands;
 use Error;
 use ErrorException;
 use Exception;
-use Haley\Console\Lines;
 use Haley\Shell\Shell;
+use Throwable;
 
 class CommandWeb
 {
@@ -14,11 +14,11 @@ class CommandWeb
     {
         if ($port) {
             if ((int)$port != $port or !is_numeric($port)) {
-                Lines::red('the port must contain only numbers')->br();
+                Shell::red('the port must contain only numbers')->br();
 
                 return;
             } else if (!$this->checkPort($port)) {
-                Lines::red('port ' . $port . ' unavailable')->br();
+                Shell::red('port ' . $port . ' unavailable')->br();
 
                 return;
             }
@@ -27,12 +27,12 @@ class CommandWeb
 
             while ($this->checkPort($port) == false) {
 
-                Lines::red('port ' . $port . ' unavailable')->br();
+                Shell::red('port ' . $port . ' unavailable')->br();
                 $port++;
             }
         }
 
-        Lines::green('web development server enabled on')->normal('http://localhost:' . $port)->br()->br();
+        Shell::green('web development server enabled on')->normal('http://localhost:' . $port)->br()->br();
 
         $command = sprintf('php -S localhost:%s "%s"', $port, directoryHaley('Collections/Server.php'));
 
@@ -59,11 +59,11 @@ class CommandWeb
                 }
             }
 
-            // if (!str_contains($line, 'Development Server')) Lines::normal($line)->br();
+            // if (!str_contains($line, 'Development Server')) Shell::normal($line)->br();
         }, 'server', 'web development server port ' . $port);
     }
 
-    private function checkPort(string $port)
+    protected function checkPort(int $port)
     {
         try {
             if ($socket = @fsockopen('localhost', $port, $errno, $errstr, 2)) {
@@ -72,12 +72,9 @@ class CommandWeb
             } else {
                 return true;
             }
-        } catch (ErrorException) {
-            return true;
-        } catch (Error) {
-            return true;
-        } catch (Exception) {
+        } catch (Throwable) {
             return true;
         }
+
     }
 }

@@ -54,4 +54,22 @@ class WebSocketOptions
 
         return $this;
     }
+
+    public function host(string $value)
+    {
+        $key = array_key_last(ServerMemory::$servers['websocket']);
+
+        ServerMemory::$servers['websocket'][$key]['host'] = $value;
+
+        return $this;
+    }
+
+    public function alias(string $value)
+    {
+        $key = array_key_last(ServerMemory::$servers['websocket']);
+
+        ServerMemory::$servers['websocket'][$key]['alias'] = $value;
+
+        return $this;
+    }
 }

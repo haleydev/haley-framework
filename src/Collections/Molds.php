@@ -30,14 +30,14 @@ class ' . $class . ' extends Middleware
     public static function env()
     {
         return
-            'APP_NAME = Code Halley
+            'APP_NAME = Code Haley
 APP_DEBUG = true
-APP_TIMEZONE = America/Los_Angeles
+APP_TIMEZONE = America/Sao_Paulo
 
 DB_CONNECTION = mysql
 DB_HOST = localhost
 DB_PORT = 3306
-DB_DATABASE = haley
+DB_DATABASE = framework
 DB_USERNAME = haley
 DB_PASSWORD = root
 
@@ -46,7 +46,10 @@ MAILER_RESPONSE = example@hotmal.com
 MAILER_HOST =
 MAILER_PORT =
 MAILER_USERNAME =
-MAILER_PASSWORD =';
+MAILER_PASSWORD =
+
+SERVER_HOST = localhost
+SERVER_ALIAS = localhost';
     }
 
     public static function controller(string $class, string $namespace)
@@ -57,8 +60,8 @@ namespace App\Controllers' . $namespace . ';
 use App\Controllers\Controller;
 
 class ' . $class . ' extends Controller
-{   
-    // ...   
+{
+    // ...
 }';
     }
 
@@ -69,8 +72,8 @@ class ' . $class . ' extends Controller
 namespace App\Classes' . $namespace . ';
 
 class ' . $class . '
-{           
-    // ...             
+{
+    // ...
 }';
     }
 
@@ -84,24 +87,24 @@ use Haley\Database\Migrations\Builder\Table;
 
 /**
  * Created at ' . date('d/m/Y - H:i:s') . '
- */ 
+ */
 class ' . $class . '
 {
     public bool $active = true;
 
     public function migrate(Table $table)
-    {  
-        $table->definitions(\'' . $table . '\');       
-        $table->primary(\'id\');  
-    
-        
+    {
+        $table->definitions(\'' . $table . '\');
+        $table->primary(\'id\');
+
+
         $table->updateDate();
         $table->createdDate();
     }
 
     public function seeder(Seeder $seeder)
     {
-        $seeder->definitions(\'' . $table . '\'); 
+        $seeder->definitions(\'' . $table . '\');
 
         $seeder->values([
             [
@@ -111,30 +114,30 @@ class ' . $class . '
             [
                 \'id\' => 2
             ]
-        ]);  
+        ]);
     }
 }';
     }
 
-    public static function model(string $class, string $table, string|null $primary, array $columns ,string $namespace)
+    public static function model(string $class, string $table, string|null $primary, array $columns, string $namespace)
     {
         foreach ($columns as $key => $value) {
             $columns[$key] = "'$value'";
         }
 
         !empty($primary) ? $primary = "'$primary'" : $primary = (string)'null';
-      
+
         return
-            '<?php        
+            '<?php
 namespace App\Models' . $namespace . ';
-use Haley\Collections\Model;       
+use Haley\Collections\Model;
 
 class ' . $class . ' extends Model
-{   
-    public static string $connection = \''. Config::database('default','mysql') .'\';
+{
+    public static string $connection = \'' . Config::database('default', 'mysql') . '\';
     public static string $table = \'' . $table . '\';
     public static string|null $primary = ' . $primary . ';
-    public static array $columns = [' . implode(',', $columns) . ']; 
+    public static array $columns = [' . implode(',', $columns) . '];
 }';
     }
 
@@ -146,8 +149,8 @@ namespace App\Jobs' . $namespace . ';
 
 /**
  * CAUTION: If the script is too long, it is recommended that you create another job to run it asynchronously.
- */        
-class ' . $class . ' 
+ */
+class ' . $class . '
 {
     public function job()
     {

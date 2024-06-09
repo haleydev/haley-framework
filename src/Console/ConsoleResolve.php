@@ -2,12 +2,7 @@
 
 namespace Haley\Console;
 
-use Error;
-use ErrorException;
-use Exception;
-use InvalidArgumentException;
-use PDOException;
-use UnderflowException;
+use Haley\Shell\Shell;
 
 class ConsoleResolve
 {
@@ -21,35 +16,17 @@ class ConsoleResolve
         $this->console = preg_replace('/( ){2,}/', '$1', implode(' ', $argv));
 
         foreach ($commands as $value) {
-            if ($this->checkCommand($value['command'])) {
-                return $this->execute($value);
-            }
+            if ($this->checkCommand($value['command']))  return $this->execute($value);
         }
 
-        Lines::red('command not found')->br();
+        Shell::red('command not found')->br();
     }
 
     private function execute(array $command)
     {
         if (empty($command['action'])) return;
 
-        set_error_handler(function ($errno, $errstr, $errfile, $errline) {
-            throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
-        });
-
-        try {
-            executeCallable($command['action'], $this->params, $command['namespace'] ?? null);
-        } catch (PDOException $error) {
-            Lines::red("{$error->getMessage()} : {$error->getFile()} {$error->getLine()}")->br();
-        } catch (Error $error) {
-            Lines::red("{$error->getMessage()} : {$error->getFile()} {$error->getLine()}")->br();
-        } catch (UnderflowException $error) {
-            Lines::red("{$error->getMessage()} : {$error->getFile()} {$error->getLine()}")->br();
-        } catch (InvalidArgumentException $error) {
-            Lines::red("{$error->getMessage()} : {$error->getFile()} {$error->getLine()}")->br();
-        } catch (Exception $error) {
-            Lines::red("{$error->getMessage()} : {$error->getFile()} {$error->getLine()}")->br();
-        }
+        executeCallable($command['action'], $this->params, $command['namespace'] ?? null);
     }
 
     private function checkCommand(string $command)

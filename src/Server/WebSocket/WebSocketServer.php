@@ -2,6 +2,7 @@
 
 namespace Haley\Server\WebSocket;
 
+use Haley\Shell\Shell;
 use Swoole\WebSocket\Server;
 use Swoole\Timer;
 use Throwable;
@@ -12,17 +13,23 @@ class WebSocketServer
 
     public function run(array $params)
     {
-        $this->server = new Server($params['host'], $params['port']);
+        try {
+            $this->server = new Server($params['host'], $params['port']);
 
-        $class = $params['class'];
+            $class = $params['class'];
 
-        if (!class_exists($class) and $params['namespace']) $class = $params['namespace'] . '\\' . $class;
-        if (!class_exists($class)) return 'Class ' . $class . ' not found';
+            if (!class_exists($class) and $params['namespace']) $class = $params['namespace'] . '\\' . $class;
 
-        $class = new $class();
+            if (!class_exists($class)) {
+                Shell::red('Class not found: ' . $class)->br();
+                die;
+            }
 
-        // $config = [];
-        // if (count($config)) $this->server->set($config);
+            $class = new $class();
+        } catch (Throwable $error) {
+            Shell::red($error->getMessage())->br();
+            die;
+        }
 
         $this->server->on('handshake', function ($request, $response) use ($params, $class) {
             $status = $this->server->stats();
@@ -113,6 +120,8 @@ class WebSocketServer
         // });
 
         $this->server->start();
+
+        die;
     }
 
     protected function handleError(int $fd, $class, string $on, Throwable $error)

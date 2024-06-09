@@ -26,7 +26,10 @@ class HaleyCommands
             });
 
             Console::title('Server')->prefix('server:')->group(function () {
-                Console::command('run {name?}', 'CommandServer::run')->description('run servers');
+                Console::command('start {name?}', 'CommandServer::start')->description('start servers');
+                Console::command('stop {name?}', 'CommandServer::stop')->description('stop servers');
+                Console::command('run {name}', 'CommandServer::run')->description('run server');
+                Console::command('list', 'CommandServer::list')->description('list servers');
             });
 
             Console::title('Create')->prefix('create:')->group(function () {
