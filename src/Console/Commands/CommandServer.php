@@ -58,6 +58,7 @@ class CommandServer
                     $count++;
 
                     if (empty($params['host'])) $params['host'] = $config['host'] ?? 'localhost';
+                    if (empty($params['alias'])) $params['alias'] = $config['alias'] ?? 'localhost';
 
                     $data = [
                         'type' => $type,
@@ -69,7 +70,7 @@ class CommandServer
                     $pid = Shell::exec('php ' . directoryRoot() . ' && php haley server:run ' . $type . ':' .  $params['host'] . ':' . $params['port'] . ' > /dev/null 2>&1 &');
 
                     $start = Shell::normal($type, true, false);
-                    $start .= Shell::gray($params['host'] . ':' . $params['port'], false, false);
+                    $start .= Shell::gray($params['alias'] . ':' . $params['port'], false, false);
 
                     if ($pid !== true and $pid !== false) {
                         usleep(500000);
@@ -141,7 +142,7 @@ class CommandServer
                 if ($kill and $exist) {
                     $count++;
                     $start = Shell::normal($type, true, false);
-                    $start .= Shell::gray($params['host'] . ':' . $params['port'], false, false);
+                    $start .= Shell::gray($params['alias'] . ':' . $params['port'], false, false);
                     $end = Shell::red('STOPPED', true, false);
 
                     Shell::list($start, $end)->br();
@@ -194,6 +195,7 @@ class CommandServer
             foreach (ServerMemory::$servers as $type => $servers) {
                 foreach ($servers as $params) {
                     if (empty($params['host'])) $params['host'] = $config['host'] ?? 'localhost';
+                    if (empty($params['alias'])) $params['alias'] = $config['alias'] ?? 'localhost';
 
                     if (is_array($call)) {
                         if ($type == $call['type'] and $params['host'] == $call['host'] and $params['port'] == $call['port']) {
@@ -255,9 +257,10 @@ class CommandServer
         foreach (ServerMemory::$servers as $type => $servers) {
             foreach ($servers as $params) {
                 if (empty($params['host'])) $params['host'] = $config['host'] ?? 'localhost';
+                if (empty($params['alias'])) $params['alias'] = $config['alias'] ?? 'localhost';
 
                 $start = Shell::normal($type, true, false);
-                $start .= Shell::gray($params['host'] . ':' . $params['port'], false, false);
+                $start .= Shell::gray($params['alias'] . ':' . $params['port'], false, false);
 
                 if (in_array($type . ':' . $params['host'] . ':' . $params['port'], $online)) {
                     $end = Shell::green('ONLINE', true, false);
