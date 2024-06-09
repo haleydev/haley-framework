@@ -46,17 +46,6 @@ class Server
         return new self;
     }
 
-    /**
-     * Set max connections min 38
-     */
-    // public static function connections(int|null $value)
-    // {
-    //     ServerMemory::setAttribute('connections', $value);
-    //     self::$attributes[self::$group][] = 'connections';
-
-    //     return new self;
-    // }
-
     public static function group(callable $routes)
     {
         $group = self::$group;

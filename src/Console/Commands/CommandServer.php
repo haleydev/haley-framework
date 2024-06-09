@@ -13,6 +13,8 @@ class CommandServer extends Lines
     {
         if (!extension_loaded('swoole')) {
             Lines::red('swoole extension not found')->br();
+
+            return;
         }
 
         require_once directoryRoot('routes/server.php');
