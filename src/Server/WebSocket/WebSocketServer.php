@@ -117,11 +117,10 @@ class WebSocketServer
         $this->server->on('message', function ($server, $frame) use ($class, $params) {
             if (!method_exists($class, 'onMessage') or empty($params['receive'])) return;
 
-            // dd($frame);
-            // frame upcode
+            $bynary = $frame->opcode == WEBSOCKET_OPCODE_BINARY ? true : false;
 
             try {
-                $class->onMessage($frame->fd, $frame->data, new WebSocket($frame->fd, $server));
+                $class->onMessage($frame->fd, $frame->data, new WebSocket($frame->fd, $server), $bynary);
             } catch (Throwable $error) {
                 $this->handleError($frame->fd, $class, 'message', $error);
             }
